@@ -69,7 +69,7 @@ namespace Services.AccountServices
             response.Email = user.Email;
             response.UserName = user.UserName;
             IList<string> rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
-            //response.Roles = rolesList.ToList();
+            response.Roles = rolesList.ToList();
             response.IsVerified = user.EmailConfirmed;
             response.RefreshToken = await GenerateRefreshToken(user);
             return new BaseResponse<AuthenticationResponse>(response, $"Authenticated {user.UserName}");
