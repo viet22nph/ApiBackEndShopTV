@@ -16,9 +16,7 @@ namespace Models.ResponseModels
         {
             Message = message;
         }
-        public bool Succeeded;
         public string Message { get; set; }
-        public List<string> Errors;
         public T Data { get; set; }
     }
 }
