@@ -24,9 +24,7 @@ namespace WebApi.Controllers
         {
             //auth
             var result = await _accountService.AuthenticateAsync(request);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+            
             return Ok(result);
         }
 

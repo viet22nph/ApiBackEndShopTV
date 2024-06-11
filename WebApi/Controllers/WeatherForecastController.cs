@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Attributes;
 
 namespace WebApi.Controllers
 {
@@ -19,15 +20,10 @@ namespace WebApi.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        //[Cache(1800)]
+        public IActionResult Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+            return Ok(Summaries);
         }
     }
 }

@@ -1,23 +1,26 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Caching;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Product;
 using Services.Interfaces;
 using System.Net.WebSockets;
+using WebApi.Attributes;
 
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+   
     public class ProductController : ControllerBase
     {
-
+        private readonly ICacheManager _cacheManager;
         private readonly IProductService _productService;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, ICacheManager cacheManager)
         {
+            _cacheManager = cacheManager;
             _productService = productService;
         }
         [HttpPost("publish")]
@@ -29,9 +32,7 @@ namespace WebApi.Controllers
             }
 
             var result = await _productService.UpdateProductPublish(id);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+            _cacheManager.RemoveByPrefix("api/Product");
             return Ok(result);
 
         }
@@ -45,40 +46,36 @@ namespace WebApi.Controllers
             }
 
             var result = await _productService.UpdateProductDraft(id);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+            _cacheManager.RemoveByPrefix("api/Product");
             return Ok(result);
 
         }
         [HttpPost("list")]
+        [Cache]
         public async Task<IActionResult> GetProducts(int pageNumber = 1, int pageSize = 10)
         {
             var result = await _productService.GetProducts(pageNumber, pageSize);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+           
             return Ok(result);
         }
 
         [HttpPost("list-draft")]
+        [Cache]
         public async Task<IActionResult> GetProductsIsDraft(int pageNumber = 1, int pageSize = 10)
         {
             var result = await _productService.GetProductsIsDraft(pageNumber, pageSize);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+           
             return Ok(result);
         }
         [HttpPost("list-publish")]
+        [Cache]
         public async Task<IActionResult> GetProductsIsPublish(int pageNumber = 1, int pageSize = 10)
         {
             var result = await _productService.GetProductsIsPublish(pageNumber, pageSize);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+         
             return Ok(result);
         }
+        [Cache]
         [AllowAnonymous]
         [HttpPost("{id}")]
         public async Task<IActionResult> GetProduct(Guid id)
@@ -91,7 +88,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Policy = "canCreateProduct")]
+        
         [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductRequest request)
         {
@@ -100,13 +97,11 @@ namespace WebApi.Controllers
                 return BadRequest(ModelState);
             }
             var result = await _productService.CreateProduct(request);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+            _cacheManager.RemoveByPrefix("api/Product");
             return Ok(result);
         }
 
-        [Authorize(Policy = "canEditProduct")]
+       
         [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductUpdateRequest request)
         {
@@ -116,9 +111,7 @@ namespace WebApi.Controllers
                 return BadRequest("Id not null or empty");
             }
             var result = await _productService.UpdateProduct(id,request);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+            _cacheManager.RemoveByPrefix("api/Product");
             return Ok(result);
         }
     }

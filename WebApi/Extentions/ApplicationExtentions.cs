@@ -32,7 +32,9 @@ namespace Application.Api.Extentions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
-
+            services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
+          
+            services.AddTransient<IEmailCoreService, EmailCoreService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddTransient<IDbContext, ApplicationDbContext>();
@@ -50,6 +52,8 @@ namespace Application.Api.Extentions
 
 
             services.AddScoped<IUserService, UserService>();
+
+            services.AddScoped<ICartService, CartService>();
 
             services.AddScoped<RoleManager<IdentityRole>>();
             var jwt = new JWTSettings();

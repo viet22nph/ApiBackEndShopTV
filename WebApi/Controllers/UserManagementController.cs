@@ -1,4 +1,5 @@
-﻿using CloudinaryDotNet.Actions;
+﻿using Caching;
+using CloudinaryDotNet.Actions;
 using Core.Exceptions;
 using Data.Contexts;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +11,7 @@ using Models.Models;
 using Services.Interfaces;
 using System.Net;
 using System.Security.Claims;
+using WebApi.Attributes;
 
 namespace WebApi.Controllers
 {
@@ -21,15 +23,17 @@ namespace WebApi.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
         private readonly IUserService _userService;
+        private readonly ICacheManager _cacheManager;
         public UserManagementController(UserManager<ApplicationUser> userManager,
            RoleManager<IdentityRole> roleManager,
            ApplicationDbContext context,
-           IUserService userService)
+           IUserService userService,
+           ICacheManager cacheManager)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _context = context;
-
+            _cacheManager = cacheManager;
             _userService = userService;
         }
 
@@ -64,6 +68,7 @@ namespace WebApi.Controllers
                 {
                     return BadRequest(new { message = $"Internal server error: Add {request.RoleName} To User is failed" });
                 }
+                _cacheManager.RemoveByPrefix("api/UserManagement");
                 return Ok(new { message = $"User {user.UserName} has been added to role {request.RoleName}" });
             }
             catch(Exception ex)
@@ -86,6 +91,7 @@ namespace WebApi.Controllers
             });
         }
         [HttpPost("get-user")]
+        [Cache(300)]
         public async Task<IActionResult> GetUserById(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -108,11 +114,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("get-users")]
+        [Cache]
         public async Task<IActionResult> GetUsers(int pageNumber =1, int pageSize=10)
         {
             var result = await _userService.GetUsers(pageNumber, pageSize);
-
-
             return Ok(result);
         }
     }

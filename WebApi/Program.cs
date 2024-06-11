@@ -1,4 +1,5 @@
 using Application.Api.Extentions;
+using Caching;
 using Data.SeedData;
 using WebApi.Middlewares;
 
@@ -12,9 +13,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 //
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddIdentityService();
 builder.Services.AddDatabaseService(builder.Configuration);
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddRedis(builder.Configuration);
 //
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddAuthorization(options =>

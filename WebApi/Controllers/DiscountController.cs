@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Caching;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Models.DTOs.Discount;
 using Services.Interfaces;
+using WebApi.Attributes;
 
 namespace WebApi.Controllers
 {
@@ -11,10 +13,11 @@ namespace WebApi.Controllers
     public class DiscountController : ControllerBase
     {
         private readonly IDiscountService _discount;
-
-        public DiscountController(IDiscountService discount)
+        private readonly ICacheManager _cacheManager;
+        public DiscountController(IDiscountService discount, ICacheManager cacheManager)
         {
             _discount = discount;
+            _cacheManager = cacheManager;
         }
 
         [HttpPost("create")]
@@ -25,9 +28,11 @@ namespace WebApi.Controllers
                 return BadRequest(ModelState);
             }
                 var result = await _discount.CreateDiscount(request);
+            _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
         [HttpPost("{id}")]
+        [Cache]
         public async Task<IActionResult> GetDiscount(Guid id)
         {
             if (id == Guid.Empty)
@@ -38,6 +43,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpPost("list")]
+        [Cache]
         public async Task<IActionResult> GetDiscounts(int pageNumber =1, int pageSize = 10)
         {
             if(pageNumber < 1) {
@@ -48,6 +54,7 @@ namespace WebApi.Controllers
                 return BadRequest(new { message = "Page Size must be greater than or equal to 1" });
             }
             var result = await _discount.GetDiscounts(pageNumber, pageSize);
+
             return Ok(result);
         }
 
@@ -59,6 +66,7 @@ namespace WebApi.Controllers
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
             var result = await _discount.CancelledDiscountStatus(id);
+            _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
         [HttpPost("pause")]
@@ -69,6 +77,7 @@ namespace WebApi.Controllers
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
             var result = await _discount.PauseDiscountStatus(id);
+            _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
 
@@ -81,7 +90,7 @@ namespace WebApi.Controllers
             }
 
             var result = await _discount.UpdateDateTime(id, request);
-
+            _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
     }

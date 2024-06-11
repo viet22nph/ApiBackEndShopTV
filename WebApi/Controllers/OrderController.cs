@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Caching;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Order;
 using Org.BouncyCastle.Crypto.Engines;
 using Services.Interfaces;
+using WebApi.Attributes;
 
 namespace WebApi.Controllers
 {
@@ -11,9 +13,10 @@ namespace WebApi.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
-
-        public OrderController(IOrderService orderService)
+        private readonly ICacheManager _cacheManager;
+        public OrderController(IOrderService orderService, ICacheManager cacheManager)
         {
+            _cacheManager = cacheManager;
             _orderService = orderService;
         }
 
@@ -38,10 +41,13 @@ namespace WebApi.Controllers
             }
 
             var result = await _orderService.CreateOrder(request);
+            _cacheManager.RemoveByPrefix("api/Product");
+            _cacheManager.RemoveByPrefix("api/Order");
             return Ok(result);
         }
 
         [HttpPost("list")]
+        [Cache]
         public async Task<IActionResult> GetOrders(int pageNumber = 1, int pageSize = 10)
         {
 
@@ -49,6 +55,7 @@ namespace WebApi.Controllers
             return Ok(res);
         }
         [HttpPost("{id}")]
+        [Cache(300)]
         public async Task<IActionResult> GetOrder(Guid id)
         {
 
@@ -64,6 +71,8 @@ namespace WebApi.Controllers
             }    
 
             var result = await _orderService.UpdateStatus(request);
+            _cacheManager.RemoveByPrefix("api/Product");
+            _cacheManager.RemoveByPrefix("api/Order");
             return Ok(result);
         }
 

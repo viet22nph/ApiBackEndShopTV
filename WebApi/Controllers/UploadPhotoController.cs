@@ -18,14 +18,11 @@ namespace WebApi.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> UploadProductImage([FromForm] UploadProductItemImageRequest request)
         {
-            if (request.File == null || request.File.Length == 0)
+            if (request.File == null || request.File.Count == 0)
             {
                 return BadRequest("No file uploaded.");
             }
             var result = await _uploadPhoto.UploadPhotoProduct(request.File, request.ProductItemId);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
             return Ok(result);
         }
 
@@ -33,9 +30,6 @@ namespace WebApi.Controllers
         public async Task<IActionResult> RemoveProductImage(Guid id)
         {
             var result = await _uploadPhoto.RemovePhotoProduct(id);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
             return Ok(result);
         }
     }

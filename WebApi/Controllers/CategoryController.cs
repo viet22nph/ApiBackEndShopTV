@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Caching;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Category;
 using Services.Interfaces;
+using WebApi.Attributes;
 
 namespace WebApi.Controllers
 {
@@ -13,30 +15,33 @@ namespace WebApi.Controllers
 
         private readonly ICategoryService _category;
         private readonly IMapper _mapper;
+        private readonly ICacheManager _cacheManager;
         public CategoryController(ICategoryService category, 
-            IMapper mapper)
+            IMapper mapper,
+            ICacheManager cacheManager)
         {
             _category = category;
             _mapper = mapper;
+            _cacheManager = cacheManager;
         }
 
         [HttpPost("list")]
+        [Cache]
         public async Task<IActionResult> GetCatogories()
         {
             var result = await _category.GetCategories();
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+           
             return Ok(result);
 
         }
+        [Cache]
         [HttpPost("{id}")]
         public async Task<IActionResult> GetCatogories(Guid id)
         {
             var result = await _category.GetCategory(id);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+           
+            // xóa cache
+
             return Ok(result);
 
         }
@@ -48,9 +53,8 @@ namespace WebApi.Controllers
                 return BadRequest(ModelState);
             }    
             var result = await _category.InsertCategory(request);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+         
+            _cacheManager.RemoveByPrefix("api/Category");
             return Ok(result);
 
         }
@@ -66,9 +70,8 @@ namespace WebApi.Controllers
                 return BadRequest(new { message = "Id not null or empty" });
             }
             var result = await _category.UpdateCategory(id, request);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+            
+            _cacheManager.RemoveByPrefix("api/Category");
             return Ok(result);
         }
         [HttpDelete("{id}")]
@@ -79,9 +82,8 @@ namespace WebApi.Controllers
                 return BadRequest(new { message = "Id not null or empty" });
             }
             var result = await _category.DeleteCategory(id);
-            if (result.Errors == null || !result.Errors.Any())
-            {
-            }
+           
+            _cacheManager.RemoveByPrefix("api/Category");
             return Ok(result);
         }
     }
