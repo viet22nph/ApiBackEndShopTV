@@ -9,7 +9,7 @@ namespace Models.DTOs.UploadPhoto
 {
     public class UploadProductItemImageRequest
     {
-        public IFormFile File { get; set; } 
+        public ICollection<IFormFile> File { get; set; } 
         public Guid ProductItemId { get; set; }
 
     }

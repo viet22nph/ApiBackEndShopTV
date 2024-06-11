@@ -50,33 +50,42 @@ namespace Services.Concrete
             }
         }
 
-        public async Task<BaseResponse<ProductImageDto>> UploadPhotoProduct(IFormFile file, Guid id)
+        public async Task<BaseResponse<ICollection<ProductImageDto>>> UploadPhotoProduct(ICollection<IFormFile> files, Guid id)
         {
             try
             {
-                var uploadResult = await _uploadPhotoCoreService.UploadImage(file, false); // Assuming false for non-profile images
-
-                if (uploadResult == null || string.IsNullOrEmpty(uploadResult.Url.ToString()))
-                {
-                    throw new ApiException("Photo upload failed") { StatusCode = (int)HttpStatusCode.BadRequest };
-                }
-
                 var productItem = await _unitOfWork.Repository<ProductItem>().GetById(id);
-                if(productItem == null)
+                if (productItem == null)
                 {
                     throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
                 }
-                var productImage = new ProductImage
+                List<ProductImage> productImages = new List<ProductImage>();
+                foreach (IFormFile fileItem in files)
                 {
-                    ProductItemId = id,
-                    Url = uploadResult.Url.ToString(),
-                    CloudPublic = uploadResult.PublicId
-                    
-                };
+                    var uploadResult = await _uploadPhotoCoreService.UploadImage(fileItem, false); // Assuming false for non-profile images
 
-                productImage = await _unitOfWork.Repository<ProductImage>().Insert(productImage);
-                var res = _mapper.Map<ProductImageDto>(productImage);
-                return new BaseResponse<ProductImageDto> (res, "Photo upload success" );
+                    if (uploadResult == null || string.IsNullOrEmpty(uploadResult.Url.ToString()))
+                    {
+                        throw new ApiException("Photo upload failed") { StatusCode = (int)HttpStatusCode.BadRequest };
+                    }
+                  
+                    var productImage = new ProductImage
+                    {
+                        ProductItemId = id,
+                        Url = uploadResult.Url.ToString(),
+                        CloudPublic = uploadResult.PublicId
+
+                    };
+                    productImage = await _unitOfWork.Repository<ProductImage>().Insert(productImage);
+                    productImages.Add(productImage);
+                }
+               
+
+               
+
+              
+                var res = _mapper.Map<List<ProductImageDto>>(productImages);
+                return new BaseResponse<ICollection<ProductImageDto>> (res, "Photo upload success" );
 
             }
             catch(Exception ex)
