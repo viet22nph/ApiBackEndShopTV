@@ -110,16 +110,16 @@ namespace Services.Concrete
         {
             try
             {
-                var cateory = await _repository.GetById(id);
-                if (cateory == null)
+                var category = await _repository.GetById(id);
+                if (category == null)
                 {
                     throw new ApiException($"Not found") { StatusCode = (int)HttpStatusCode.NotFound};
                 }
-                EntityUpdater.UpdateIfNotNull(request.Name, value => cateory.Name = value);
-                EntityUpdater.UpdateIfNotNull(request.Description, value => cateory.Name = value);
-                cateory.CategoryParent = request.CategoryParent;
-                cateory.NomalizedName = request.Name.ToUpper();
-                var cateoryUpdate = await _repository.Update(cateory);
+                EntityUpdater.UpdateIfNotNull(request.Name, value => category.Name = value);
+                EntityUpdater.UpdateIfNotNull(request.Description, value => category.Description = value);
+                category.CategoryParent = request.CategoryParent;
+                category.NomalizedName = request.Name.ToUpper();
+                var cateoryUpdate = await _repository.Update(category);
                 var res = _mapper.Map<CategoryDto>(cateoryUpdate);
                 return new BaseResponse<CategoryDto>(res, "Category");
             }
