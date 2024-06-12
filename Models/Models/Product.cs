@@ -23,13 +23,14 @@ namespace Application.DAL.Models
 
         public Guid? SupplierId { get; set; }
         public Supplier? Supplier { get; set; }
-
+        public Guid? DiscountId { get; set; }
+        public Discount Discount { get; set; }
         public Guid CategoryId { get; set; }
         public Category? Category { get; set; }
         public ICollection<ProductSpecification>? ProductSpecifications { get; set; }
         public ICollection<ProductItem>? ProductItems { get; set; }
         public virtual ICollection<Review>? Reviews { get; set; }
-        public ICollection<ProductDiscount>? ProductDiscounts { get; set; }
+        
     }
     public class ProductSpecification:BaseEntity
     {

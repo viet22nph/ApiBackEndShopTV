@@ -17,15 +17,6 @@ namespace Application.DAL.Models
         public DateTime DateEnd { get; set; }//11/12/2024
         public string Status { get; set; }// pending
         public string? Description { get; set; } 
-        public ICollection<ProductDiscount>? ProductDiscounts { get; set; }
-    }
-
-    public class ProductDiscount
-    {
-        public Guid DiscountId { get; set; }
-        public Guid ProductId { get; set; }
-
-        public Product? Product { get; set; }
-        public Discount? Discount { get; set; }
+        public ICollection<Product>? Products { get; set; }
     }
 }

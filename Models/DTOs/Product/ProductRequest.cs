@@ -26,6 +26,7 @@ namespace Models.DTOs.Product
         public Guid? SupplierId { get; set; }
         [Required(ErrorMessage = "Product must belong to 1 category")]
         public Guid CategoryId { get; set; }
+        public Guid? DiscountId { get; set; }
         public ICollection<ProductSpecificationRequest>? ProductSpecifications { get; set; }
         public ICollection<ProductItemRequest> ProductItems { get; set; }
     }

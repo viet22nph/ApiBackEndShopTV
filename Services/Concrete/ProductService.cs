@@ -43,11 +43,11 @@ namespace Services.Concrete
                 product.NormalizedName = product.Name.ToUpper();
                 product.Id = Guid.NewGuid();
                 product = await _unitOfWork.Repository<Product>().Insert(product);
-
-
-
                 await _context.Database.CommitTransactionAsync();
-                return await GetProduct(product.Id);
+                var data = await _unitOfWork.ProductRepository.GetProduct(product.Id);
+                var res = _mapper.Map<ProductDto>(data);
+                //
+                return new BaseResponse<ProductDto>(res, "Create product successfully");
             }
             catch (Exception ex)
             {
@@ -55,7 +55,7 @@ namespace Services.Concrete
                 throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
             };
         }
-        public async Task<BaseResponse<ProductDto>> GetProduct(Guid id)
+        public async Task<BaseResponse<ProductResponse>> GetProduct(Guid id)
         {
             try
             {
@@ -66,9 +66,29 @@ namespace Services.Concrete
                 {
                     throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
                 }
+                var productDto = _mapper.Map<ProductResponse>(product);
+                if (product?.ProductItems?.First()?.ProductImages.Count == 0)
+                {
+                    productDto.Image = "";
 
-                var res = _mapper.Map<ProductDto>(product);
-                return new BaseResponse<ProductDto>(res, "Product");
+                }
+                else
+                {
+                    productDto.Image = product.ProductItems.First().ProductImages.First().Url;
+                }
+                if (product.Discount == null)
+                {
+                    productDto.Discount = new ProductDiscount();
+                }
+                else
+                {
+                    productDto.Discount.Value = product.Discount.DiscountValue;
+                    productDto.Discount.Type = product.Discount.Type;
+                }
+                // get rating
+                productDto.Rating = new Rating();
+
+                return new BaseResponse<ProductResponse>(productDto, "Product");
             }
             catch (Exception ex)
             {
@@ -76,7 +96,7 @@ namespace Services.Concrete
             }
         }
 
-        public async Task<BaseResponse<ICollection<ProductDto>>> GetProducts(int pageNumber, int pageSize)
+        public async Task<BaseResponse<ICollection<ProductResponse>>> GetProducts(int pageNumber, int pageSize)
         {
             try
             {
@@ -86,9 +106,37 @@ namespace Services.Concrete
                 {
                     throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
                 }
-            
-                var res = _mapper.Map<List<Product> , List<ProductDto>>((List<Product>)products);
-                return new BaseResponse<ICollection<ProductDto>>(res, "Products");
+                var productDtos = new List<ProductResponse>();
+                foreach(var product in products)
+                {
+                    var productDto = _mapper.Map<ProductResponse>(product);
+                    if (product?.ProductItems?.First()?.ProductImages.Count ==0)
+                    {
+                        productDto.Image ="";
+
+                    }
+                    else
+                    {
+                        productDto.Image = product.ProductItems.First().ProductImages.First().Url;
+                    }
+
+                    // get discount
+                  
+                    if(product.Discount == null)
+                    {
+                        productDto.Discount = new ProductDiscount();
+                    }
+                    else
+                    {
+                        productDto.Discount.Value = product.Discount.DiscountValue;
+                        productDto.Discount.Type = product.Discount.Type;
+                    }
+                    // get rating
+                    productDto.Rating = new Rating();
+
+                    productDtos.Add(productDto); productDtos.Add(productDto);
+                }
+                return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
             }
             catch (Exception ex)
             {
@@ -98,19 +146,46 @@ namespace Services.Concrete
 
         }
 
-        public async Task<BaseResponse<ICollection<ProductDto>>> GetProductsIsDraft(int pageNumber, int pageSize)
+        public async Task<BaseResponse<ICollection<ProductResponse>>> GetProductsIsDraft(int pageNumber, int pageSize)
         {
             try
             {
-
                 var products = await _unitOfWork.ProductRepository.GetProductsIsDraft(pageNumber, pageSize);
                 if (products == null)
                 {
                     throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
                 }
+                var productDtos = new List<ProductResponse>();
+                foreach (var product in products)
+                {
+                    var productDto = _mapper.Map<ProductResponse>(product);
+                    if (product?.ProductItems?.First()?.ProductImages.Count == 0)
+                    {
+                        productDto.Image = "";
 
-                var res = _mapper.Map<List<Product>, List<ProductDto>>((List<Product>)products);
-                return new BaseResponse<ICollection<ProductDto>>(res, "Products");
+                    }
+                    else
+                    {
+                        productDto.Image = product.ProductItems.First().ProductImages.First().Url;
+                    }
+
+                    // get discount
+
+                    if (product.Discount == null)
+                    {
+                        productDto.Discount = new ProductDiscount();
+                    }
+                    else
+                    {
+                        productDto.Discount.Value = product.Discount.DiscountValue;
+                        productDto.Discount.Type = product.Discount.Type;
+                    }
+                    // get rating
+                    productDto.Rating = new Rating();
+
+                    productDtos.Add(productDto); productDtos.Add(productDto);
+                }
+                return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
             }
             catch (Exception ex)
             {
@@ -119,7 +194,7 @@ namespace Services.Concrete
 
         }
 
-        public async Task<BaseResponse<ICollection<ProductDto>>> GetProductsIsPublish(int pageNumber, int pageSize)
+        public async Task<BaseResponse<ICollection<ProductResponse>>> GetProductsIsPublish(int pageNumber, int pageSize)
         {
             try
             {
@@ -129,9 +204,37 @@ namespace Services.Concrete
                 {
                     throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
                 }
+                var productDtos = new List<ProductResponse>();
+                foreach (var product in products)
+                {
+                    var productDto = _mapper.Map<ProductResponse>(product);
+                    if (product?.ProductItems?.First()?.ProductImages.Count == 0)
+                    {
+                        productDto.Image = "";
 
-                var res = _mapper.Map<List<Product>, List<ProductDto>>((List<Product>)products);
-                return new BaseResponse<ICollection<ProductDto>>(res, "Products");
+                    }
+                    else
+                    {
+                        productDto.Image = product.ProductItems.First().ProductImages.First().Url;
+                    }
+
+                    // get discount
+
+                    if (product.Discount == null)
+                    {
+                        productDto.Discount = new ProductDiscount();
+                    }
+                    else
+                    {
+                        productDto.Discount.Value = product.Discount.DiscountValue;
+                        productDto.Discount.Type = product.Discount.Type;
+                    }
+                    // get rating
+                    productDto.Rating = new Rating();
+
+                    productDtos.Add(productDto); productDtos.Add(productDto);
+                }
+                return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
             }
             catch (Exception ex)
             {

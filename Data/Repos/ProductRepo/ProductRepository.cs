@@ -26,6 +26,9 @@ namespace Data.Repos.ProductRepo
               .ThenInclude(pi => pi.ProductImages)
           .Include(p => p.ProductItems)
               .ThenInclude(pi => pi.Color)
+               .Include(p => p.Category)
+            .Include(p => p.Supplier)
+            .Include(p => p.Discount)
               .FirstOrDefaultAsync(p=> p.Id == id);
             return product;
         }
@@ -34,6 +37,7 @@ namespace Data.Repos.ProductRepo
         {
             var productItem = await _context.Set<ProductItem>()
                                .Include(pi=> pi.Product)
+                                    .ThenInclude(p=> p.Discount)
                                .FirstOrDefaultAsync(pi=>pi.Id == id);
             return productItem;
         }
@@ -46,6 +50,9 @@ namespace Data.Repos.ProductRepo
                 .ThenInclude(pi => pi.ProductImages)
             .Include(p => p.ProductItems)
                 .ThenInclude(pi => pi.Color)
+            .Include(p=>p.Category)
+            .Include(p=>p.Supplier)
+            .Include(p=>p.Discount)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -60,6 +67,9 @@ namespace Data.Repos.ProductRepo
                 .ThenInclude(pi => pi.ProductImages)
             .Include(p => p.ProductItems)
                 .ThenInclude(pi => pi.Color)
+            .Include(p => p.Category)
+            .Include(p => p.Supplier)
+            .Include(p => p.Discount)
             .Skip((pageNumber - 1) * pageSize)
             .Where(p=> p.IsDraft == true)
             .Take(pageSize)
@@ -75,6 +85,9 @@ namespace Data.Repos.ProductRepo
                 .ThenInclude(pi => pi.ProductImages)
             .Include(p => p.ProductItems)
                 .ThenInclude(pi => pi.Color)
+            .Include(p => p.Category)
+            .Include(p => p.Supplier)
+            .Include(p => p.Discount)
             .Skip((pageNumber - 1) * pageSize)
             .Where(p => p.IsPublished == true)
             .Take(pageSize)

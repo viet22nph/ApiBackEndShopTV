@@ -22,7 +22,13 @@ namespace WebApi.Helpers
 
             CreateMap<Supplier, SupplierRequest>().ReverseMap();
 
-            CreateMap<ProductDto, Product>().ReverseMap();
+            CreateMap<Product, ProductDto>()
+                .ForMember(p=>p.CategoryName, c=> c.MapFrom(s=>s.Category.Name))
+                .ForMember(p=> p.SupplierName, c=> c.MapFrom(s=>s!.Supplier.SupplierName))
+                .ReverseMap();
+            CreateMap<Product, ProductResponse>()
+            .ForMember(p => p.CategoryName, c => c.MapFrom(s => s.Category.Name))
+            .ReverseMap();
             CreateMap<ProductImage, ProductImageDto>().ReverseMap();
             CreateMap<ProductItem, ProductItemDto>().ReverseMap();
             CreateMap<ProductSpecification, ProductSpecificationDto>().ReverseMap();
