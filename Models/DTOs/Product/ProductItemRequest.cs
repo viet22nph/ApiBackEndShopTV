@@ -14,5 +14,10 @@ namespace Models.DTOs.Product
         public int Quantity { get; set; }
         [Required(ErrorMessage ="Color not null")]
         public Guid? ColorId { get; set; }
+        public ICollection<ProductImageRequest> ProductImages { get; set; }
+    }
+    public class ProductImageRequest
+    {
+        public string Url { get; set; }
     }
 }

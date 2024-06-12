@@ -1,5 +1,6 @@
 ﻿using Application.DAL.Models;
 using AutoMapper;
+using CloudinaryDotNet;
 using Core.Exceptions;
 using Core.Interfaces;
 using Core.Services;
@@ -39,9 +40,14 @@ namespace Services.Concrete
                 var image = await _unitOfWork.Repository<ProductImage>().GetById(id);
                 if (image == null)
                 {
-                    throw new ApiException("Not found image") { StatusCode = (int)HttpStatusCode.BadRequest };
+                    throw new ApiException("Internal server error: Not found image") { StatusCode = (int)HttpStatusCode.NotFound };
                 }
-                var result = await _uploadPhotoCoreService.DeleteImage(image.CloudPublic);
+
+                int result = await _unitOfWork.Repository<ProductImage>().Delete(image);
+                if(result <= 0)
+                {
+                    throw new ApiException("Internal server error: RemoveImage Error") { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
                 return new BaseResponse<string>("Remove success");
             }
             catch (Exception ex)
@@ -50,16 +56,11 @@ namespace Services.Concrete
             }
         }
 
-        public async Task<BaseResponse<ICollection<ProductImageDto>>> UploadPhotoProduct(ICollection<IFormFile> files, Guid id)
+        public async Task<BaseResponse<ICollection<UploadImageResponse>>> UploadPhotoProduct(ICollection<IFormFile> files)
         {
             try
             {
-                var productItem = await _unitOfWork.Repository<ProductItem>().GetById(id);
-                if (productItem == null)
-                {
-                    throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
-                }
-                List<ProductImage> productImages = new List<ProductImage>();
+                var listImageResponse = new List<UploadImageResponse>();
                 foreach (IFormFile fileItem in files)
                 {
                     var uploadResult = await _uploadPhotoCoreService.UploadImage(fileItem, false); // Assuming false for non-profile images
@@ -68,24 +69,9 @@ namespace Services.Concrete
                     {
                         throw new ApiException("Photo upload failed") { StatusCode = (int)HttpStatusCode.BadRequest };
                     }
-                  
-                    var productImage = new ProductImage
-                    {
-                        ProductItemId = id,
-                        Url = uploadResult.Url.ToString(),
-                        CloudPublic = uploadResult.PublicId
-
-                    };
-                    productImage = await _unitOfWork.Repository<ProductImage>().Insert(productImage);
-                    productImages.Add(productImage);
+                    listImageResponse.Add(new UploadImageResponse { Url = uploadResult.Url.ToString() });
                 }
-               
-
-               
-
-              
-                var res = _mapper.Map<List<ProductImageDto>>(productImages);
-                return new BaseResponse<ICollection<ProductImageDto>> (res, "Photo upload success" );
+                return new BaseResponse<ICollection<UploadImageResponse>> (listImageResponse, "Photo upload success" );
 
             }
             catch(Exception ex)

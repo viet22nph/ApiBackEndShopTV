@@ -22,7 +22,7 @@ namespace WebApi.Controllers
             {
                 return BadRequest("No file uploaded.");
             }
-            var result = await _uploadPhoto.UploadPhotoProduct(request.File, request.ProductItemId);
+            var result = await _uploadPhoto.UploadPhotoProduct(request.File);
             return Ok(result);
         }
 

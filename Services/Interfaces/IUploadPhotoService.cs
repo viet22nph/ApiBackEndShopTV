@@ -13,7 +13,7 @@ namespace Services.Interfaces
     public interface IUploadPhotoService
     {
 
-        Task<BaseResponse<ICollection<ProductImageDto>>> UploadPhotoProduct(ICollection<IFormFile> files, Guid id);
+        Task<BaseResponse<ICollection<UploadImageResponse>>> UploadPhotoProduct(ICollection<IFormFile> files);
         Task<BaseResponse<string>> RemovePhotoProduct(Guid id);
     }
 }

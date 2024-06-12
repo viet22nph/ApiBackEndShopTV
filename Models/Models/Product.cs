@@ -63,7 +63,6 @@ namespace Application.DAL.Models
     {
         public Guid ProductItemId { get; set; }
         public string Url { get; set; }
-        public string CloudPublic {  get; set; }
         public ProductItem? ProductItem { get; set; }
     }
 
