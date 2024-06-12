@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240604164706_init-database")]
+    [Migration("20240612021932_init-database")]
     partial class initdatabase
     {
         /// <inheritdoc />
@@ -204,6 +204,9 @@ namespace Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("DiscountId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("IsDraft")
                         .HasColumnType("bit");
 
@@ -235,24 +238,11 @@ namespace Data.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("DiscountId");
+
                     b.HasIndex("SupplierId");
 
                     b.ToTable("Product", (string)null);
-                });
-
-            modelBuilder.Entity("Application.DAL.Models.ProductDiscount", b =>
-                {
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DiscountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ProductId", "DiscountId");
-
-                    b.HasIndex("DiscountId");
-
-                    b.ToTable("ProductDiscount", (string)null);
                 });
 
             modelBuilder.Entity("Application.DAL.Models.ProductImage", b =>
@@ -679,32 +669,19 @@ namespace Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Application.DAL.Models.Discount", "Discount")
+                        .WithMany("Products")
+                        .HasForeignKey("DiscountId");
+
                     b.HasOne("Application.DAL.Models.Supplier", "Supplier")
                         .WithMany("Products")
                         .HasForeignKey("SupplierId");
 
                     b.Navigation("Category");
 
-                    b.Navigation("Supplier");
-                });
-
-            modelBuilder.Entity("Application.DAL.Models.ProductDiscount", b =>
-                {
-                    b.HasOne("Application.DAL.Models.Discount", "Discount")
-                        .WithMany("ProductDiscounts")
-                        .HasForeignKey("DiscountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Application.DAL.Models.Product", "Product")
-                        .WithMany("ProductDiscounts")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Discount");
 
-                    b.Navigation("Product");
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("Application.DAL.Models.ProductImage", b =>
@@ -847,7 +824,7 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Application.DAL.Models.Discount", b =>
                 {
-                    b.Navigation("ProductDiscounts");
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Application.DAL.Models.Order", b =>
@@ -859,8 +836,6 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Application.DAL.Models.Product", b =>
                 {
-                    b.Navigation("ProductDiscounts");
-
                     b.Navigation("ProductItems");
 
                     b.Navigation("ProductSpecifications");

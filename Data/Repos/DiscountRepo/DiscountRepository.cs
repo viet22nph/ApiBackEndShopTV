@@ -31,15 +31,5 @@ namespace Data.Repos.DiscountRepo
             .ToListAsync();
             return discounts;
         }
-
-        public async Task<ICollection<ProductDiscount>> GetDiscountsByProductId(Guid id)
-        {
-            var discounts = await _context.Set<ProductDiscount>()
-                            .Include(d => d.Discount)
-                            .Where(d => d.ProductId == id)
-                            .ToListAsync();
-          
-            return discounts;
-        }
     }
 }

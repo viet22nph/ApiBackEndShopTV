@@ -18,14 +18,16 @@ namespace Data.Mapping
             builder.HasKey(p => p.Id);
             builder.Property(p=>p.Name).HasMaxLength(255);
             builder.Property(p=> p.ProductBrand).HasMaxLength(255);
+
+            // sup
             builder
                 .HasOne(p => p.Supplier)
                 .WithMany(s => s.Products)
                 .HasForeignKey(p => p.SupplierId);
-
-         
-            // sup
-
+            //discount
+            builder.HasOne(p => p.Discount)
+                .WithMany(d => d.Products)
+                .HasForeignKey(p => p.DiscountId);
             base.Configure(builder);
         }
     }

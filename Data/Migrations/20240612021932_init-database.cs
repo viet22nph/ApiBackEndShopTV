@@ -154,6 +154,7 @@ namespace Data.Migrations
                     IsDraft = table.Column<bool>(type: "bit", nullable: false),
                     IsPublished = table.Column<bool>(type: "bit", nullable: false),
                     SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DiscountId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -165,6 +166,11 @@ namespace Data.Migrations
                         principalTable: "Category",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Product_Discount_DiscountId",
+                        column: x => x.DiscountId,
+                        principalTable: "Discount",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Product_Supplier_SupplierId",
                         column: x => x.SupplierId,
@@ -280,30 +286,6 @@ namespace Data.Migrations
                         name: "FK_UserTokens_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductDiscount",
-                columns: table => new
-                {
-                    DiscountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductDiscount", x => new { x.ProductId, x.DiscountId });
-                    table.ForeignKey(
-                        name: "FK_ProductDiscount_Discount_DiscountId",
-                        column: x => x.DiscountId,
-                        principalTable: "Discount",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductDiscount_Product_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Product",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -477,14 +459,14 @@ namespace Data.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Product_DiscountId",
+                table: "Product",
+                column: "DiscountId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Product_SupplierId",
                 table: "Product",
                 column: "SupplierId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductDiscount_DiscountId",
-                table: "ProductDiscount",
-                column: "DiscountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductImage_ProductItemId",
@@ -574,9 +556,6 @@ namespace Data.Migrations
                 name: "OrderItem");
 
             migrationBuilder.DropTable(
-                name: "ProductDiscount");
-
-            migrationBuilder.DropTable(
                 name: "ProductImage");
 
             migrationBuilder.DropTable(
@@ -604,9 +583,6 @@ namespace Data.Migrations
                 name: "UserTokens");
 
             migrationBuilder.DropTable(
-                name: "Discount");
-
-            migrationBuilder.DropTable(
                 name: "ProductItem");
 
             migrationBuilder.DropTable(
@@ -626,6 +602,9 @@ namespace Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Category");
+
+            migrationBuilder.DropTable(
+                name: "Discount");
 
             migrationBuilder.DropTable(
                 name: "Supplier");

@@ -207,48 +207,39 @@ namespace Services.Concrete
                 foreach (var item in request.Items)
                 {
                     var productItem = await _unitOfWork.ProductRepository.GetProductItem(item.ProductItemId);
-                    var discounts = await _unitOfWork.DiscountRepository.GetDiscountsByProductId(productItem.ProductId);
-                    decimal bestDiscountAmount = 0;
                     var reviewCheckoutReviewItem = new ReviewCheckoutItem();
 
                     if(productItem == null) {
                         throw new ApiException($"Product item not found")
                         { StatusCode = (int)HttpStatusCode.NotFound };
                     }
-                    if (!discounts.IsNullOrEmpty() && discounts.Any())
+                    decimal discountAmount = 0;
+                    if (productItem.Product.Discount!= null)
                     {
-                        foreach (var discount in discounts)
+                        var discount = productItem.Product.Discount;
+                        if(discount.Status == DiscountStatus.ACTIVE && discount.DateStart <= DateTime.Now && discount.DateEnd >= DateTime.Now)
                         {
-                            if (discount.Discount.Status == DiscountStatus.ACTIVE && discount.Discount.DateStart <= DateTime.Now && discount.Discount.DateEnd >= DateTime.Now)
+                           
+                            if (item.Quantity * productItem.Product.Price >= discount.MinimumPurchase)
                             {
-                                if(item.Quantity* productItem.Product.Price >= discount.Discount.MinimumPurchase)
+
+                                if (discount.Type == DiscountType.PERCENTAGE)
                                 {
-                                    decimal discountAmount = 0;
+                                    discountAmount = (productItem.Product.Price * item.Quantity * discount.DiscountValue) / 100;
+                                }
+                                else if (discount.Type == "fix-amount")
+                                {
+                                    discountAmount = discount.DiscountValue;
+                                }
 
-                                    if (discount.Discount.Type == DiscountType.PERCENTAGE)
-                                    {
-                                        discountAmount = (productItem.Product.Price * item.Quantity * discount.Discount.DiscountValue) / 100;
-                                    }
-                                    else if (discount.Discount.Type == "fix-amount")
-                                    {
-                                        discountAmount = discount.Discount.DiscountValue;
-                                    }
-
-                                    if (discountAmount > bestDiscountAmount)
-                                    {
-                                        bestDiscountAmount = discountAmount;
-                                    }
-                                }    
-                              
                             }
-                            
                         }
                     }
                     reviewCheckoutReviewItem.ProductItemId = productItem.Id;
                     reviewCheckoutReviewItem.ProductName = productItem.Product.Name;
                     reviewCheckoutReviewItem.Quantity = item.Quantity;
                     reviewCheckoutReviewItem.Price = productItem.Product.Price;
-                    reviewCheckoutReviewItem.AmountDiscount = bestDiscountAmount * item.Quantity;
+                    reviewCheckoutReviewItem.AmountDiscount = discountAmount;
                     reviewCheckoutRes.ReviewCheckoutItems.Add(reviewCheckoutReviewItem);
                 }
                 reviewCheckoutRes.SubTotal = reviewCheckoutRes.ReviewCheckoutItems.Sum(s => s.Total);

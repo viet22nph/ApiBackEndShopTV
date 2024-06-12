@@ -12,6 +12,5 @@ namespace Data.Repos.DiscountRepo
     {
         Task<int> CountAsync();
         Task<ICollection<Discount>> GetDiscounts(int pageNumber, int pageSize);
-        Task<ICollection<ProductDiscount>> GetDiscountsByProductId(Guid id);
     }
 }
