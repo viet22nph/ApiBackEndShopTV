@@ -28,7 +28,7 @@ namespace WebApi.Middlewares
             {
                 var response = context.Response;
                 response.ContentType = "application/json";
-                var responseModel = new BaseResponse<string>() {};
+                var responseModel = new BaseResponse<string>() { Message = error?.Message };
 
                 switch (error)
                 {
