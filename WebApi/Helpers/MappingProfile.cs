@@ -5,6 +5,7 @@ using Models.DTOs.Category;
 using Models.DTOs.Discount;
 using Models.DTOs.Order;
 using Models.DTOs.Product;
+using Models.DTOs.Review;
 using Models.DTOs.Supplier;
 using Models.DTOs.User;
 using Models.Models;
@@ -49,6 +50,12 @@ namespace WebApi.Helpers
             CreateMap<OrderItemDto, OrderItem>()
                 .ReverseMap();
             CreateMap<UserDto, ApplicationUser>().ReverseMap();
+
+            CreateMap<Review, ReviewRequest>().ReverseMap();
+            CreateMap<ReviewImage, ReviewImageRequest>().ReverseMap();
+            CreateMap<Review, ReviewResponse>().ReverseMap();
+            CreateMap<Review, ReviewDto>().ReverseMap();
+            CreateMap<ReviewImageResponse, ReviewImage>().ReverseMap();
 
         }
     }

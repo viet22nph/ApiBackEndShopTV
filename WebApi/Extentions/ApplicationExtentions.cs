@@ -54,7 +54,7 @@ namespace Application.Api.Extentions
             services.AddScoped<IUserService, UserService>();
 
             services.AddScoped<ICartService, CartService>();
-
+            services.AddScoped<IReviewService,  ReviewService>();
             services.AddScoped<RoleManager<IdentityRole>>();
             var jwt = new JWTSettings();
             configuration.GetSection(nameof(JWTSettings)).Bind(jwt);

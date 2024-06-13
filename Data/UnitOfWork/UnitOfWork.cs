@@ -3,6 +3,7 @@ using Data.Repos;
 using Data.Repos.DiscountRepo;
 using Data.Repos.OrderRepo;
 using Data.Repos.ProductRepo;
+using Data.Repos.ReviewRepo;
 using Data.Repos.UserRepo;
 using Models.DbEntities;
 using System;
@@ -23,6 +24,8 @@ namespace Data.UnitOfWork
         public IOrderRepository OrderRepository =>  new OrderRepository(_context);
 
         public IDiscountRepository DiscountRepository =>  new DiscountRepository(_context);
+
+        public IReviewRepository ReviewRepository =>  new ReviewRepository(_context);
 
         public UnitOfWork(ApplicationDbContext context)
         {

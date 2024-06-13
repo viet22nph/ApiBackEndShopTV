@@ -2,6 +2,7 @@
 using Data.Repos.DiscountRepo;
 using Data.Repos.OrderRepo;
 using Data.Repos.ProductRepo;
+using Data.Repos.ReviewRepo;
 using Data.Repos.UserRepo;
 using Models.DbEntities;
 using System;
@@ -16,7 +17,7 @@ namespace Data.UnitOfWork
         IProductRepository ProductRepository { get; }
         IOrderRepository OrderRepository { get; }
         IDiscountRepository DiscountRepository { get; }
-
+        IReviewRepository ReviewRepository { get; }
         Task<int> Complete();
         bool HasChanges();
     }

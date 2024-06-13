@@ -61,14 +61,26 @@ namespace Services.Concrete
             try
             {
                 var listImageResponse = new List<UploadImageResponse>();
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
                 foreach (IFormFile fileItem in files)
                 {
+                    // Optional: Check the file extension
+                    var extension = Path.GetExtension(fileItem.FileName).ToLowerInvariant();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        throw new ApiException("Invalid file extension. Only .jpg, .jpeg, .png, .gif, .bmp are allowed.")
+                        {
+                            StatusCode = (int)HttpStatusCode.BadRequest
+                        };
+                    }
                     var uploadResult = await _uploadPhotoCoreService.UploadImage(fileItem, false); // Assuming false for non-profile images
 
                     if (uploadResult == null || string.IsNullOrEmpty(uploadResult.Url.ToString()))
                     {
                         throw new ApiException("Photo upload failed") { StatusCode = (int)HttpStatusCode.BadRequest };
                     }
+                      // Optional: Check the file extension
+         
                     listImageResponse.Add(new UploadImageResponse { Url = uploadResult.Url.ToString() });
                 }
                 return new BaseResponse<ICollection<UploadImageResponse>> (listImageResponse, "Photo upload success" );
