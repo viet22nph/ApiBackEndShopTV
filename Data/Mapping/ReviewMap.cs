@@ -18,8 +18,7 @@ namespace Data.Mapping
             builder.HasKey(r => r.Id);
             builder.Property(r => r.ProductId)
                 .IsRequired();
-            builder.Property(r => r.UserId)
-                .IsRequired();
+            builder.Property(r => r.UserId);
             builder.Property(r => r.CreateAt)
                 .HasColumnType("DateTime")
                 .HasDefaultValueSql("GetUtcDate()");
@@ -29,6 +28,9 @@ namespace Data.Mapping
             builder.HasOne(r => r.Product)
               .WithMany(u => u.Reviews)
               .HasForeignKey(r => r.ProductId);
+            builder.HasMany(r => r.ReviewImages)
+                .WithOne(ri => ri.Review)
+                .HasForeignKey(r => r.ReviewId);
 
             base.Configure(builder);
         }
