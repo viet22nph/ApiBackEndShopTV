@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,10 +31,29 @@ namespace Models.DTOs.Product
         public string CategoryName { get; set; }
         public string Image { get; set; }
         public ICollection<ProductSpecificationDto>? ProductSpecifications { get; set; }
-        public ICollection<ProductItemDto>? ProductItems { get; set; }
+        public ICollection<ProductItemResponse>? ProductItems { get; set; }
         public Rating? Rating { get; set; }
         public ProductDiscount? Discount { get; set; }
     }
+
+    public class ProductItemResponse
+    {
+        public Guid Id { get; set; }
+        public int Quantity { get; set; }
+        public ColorResponse? Color { get; set; }
+
+        public ICollection<ProductImageDto>? ProductImages { get; set; }
+    }
+
+    public class ColorResponse
+    {
+        public Guid Id { get; set; }
+        public string ColorName { get; set; }
+        public string ColorCode { get; set; }
+    }
+
+
+
     public partial class Rating
     {
         public double Rate { get; set; }

@@ -114,5 +114,16 @@ namespace WebApi.Controllers
             _cacheManager.RemoveByPrefix("api/Product");
             return Ok(result);
         }
+        [HttpPost("add-image/{id}")]
+        public async Task<IActionResult> AddImage(Guid id, [FromBody] string url)
+        {
+            if(string.IsNullOrWhiteSpace(url))
+            {
+                return BadRequest(new { message = "url is requied" });
+            }
+            await _productService.AddImage(id, url);
+            _cacheManager.RemoveByPrefix("api/Product");
+            return NoContent();
+        }
     }
 }

@@ -34,6 +34,21 @@ namespace Services.Concrete
             _context = context;
         }
 
+        public async Task AddImage(Guid id, string url)
+        {
+            var productItem = await _unitOfWork.Repository<ProductItem>().GetById(id);
+            if(productItem == null)
+            {
+                throw new ApiException($"Internal server error: Not found") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+            var image = new ProductImage { ProductItemId = id , Url = url};
+            image = await _unitOfWork.Repository<ProductImage>().Insert(image);
+            if(image == null)
+            {
+                throw new ApiException($"Internal server error: Add image is failed") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+        }
+
         public async Task<BaseResponse<ProductDto>> CreateProduct(ProductRequest request)
         {
             await _context.Database.BeginTransactionAsync();
@@ -134,7 +149,7 @@ namespace Services.Concrete
                     // get rating
                     productDto.Rating = new Rating();
 
-                    productDtos.Add(productDto); productDtos.Add(productDto);
+                    productDtos.Add(productDto);
                 }
                 return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
             }
@@ -183,7 +198,7 @@ namespace Services.Concrete
                     // get rating
                     productDto.Rating = new Rating();
 
-                    productDtos.Add(productDto); productDtos.Add(productDto);
+                    productDtos.Add(productDto);
                 }
                 return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
             }
@@ -232,7 +247,7 @@ namespace Services.Concrete
                     // get rating
                     productDto.Rating = new Rating();
 
-                    productDtos.Add(productDto); productDtos.Add(productDto);
+                    productDtos.Add(productDto);
                 }
                 return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
             }

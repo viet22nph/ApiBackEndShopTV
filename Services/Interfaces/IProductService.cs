@@ -21,5 +21,7 @@ namespace Services.Interfaces
         Task<BaseResponse<ProductDto>> UpdateProductDraft(Guid id);
 
         Task<BaseResponse<ProductDto>> UpdateProduct(Guid id, ProductUpdateRequest request);
+        Task AddImage(Guid id, string url);
+
     }
 }

@@ -34,7 +34,8 @@ namespace WebApi.Helpers
             CreateMap<ProductItem, ProductItemDto>().ReverseMap();
             CreateMap<ProductSpecification, ProductSpecificationDto>().ReverseMap();
             CreateMap<Color, ColorDto>().ReverseMap();
-
+            CreateMap<Color, ColorResponse>().ReverseMap();
+            CreateMap<ProductItemResponse, ProductItem>().ReverseMap();
             CreateMap<ProductRequest, Product>().ReverseMap();
             CreateMap<ProductItemRequest, ProductItem>().ReverseMap();
             CreateMap<ProductImageRequest, ProductImage>().ReverseMap();
