@@ -74,6 +74,7 @@ namespace Services.Concrete
             try
             {
                 var discount = _mapper.Map<Discount>(request);
+                discount.Status = DiscountStatus.PENDING;
                 discount = await _unitOfWork.Repository<Discount>().Insert(discount);
                 if (discount == null)
                 {

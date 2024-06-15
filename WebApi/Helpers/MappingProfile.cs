@@ -45,6 +45,9 @@ namespace WebApi.Helpers
             CreateMap<Discount, DiscountDto>()
                 .ForMember(d=>d.Condition, dt=> dt.MapFrom(s=> s.MinimumPurchase))
                 .ReverseMap();
+            CreateMap<Discount, DiscountRequest>().ForMember(d => d.Condition, dt => dt.MapFrom(s => s.MinimumPurchase))
+                .ReverseMap();
+
             CreateMap<OrderDto, Order>().ReverseMap();
 
             CreateMap<TransactionDto, Transaction>().ReverseMap();

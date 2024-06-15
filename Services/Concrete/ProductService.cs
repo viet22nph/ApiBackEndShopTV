@@ -93,12 +93,14 @@ namespace Services.Concrete
                 }
                 if (product.Discount == null)
                 {
-                    productDto.Discount = new ProductDiscount();
+                    productDto.ProductDiscount = new ProductDiscount();
                 }
                 else
                 {
-                    productDto.Discount.Value = product.Discount.DiscountValue;
-                    productDto.Discount.Type = product.Discount.Type;
+
+                    productDto.ProductDiscount = new ProductDiscount();
+                    productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                    productDto.ProductDiscount.Type = product.Discount.Type;
                 }
                 // get rating
                 productDto.Rating = new Rating();
@@ -139,12 +141,13 @@ namespace Services.Concrete
                   
                     if(product.Discount == null)
                     {
-                        productDto.Discount = new ProductDiscount();
+                        productDto.ProductDiscount = new ProductDiscount();
                     }
                     else
                     {
-                        productDto.Discount.Value = product.Discount.DiscountValue;
-                        productDto.Discount.Type = product.Discount.Type;
+                        productDto.ProductDiscount = new ProductDiscount();
+                        productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                        productDto.ProductDiscount.Type = product.Discount.Type;
                     }
                     // get rating
                     productDto.Rating = new Rating();
@@ -188,12 +191,13 @@ namespace Services.Concrete
 
                     if (product.Discount == null)
                     {
-                        productDto.Discount = new ProductDiscount();
+                        productDto.ProductDiscount = new ProductDiscount();
                     }
                     else
                     {
-                        productDto.Discount.Value = product.Discount.DiscountValue;
-                        productDto.Discount.Type = product.Discount.Type;
+                        productDto.ProductDiscount = new ProductDiscount();
+                        productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                        productDto.ProductDiscount.Type = product.Discount.Type;
                     }
                     // get rating
                     productDto.Rating = new Rating();
@@ -237,12 +241,13 @@ namespace Services.Concrete
 
                     if (product.Discount == null)
                     {
-                        productDto.Discount = new ProductDiscount();
+                        productDto.ProductDiscount = new ProductDiscount();
                     }
                     else
                     {
-                        productDto.Discount.Value = product.Discount.DiscountValue;
-                        productDto.Discount.Type = product.Discount.Type;
+                        productDto.ProductDiscount = new ProductDiscount();
+                        productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                        productDto.ProductDiscount.Type = product.Discount.Type;
                     }
                     // get rating
                     productDto.Rating = new Rating();

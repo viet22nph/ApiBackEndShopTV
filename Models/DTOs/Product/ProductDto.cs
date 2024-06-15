@@ -33,7 +33,7 @@ namespace Models.DTOs.Product
         public ICollection<ProductSpecificationDto>? ProductSpecifications { get; set; }
         public ICollection<ProductItemResponse>? ProductItems { get; set; }
         public Rating? Rating { get; set; }
-        public ProductDiscount? Discount { get; set; }
+        public ProductDiscount? ProductDiscount { get; set; }
     }
 
     public class ProductItemResponse
@@ -56,7 +56,7 @@ namespace Models.DTOs.Product
 
     public partial class Rating
     {
-        public double Rate { get; set; }
+        public float Rate { get; set; }
         public int Count { get; set; }
     }
     public partial class ProductDiscount
