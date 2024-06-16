@@ -23,6 +23,7 @@ using Services.Concrete;
 using Services.Interfaces;
 using System.Text;
 using WebApi.Helpers;
+using WebApi.Udapters;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Application.Api.Extentions
@@ -43,7 +44,6 @@ namespace Application.Api.Extentions
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddAutoMapper(typeof(MappingProfile));
-            services.AddScoped<IDiscountService, DicountService>();
 
             services.AddScoped<IUploadPhotoService, UploadFileService>();
             services.AddScoped<IUploadPhotoCoreService, UploadPhotoCoreService>();
@@ -52,13 +52,14 @@ namespace Application.Api.Extentions
 
 
             services.AddScoped<IUserService, UserService>();
-
             services.AddScoped<ICartService, CartService>();
             services.AddScoped<IReviewService,  ReviewService>();
             services.AddScoped<RoleManager<IdentityRole>>();
             var jwt = new JWTSettings();
-            configuration.GetSection(nameof(JWTSettings)).Bind(jwt);
-
+            configuration.GetSection(nameof(JWTSettings)).Bind(jwt); 
+           
+            services.AddScoped<IDiscountService, DiscountService>();
+            services.AddScoped<DiscountStatusUpdater>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              .AddJwtBearer(options =>
              {

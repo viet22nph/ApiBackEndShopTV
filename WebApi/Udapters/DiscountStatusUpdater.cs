@@ -1,17 +1,19 @@
 ﻿
+using Microsoft.AspNetCore.Http;
+using Services.Concrete;
 using Services.Interfaces;
 
 namespace WebApi.Udapters
 {
     public class DiscountStatusUpdater : BackgroundService
     {
-        private readonly IDiscountService _discountService;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<DiscountStatusUpdater> _logger;
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMinutes(720); // Update every 5 minutes
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMinutes(1); // Update every 5 minutes
 
-        public DiscountStatusUpdater(IDiscountService discountService, ILogger<DiscountStatusUpdater> logger)
+        public DiscountStatusUpdater(IServiceScopeFactory scopeFactory, ILogger<DiscountStatusUpdater> logger)
         {
-            _discountService = discountService;
+            _scopeFactory = scopeFactory;
             _logger = logger;
         }
 
@@ -20,8 +22,14 @@ namespace WebApi.Udapters
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Updating discount statuses at: {time}", DateTimeOffset.Now);
-                _discountService.UpdateAllDiscountStatus();
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var _discountService = scope.ServiceProvider.GetRequiredService<IDiscountService>();
+                    Console.WriteLine("Hello World!");
+                    _logger.LogInformation("Updating discount statuses at: {time}", DateTimeOffset.Now);
+                    await _discountService.UpdateAllDiscountStatus();
+                }
+               
                 await Task.Delay(_updateInterval, stoppingToken);
             }
         }

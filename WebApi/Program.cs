@@ -2,6 +2,7 @@ using Application.Api.Extentions;
 using Caching;
 using Data.SeedData;
 using WebApi.Middlewares;
+using WebApi.Udapters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ builder.Services.AddIdentityService();
 builder.Services.AddDatabaseService(builder.Configuration);
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddRedis(builder.Configuration);
-//
+builder.Services.AddHostedService<DiscountStatusUpdater>();
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddAuthorization(options =>
 {

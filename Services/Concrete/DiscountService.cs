@@ -1,5 +1,6 @@
 ﻿using Application.DAL.Models;
 using AutoMapper;
+using Caching;
 using Core.Exceptions;
 using Data.Repos.DiscountRepo;
 using Data.UnitOfWork;
@@ -17,14 +18,16 @@ using WebApi.Helpers;
 
 namespace Services.Concrete
 {
-    public class DicountService : IDiscountService
+    public class DiscountService : IDiscountService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public DicountService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly ICacheManager _cacheManager;
+        public DiscountService(IUnitOfWork unitOfWork, IMapper mapper, ICacheManager cacheManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cacheManager = cacheManager;
         }
 
 
@@ -162,27 +165,28 @@ namespace Services.Concrete
         }
         public async Task UpdateAllDiscountStatus()
         {
-           // get all discount 
-
+            // get all discount 
+            bool isUpdate = false;
             var discounts = await _unitOfWork.Repository<Discount>().GetAll();
             foreach(var discount in discounts)
             {
                 var currentDate = DateTime.Now;
-                if (currentDate > discount.DateStart)
-                {
-                    discount.Status = DiscountStatus.PENDING;
-                }
-                else if (currentDate >= discount.DateStart && currentDate <= discount.DateEnd)
+                if (currentDate >= discount.DateStart && currentDate <= discount.DateEnd)
                 {
                     discount.Status = DiscountStatus.ACTIVE;
+                    isUpdate = true;
                 }
                 else if (currentDate > discount.DateEnd)
                 {
                     discount.Status = DiscountStatus.EXPIRED;
+                    isUpdate = true;
                 }
                 await _unitOfWork.Repository<Discount>().Update(discount);
             }    
-            
+            if(isUpdate == true)
+            {
+                _cacheManager.RemoveByPrefix("api/Discount");
+            }    
         }
 
         public async Task<BaseResponse<DiscountDto>> UpdateDateTime(Guid id,DiscountDateTimeRequest request)
