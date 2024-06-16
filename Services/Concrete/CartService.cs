@@ -1,12 +1,15 @@
 ﻿using Application.DAL.Models;
+using AutoMapper;
 using Caching;
 using Core.Exceptions;
 using Data.Contexts;
 using Data.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Models.DTOs.Cart;
-using Models.Models;
+using Models.DTOs.Discount;
+using Models.DTOs.Product;
 using Models.ResponseModels;
 using Services.Interfaces;
 using System;
@@ -15,6 +18,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using ProductItemResponse = Models.ResponseModels.ProductItemResponse;
 
 namespace Services.Concrete
 {
@@ -24,16 +28,20 @@ namespace Services.Concrete
         private readonly ICacheManager _cacheManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ApplicationDbContext _context;
-        public CartService(ICacheManager cacheManager, IUnitOfWork unitOfWork, ApplicationDbContext context)
+        private readonly IMapper _mapper;
+        public CartService(ICacheManager cacheManager, IUnitOfWork unitOfWork, ApplicationDbContext context,IMapper mapper)
         {
             _cacheManager = cacheManager;
             _unitOfWork = unitOfWork;
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task AddToCart(CartRequest request)
         {
             var key = $"Cart:{request.UserId}";
+
+            // lay tu cache
             var productItem = await _unitOfWork.Repository<ProductItem>().GetById(request.ProductItemId);
             if(productItem == null)
             {
@@ -46,12 +54,45 @@ namespace Services.Concrete
                 throw new ApiException($"Internal server error: User id not found")
                 { StatusCode = (int)HttpStatusCode.NotFound };
             }
-            if(productItem.Quantity < request.Quantity)
+
+            var quantityCart = await _cacheManager.GetHashAsync(key, request.ProductItemId.ToString());
+            if(request.Quantity == null && request.IncrementBy == null)
             {
-                throw new ApiException($"Internal server error: Product quantity does not match")
+                throw new ApiException($"Internal server error: Quantity must have an input value")
                 { StatusCode = (int)HttpStatusCode.BadRequest };
-            }    
-            await _cacheManager.HashIncrementAsync(key, request.ProductItemId.ToString(), request.Quantity);
+            }
+            if (request.Quantity != null)
+            {
+                if (request.Quantity <= 0)
+                {
+                    throw new ApiException($"Internal server error: Quantity should be greater than 0")
+                    { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                if (productItem.Quantity < request.Quantity)
+                {
+                    throw new ApiException($"Internal server error: Not enough products in stock")
+                    { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                await _cacheManager.HashIncrementAsync(key, request.ProductItemId.ToString(), (long)request.Quantity);
+                
+            }
+            // increment 
+            if(request.IncrementBy!= null)
+            {
+                if (request.IncrementBy != -1 && request.IncrementBy != 1)
+                {
+                    throw new ApiException($"Internal server error: Value of incrementBy should be 1 or -1")
+                    { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                var quantityAfterIncrement = quantityCart + request.IncrementBy;
+                if(quantityAfterIncrement > productItem.Quantity || quantityAfterIncrement <=0)
+                {
+                    throw new ApiException($"Internal server error: Can't decrement stock to 0")
+                    { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                await _cacheManager.HashIncrementAsync(key, request.ProductItemId.ToString(),(long)quantityAfterIncrement);
+
+            }
         }
 
         public async Task<BaseResponse<string>> DeleteFromCart(string userId, Guid productItemId)
@@ -68,24 +109,33 @@ namespace Services.Concrete
             }
         }
 
-        public async Task<BaseResponse<CartDto>> GetCart(string userId)
+        public async Task<BaseResponse<ICollection<object>>> GetCart(string userId)
         {
             var key = $"Cart:{userId}";
             var data = await _cacheManager.HashGetAllAsync(key);
-            var cartDto = new CartDto()
+            var productItems= new List<object>();
+            if (data.Count == 0)
             {
-                UserId = userId,
-                CartItems = new List<CartItem>()
-            };
-            foreach(var item in data )
+                return new BaseResponse<ICollection<object>>(null, "Carts");
+             }
+            foreach (var item in data)
             {
-                cartDto.CartItems.Add(new CartItem
+                var productItem = await _unitOfWork.ProductRepository.GetProductItem(Guid.Parse(item.Key));
+                var productItemResponse = new
                 {
-                    ProductId = Guid.Parse(item.Key),
-                    Quantity = (int)item.Value
-                });
-            }    
-            return new BaseResponse<CartDto>(cartDto, "Cart");
+                    id = productItem.Id,
+                    name = productItem?.Product?.Name,
+                    quantity = item.Value,
+                    price = productItem.Product.Price,
+                    images = productItem.ProductImages.Select(pi => new { id = pi.Id, url = pi.Url }).ToList(),
+                    color = new { colorName = productItem.Color.ColorName, colorCode = productItem.Color.ColorCode },
+                    discount = productItem.Product.Discount == null ? new ProductDiscount() : new ProductDiscount { Type = productItem.Product.Discount.Type, Value = productItem.Product.Discount.DiscountValue },
+                    quantityInStock = productItem.Quantity
+                };
+                productItems.Add(productItemResponse);
+            }
+
+            return new BaseResponse<ICollection<object>>(productItems, "Carts");
 
         }
     }

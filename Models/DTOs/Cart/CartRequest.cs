@@ -10,7 +10,8 @@ namespace Models.DTOs.Cart
     {
         public string UserId { get; set; }
         public Guid ProductItemId { get; set; }
-        public int Quantity { get; set; } = 1;
+        public long? Quantity { get; set; }
+        public long? IncrementBy { get; set; }
 
     }
 }

@@ -38,6 +38,8 @@ namespace Data.Repos.ProductRepo
             var productItem = await _context.Set<ProductItem>()
                                .Include(pi=> pi.Product)
                                     .ThenInclude(p=> p.Discount)
+                                .Include(pi=> pi.ProductImages)
+                                .Include(pi=>pi.Color)
                                .FirstOrDefaultAsync(pi=>pi.Id == id);
             return productItem;
         }
