@@ -240,5 +240,11 @@ namespace Caching
             return await _db.HashDeleteAsync(key, hashField);
         }
 
+        public async Task<long> GetHashAsync(string key, string hashField)
+        {
+            var serializedItem = await _db.HashGetAsync(key, hashField);
+            return serializedItem.HasValue ? (long)serializedItem : 0;
+        }
+
     }
 }

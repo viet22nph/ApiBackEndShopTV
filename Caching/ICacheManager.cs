@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Models.DTOs.Cart;
+using System;
 using System.Threading.Tasks;
 
 namespace Caching
@@ -36,5 +37,13 @@ namespace Caching
         /// <param name="key">Redis key</param>
         /// <param name="hashField">Hash field representing the item</param>
         Task<bool> RemoveHashAsync(string key, string hashField);
+
+        /// <summary>
+        /// Get hash value
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="hashField"></param>
+        /// <returns>async Type T value</returns>
+        Task<long> GetHashAsync(string key, string hashField);
     }
 }
