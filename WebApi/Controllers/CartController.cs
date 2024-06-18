@@ -40,10 +40,11 @@ namespace WebApi.Controllers
             var cart = await _cartService.GetCart(id);
             return Ok(cart);
         }
-        [HttpPost("remove-cart")]
-        public async Task<IActionResult> RemoveCart([FromBody] CartRemoveRequest request)
+
+        [HttpDelete("{userId}/item/{itemId}")]
+        public async Task<IActionResult> RemoveCart(string userId, Guid itemId)
         {
-            var result = await _cartService.DeleteFromCart(request.UserId, request.ProductItemId);
+            var result = await _cartService.DeleteFromCart(userId, itemId);
             return Ok(result);
         }
     }

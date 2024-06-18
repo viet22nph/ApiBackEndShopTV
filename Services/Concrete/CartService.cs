@@ -73,8 +73,7 @@ namespace Services.Concrete
                     throw new ApiException($"Internal server error: Not enough products in stock")
                     { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
-                await _cacheManager.HashIncrementAsync(key, request.ProductItemId.ToString(), (long)request.Quantity);
-                
+                await _cacheManager.HashIncrementAsync(key, request.ProductItemId.ToString(), (long)request.Quantity);     
             }
             // increment 
             if(request.IncrementBy!= null)
@@ -90,7 +89,7 @@ namespace Services.Concrete
                     throw new ApiException($"Internal server error: Can't decrement stock to 0")
                     { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
-                await _cacheManager.HashIncrementAsync(key, request.ProductItemId.ToString(),(long)quantityAfterIncrement);
+                await _cacheManager.HashIncrementAsync(key, request.ProductItemId.ToString(),(long)request.IncrementBy);
 
             }
         }
