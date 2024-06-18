@@ -6,6 +6,7 @@ using Data.Repos.ProductRepo;
 using Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Models.DTOs.Product;
+using Models.Models;
 using Models.ResponseModels;
 using Models.Status;
 using Services.Interfaces;
@@ -147,11 +148,20 @@ namespace Services.Concrete
                     else
                     {
                         productDto.ProductDiscount = new ProductDiscount();
-                        productDto.ProductDiscount.Value = product.Discount.DiscountValue;
-                        productDto.ProductDiscount.Type = product.Discount.Type;
+                        if(product.Discount.Status != DiscountStatus.ACTIVE)
+                        {
+                            productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                            productDto.ProductDiscount.Type = product.Discount.Type;
+                        }    
+                      
                     }
                     // get rating
-                    productDto.Rating = new Rating();
+                    var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 0);
+                    productDto.Rating = new Rating
+                    {
+                        Count = TotalCount,
+                        Rate = averageRating
+                    };
 
                     productDtos.Add(productDto);
                 }
@@ -206,9 +216,15 @@ namespace Services.Concrete
                         
                     }
                     // get rating
-                    productDto.Rating = new Rating();
-
+                    var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 1);
+                    productDto.Rating = new Rating
+                    {
+                        Count = TotalCount,
+                        Rate = averageRating
+                    };
+                    
                     productDtos.Add(productDto);
+                    
                 }
                 return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
             }
@@ -252,12 +268,19 @@ namespace Services.Concrete
                     else
                     {
                         productDto.ProductDiscount = new ProductDiscount();
-                        productDto.ProductDiscount.Value = product.Discount.DiscountValue;
-                        productDto.ProductDiscount.Type = product.Discount.Type;
+                        if (product.Discount.Status != DiscountStatus.ACTIVE)
+                        {
+                            productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                            productDto.ProductDiscount.Type = product.Discount.Type;
+                        }
                     }
                     // get rating
-                    productDto.Rating = new Rating();
-
+                    var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 0);
+                    productDto.Rating = new Rating
+                    {
+                        Count = TotalCount,
+                        Rate = averageRating
+                    };
                     productDtos.Add(productDto);
                 }
                 return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
