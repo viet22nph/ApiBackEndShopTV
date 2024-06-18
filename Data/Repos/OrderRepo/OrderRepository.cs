@@ -18,6 +18,24 @@ namespace Data.Repos.OrderRepo
             _context = context;
         }
 
+        public async Task<ICollection<Order>> GetOrderByUserId(string userId)
+        {
+            return await _context.Set<Order>()
+          .Include(o => o.User)
+          .Include(o => o.OrderItems)
+              .ThenInclude(oi => oi.Product)
+                  .ThenInclude(p => p.Color)
+          .Include(o => o.OrderItems)
+              .ThenInclude(oi => oi.Product)
+                  .ThenInclude(p => p.ProductImages)
+           .Include(o => o.OrderItems)
+              .ThenInclude(oi => oi.Product)
+                  .ThenInclude(p => p.Product)
+          .Include(o => o.Transaction)
+          .Where(o=> o.UserId == userId)
+          .ToListAsync();
+        }
+
         public async Task<Order> GetOrderDetail(Guid id)
         {
             return await _context.Set<Order>()
@@ -35,7 +53,7 @@ namespace Data.Repos.OrderRepo
            
            .FirstOrDefaultAsync(o => o.Id == id);
         }
-
+        
         public async Task<ICollection<Order>> GetOrders(int pageNumber, int pageSize)
         {
             var orders = await _context.Set<Order>()

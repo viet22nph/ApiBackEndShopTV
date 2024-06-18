@@ -2,13 +2,16 @@
 using Application.DAL.Models;
 using AutoMapper;
 using Core.Exceptions;
+using Core.Interfaces;
 using Data.Contexts;
 using Data.Repos.DiscountRepo;
 using Data.Repos.OrderRepo;
 using Data.Repos.ProductRepo;
 using Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Models.DTOs.Email;
 using Models.DTOs.Order;
 using Models.ResponseModels;
 using Models.Status;
@@ -28,14 +31,16 @@ namespace Services.Concrete
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
+        private readonly IEmailCoreService _emailService;
         public OrderService(IUnitOfWork unitOfWork,
-            IMapper mapper, 
-            ApplicationDbContext context
+            IMapper mapper,
+            ApplicationDbContext context,
+            IEmailCoreService emailService
             )
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-            
+            _emailService = emailService;
           
             _context = context;
         }
@@ -97,7 +102,17 @@ namespace Services.Concrete
                     throw new ApiException($"Internal server error: Insert order failed")
                     { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
-
+                
+                if(request.UserId != null) {
+                    var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.UserId);
+                    await _emailService.SendAsync(new EmailRequest
+                    {
+                        To = user.Email, // Set the recipient email address here
+                        From = "nguyendinh.viet2002np@gmail.com", // Set the sender email address here
+                        Subject = "New Order",
+                        Body = GenerateHtmlBody(request, order.Id), // Specify that the email body is HTML
+                    });
+                }
                 var res = _mapper.Map<OrderDto>(order);
                 await _context.Database.CommitTransactionAsync();
                 return new BaseResponse<OrderDto>(res, "Order");
@@ -113,6 +128,7 @@ namespace Services.Concrete
 
 
         }
+
 
         public  async Task<BaseResponse<ICollection<OrderDto>>> GetListOrder(int pageNumber, int pageSize)
         {
@@ -199,6 +215,28 @@ namespace Services.Concrete
         
         }
 
+        public async Task<BaseResponse<ICollection<OrderDto>>> GetOrdersByUserId(string userId)
+        {
+            try
+            {
+                var data = await _unitOfWork.OrderRepository.GetOrderByUserId(userId);
+                if (data == null)
+                {
+                    throw new ApiException($"Not found")
+                    { StatusCode = (int)HttpStatusCode.NotFound };
+                }
+                var res = _mapper.Map<List<OrderDto>>(data);
+                return new BaseResponse<ICollection<OrderDto>>(res, "Orders");
+
+            }
+            catch (Exception ex)
+            {
+
+                throw new ApiException($"Internal server error: {ex.Message}")
+                { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+        }
+
         public async Task<BaseResponse<ReviewCheckoutResponse>> ReviewCheckoutOrder(ReviewCheckoutRequest request)
         {
             try
@@ -245,7 +283,6 @@ namespace Services.Concrete
                 reviewCheckoutRes.SubTotal = reviewCheckoutRes.ReviewCheckoutItems.Sum(s => s.Total);
                 reviewCheckoutRes.DiscountAmount = reviewCheckoutRes.ReviewCheckoutItems.Sum(s => s.AmountDiscount);
                 reviewCheckoutRes.GrandTotal = reviewCheckoutRes.SubTotal - reviewCheckoutRes.DiscountAmount;
-
                 return new BaseResponse<ReviewCheckoutResponse>(reviewCheckoutRes, "checkout");
 
             }
@@ -311,5 +348,36 @@ namespace Services.Concrete
                 { StatusCode = (int)HttpStatusCode.BadRequest };
             }
         }
+
+        private string GenerateHtmlBody(OrderRequest request, Guid idOrderId)
+        {
+            var html = new StringBuilder();
+            html.AppendLine("<html>");
+            html.AppendLine("<body>");
+            html.AppendLine("<h2>Order Confirmation</h2>");
+            html.AppendLine("<p>Thank you for your order! Below are the details:</p>");
+
+            html.AppendLine("<h3>Order Information</h3>");
+            html.AppendLine("<ul>");
+            html.AppendLine($"<li><strong>Mã hóa đơn:</strong> {idOrderId}</li>");
+            html.AppendLine($"<li><strong>Loại hóa đơn:</strong> {request.OrderType}</li>");
+            html.AppendLine($"<li><strong>Địa chỉ:</strong> {request.Address}</li>");
+            html.AppendLine($"<li><strong>Số điện thoại:</strong> {request.Phone}</li>");
+            html.AppendLine($"<li><strong>Tên người nhận:</strong> {request.RecipientName}</li>");
+            html.AppendLine($"<li><strong>Tổng phụ:</strong> {request.SubTotal:vnd}</li>");
+            html.AppendLine($"<li><strong>Tổng cộng:</strong> {request.GrandTotal:vnd}</li>");
+            html.AppendLine("</ul>");
+            html.AppendLine("<p>Phương thức vận chuyển đơn hàng vẽ được liên hệ sau khi nhân viên liên hệ lại với bạn.</p>");
+            html.AppendLine("<p>Chúng tôi sẽ xử lý đơn đặt hàng của bạn trong thời gian ngắn.</p>");
+            html.AppendLine("</body>");
+            html.AppendLine("</html>");
+
+            return html.ToString();
+        }
     }
+
+
+
+  
+
 }

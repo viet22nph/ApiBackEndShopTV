@@ -1,5 +1,6 @@
 ﻿using Application.DAL.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace Data.Repos.OrderRepo
 
         Task<ICollection<Order>> GetOrders(int pageNumber, int pageSize);
         Task<Order> GetOrderDetail(Guid id);
+        Task<ICollection<Order>> GetOrderByUserId(string userId);
 
     }
 }

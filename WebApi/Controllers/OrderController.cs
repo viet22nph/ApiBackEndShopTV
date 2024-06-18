@@ -76,6 +76,11 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-
+        [HttpPost("user/{id}")]
+        public async Task<IActionResult> GetOrdersByUserId(string id)
+        {
+            var result = await _orderService.GetOrdersByUserId(id);
+            return Ok(result);
+        }
     }
 }
