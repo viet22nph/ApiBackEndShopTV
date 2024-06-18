@@ -1,5 +1,6 @@
 ﻿using Application.DAL.Models;
 using AutoMapper;
+using Caching;
 using Core.Exceptions;
 using Data.Contexts;
 using Data.UnitOfWork;
@@ -22,11 +23,13 @@ namespace Services.Concrete
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
-        public ReviewService(IUnitOfWork unitOfWork, IMapper mapper, ApplicationDbContext context)
+        private readonly ICacheManager _cacheManager;
+        public ReviewService(IUnitOfWork unitOfWork, IMapper mapper, ApplicationDbContext context, ICacheManager cacheManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _context = context;
+            _cacheManager = cacheManager;
         }
         public async Task<BaseResponse<ReviewResponse>> CreateReview(ReviewRequest request)
         {
@@ -48,6 +51,7 @@ namespace Services.Concrete
                     throw new ApiException($"Internal server error: Create review failed") { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
                 await _context.Database.CommitTransactionAsync();
+
                 var res = _mapper.Map<ReviewResponse>(review);
                 
                 return new BaseResponse<ReviewResponse>(res, "Create review success");
@@ -79,6 +83,7 @@ namespace Services.Concrete
                 UserName = string.IsNullOrEmpty(r.UserId) ? "Ẩn danh" : r.User.UserName
             })
             .ToList();
+            _cacheManager.RemoveByPrefix("api/Product");
             return (new BaseResponse<ICollection<ReviewDto>>(reviewDto, "Reivews"), total, averageRating);
 
         }

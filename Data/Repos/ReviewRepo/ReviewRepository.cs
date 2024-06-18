@@ -26,7 +26,12 @@ namespace Data.Repos.ReviewRepo
          
 
             var totalCount =  query.Count;
-            var averageRating = (float)query.Average(r => r.Rating);
+            var averageRating = (float)0.0;
+            if (totalCount != 0)
+            {
+
+                 averageRating = (float)query.Average(r => r.Rating);
+            }
             var reviews =  query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize).ToList();
