@@ -152,7 +152,16 @@ namespace Services.Concrete
                     throw new ApiException($"Discount is not active yet")
                     { StatusCode = (int)HttpStatusCode.NotFound };
                 }
-                discount.Status = DiscountStatus.PAUSE;
+                if (discount.Status == DiscountStatus.ACTIVE)
+                {
+                    discount.Status = DiscountStatus.PAUSE;
+
+                }
+                else
+                {
+                    discount.Status = DiscountStatus.ACTIVE;
+
+                }
                 discount = await _unitOfWork.Repository<Discount>().Update(discount);
                 var res = _mapper.Map<DiscountDto>(discount);
                 return new BaseResponse<DiscountDto>(res, "Update successfully");
