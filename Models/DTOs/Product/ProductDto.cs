@@ -56,12 +56,12 @@ namespace Models.DTOs.Product
 
     public partial class Rating
     {
-        public float Rate { get; set; }
-        public int Count { get; set; }
+        public float? Rate { get; set; }
+        public int? Count { get; set; }
     }
     public partial class ProductDiscount
     {
-        public string Type { get; set; }
-        public decimal Value { get; set; }
+        public string? Type { get; set; }
+        public decimal? Value { get; set; }
     }
 }

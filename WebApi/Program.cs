@@ -36,7 +36,7 @@ builder.Services.AddCors(options =>
                       policy =>
                       {
                           policy.WithOrigins("http://example.com",
-                                              "http://www.contoso.com");
+                                              "http://www.contoso.com").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
                       });
 });
 

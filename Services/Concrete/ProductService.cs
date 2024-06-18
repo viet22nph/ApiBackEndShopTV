@@ -7,6 +7,7 @@ using Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Models.DTOs.Product;
 using Models.ResponseModels;
+using Models.Status;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -196,8 +197,13 @@ namespace Services.Concrete
                     else
                     {
                         productDto.ProductDiscount = new ProductDiscount();
-                        productDto.ProductDiscount.Value = product.Discount.DiscountValue;
-                        productDto.ProductDiscount.Type = product.Discount.Type;
+                        if (product.Discount.Status == DiscountStatus.ACTIVE)
+                        {
+                            productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                            productDto.ProductDiscount.Type = product.Discount.Type;
+                        }
+                      
+                        
                     }
                     // get rating
                     productDto.Rating = new Rating();
