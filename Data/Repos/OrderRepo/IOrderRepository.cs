@@ -14,6 +14,6 @@ namespace Data.Repos.OrderRepo
         Task<ICollection<Order>> GetOrders(int pageNumber, int pageSize);
         Task<Order> GetOrderDetail(Guid id);
         Task<ICollection<Order>> GetOrderByUserId(string userId);
-
+        Task<decimal> GetTotalRevenue(DateTime dateStart, DateTime dateEnd);
     }
 }

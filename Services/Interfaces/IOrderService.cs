@@ -16,6 +16,6 @@ namespace Services.Interfaces
         Task<BaseResponse<OrderResponse>> GetOrderDetail(Guid id);
         Task<BaseResponse<string>> UpdateStatus(OrderUpdateStatusRequest   request);
         Task<BaseResponse<ICollection<OrderDto>>> GetOrdersByUserId(string userId);
-
+        Task<(decimal totalRevenue, DateTime startDate, DateTime endDate)> GetTotalRevenueLastMonth();
     }
 }

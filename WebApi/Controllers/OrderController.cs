@@ -1,6 +1,7 @@
 ﻿using Caching;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Models.DTOs.Order;
 using Org.BouncyCastle.Crypto.Engines;
 using Services.Interfaces;
@@ -80,6 +81,23 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetOrdersByUserId(string id)
         {
             var result = await _orderService.GetOrdersByUserId(id);
+            return Ok(result);
+        }
+
+        [HttpPost("total-revenue-last-month")]
+        public async Task<IActionResult> GetTotalRevenueLastMonth()
+        {
+            var (total, dateStart, dateEnd) = await _orderService.GetTotalRevenueLastMonth();
+            var result = new
+            {
+                data = new
+                {
+                    total = total,
+                    dateStart = dateStart,
+                    dateEnd = dateEnd,
+                },
+                message = "total revenue last month"
+            };
             return Ok(result);
         }
     }

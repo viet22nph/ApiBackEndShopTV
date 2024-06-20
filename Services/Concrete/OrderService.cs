@@ -1,6 +1,7 @@
 ﻿using Application.DAL.Helper;
 using Application.DAL.Models;
 using AutoMapper;
+using Caching;
 using Core.Exceptions;
 using Core.Interfaces;
 using Data.Contexts;
@@ -11,6 +12,7 @@ using Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Models.Constants;
 using Models.DTOs.Email;
 using Models.DTOs.Order;
 using Models.ResponseModels;
@@ -32,17 +34,20 @@ namespace Services.Concrete
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
         private readonly IEmailCoreService _emailService;
+        private readonly ICacheManager _cacheManager;
         public OrderService(IUnitOfWork unitOfWork,
             IMapper mapper,
             ApplicationDbContext context,
-            IEmailCoreService emailService
+            IEmailCoreService emailService,
+            ICacheManager cacheManager
             )
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _emailService = emailService;
-          
+
             _context = context;
+            _cacheManager = cacheManager;
         }
 
         public async Task<BaseResponse<OrderDto>> CreateOrder(OrderRequest request)
@@ -61,7 +66,6 @@ namespace Services.Concrete
                     Notes = request.Notes,
                     UserId = request.UserId,
                     Status = OrderStatus.NEWORDER, // Assuming a new order status
-                    CreateAt = DateTime.UtcNow,
                     OrderItems = request.Items.Select(s =>
                     {
                         return new OrderItem
@@ -112,7 +116,11 @@ namespace Services.Concrete
                         Subject = "New Order",
                         Body = GenerateHtmlBody(request, order.Id), // Specify that the email body is HTML
                     });
+                    var key = $"Cart:{request.UserId}";
+                    await _cacheManager.RemoveHashAll(key);
                 }
+                // xoa gio hang
+                
                 var res = _mapper.Map<OrderDto>(order);
                 await _context.Database.CommitTransactionAsync();
                 return new BaseResponse<OrderDto>(res, "Order");
@@ -172,7 +180,7 @@ namespace Services.Concrete
                     SubTotal = order.SubTotal,
                     GrandTotal = order.GrandTotal,
                     Status = order.Status,
-                    CreatedAt = order.CreateAt,
+                    CreatedAt = order.DateCreate,
                     Notes = order.Notes,
                     OrderItems = order.OrderItems?.Select(oi => new OrderItemResponse
                     {
@@ -237,7 +245,7 @@ namespace Services.Concrete
             }
         }
 
-        public async Task<BaseResponse<ReviewCheckoutResponse>> ReviewCheckoutOrder(ReviewCheckoutRequest request)
+        public async Task<BaseResponse<ReviewCheckoutResponse>>  ReviewCheckoutOrder(ReviewCheckoutRequest request)
         {
             try
             {    // duyệt items
@@ -276,6 +284,7 @@ namespace Services.Concrete
                     reviewCheckoutReviewItem.ProductItemId = productItem.Id;
                     reviewCheckoutReviewItem.ProductName = productItem.Product.Name;
                     reviewCheckoutReviewItem.Quantity = item.Quantity;
+                    reviewCheckoutReviewItem.Image = productItem?.ProductImages.First().Url;
                     reviewCheckoutReviewItem.Price = productItem.Product.Price;
                     reviewCheckoutReviewItem.AmountDiscount = discountAmount;
                     reviewCheckoutRes.ReviewCheckoutItems.Add(reviewCheckoutReviewItem);
@@ -295,7 +304,8 @@ namespace Services.Concrete
 
         public async Task<BaseResponse<string>> UpdateStatus(OrderUpdateStatusRequest request)
         {
-            if(!OrderStatus.IsValidStatus(request.Status))
+            bool isCancelled = false;
+            if (!OrderStatus.IsValidStatus(request.Status))
             {
                 throw new ApiException($"Invalid status value")
                 { StatusCode = (int)HttpStatusCode.BadRequest };
@@ -318,6 +328,7 @@ namespace Services.Concrete
                 if(request.Status == OrderStatus.CANCELLED)
                 {
                     // update lai san pham
+                    isCancelled = true;
                     foreach(var orderItem in order.OrderItems)
                     {
                         var product = orderItem.Product;
@@ -326,10 +337,11 @@ namespace Services.Concrete
                         await _unitOfWork.Repository<ProductItem>().Update(product);
                     }
 
+
                 }
 
                 order.Status = request.Status;
-                order.UpdateAt = DateTime.UtcNow;
+                order.DateUpdate = DateTime.UtcNow;
                 order = await _unitOfWork.Repository<Order>().Update(order);
                 if(order == null )
                 {
@@ -348,7 +360,15 @@ namespace Services.Concrete
                 { StatusCode = (int)HttpStatusCode.BadRequest };
             }
         }
+        public async Task<(decimal totalRevenue, DateTime startDate, DateTime endDate)> GetTotalRevenueLastMonth()
+        {
+            var lastMonth = DateTime.Now.AddMonths(-1);
+            var startOfLastMonth = new DateTime(lastMonth.Year, lastMonth.Month, 1);
+            var endOfLastMonth = startOfLastMonth.AddMonths(1).AddDays(-1);
 
+            var totalRevenue = await _unitOfWork.OrderRepository.GetTotalRevenue(new DateTime(2024, 6, 1), new DateTime(2024, 6, 30));
+            return (totalRevenue, startOfLastMonth, endOfLastMonth);
+        }
         private string GenerateHtmlBody(OrderRequest request, Guid idOrderId)
         {
             var html = new StringBuilder();

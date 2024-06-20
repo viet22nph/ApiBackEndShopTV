@@ -1,6 +1,7 @@
 ﻿using Application.DAL.Models;
 using Data.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Models.Status;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace Data.Repos.OrderRepo
           .Where(o=> o.UserId == userId)
           .ToListAsync();
         }
-
+        
         public async Task<Order> GetOrderDetail(Guid id)
         {
             return await _context.Set<Order>()
@@ -63,6 +64,14 @@ namespace Data.Repos.OrderRepo
                         .ToListAsync();
             return orders;
             
+        }
+
+        public async Task<decimal> GetTotalRevenue(DateTime dateStart, DateTime dateEnd)
+        {
+            var totalRevenue = await _context.Set<Order>()
+            .Where(o => o.DateCreate >= dateStart && o.DateCreate <= dateEnd && o.Status == OrderStatus.COMPLETED)
+            .SumAsync(o => o.GrandTotal);
+            return totalRevenue;
         }
     }
 }
