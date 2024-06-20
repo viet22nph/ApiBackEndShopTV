@@ -32,6 +32,9 @@ namespace Data.Mapping
             builder.HasOne(o => o.Transaction)
            .WithOne(t => t.Order)
            .HasForeignKey<Transaction>(t => t.OrderId);
+            builder.Property(r => r.DateCreate)
+              .HasColumnType("DateTime")
+              .HasDefaultValueSql("GetUtcDate()");
             base.Configure(builder);
         }
     }

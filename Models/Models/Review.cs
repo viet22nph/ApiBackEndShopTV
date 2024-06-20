@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace Models.Models
@@ -14,10 +15,11 @@ namespace Models.Models
         public string? UserId { get; set; }
         public int Rating { get; set; }
         public string Content { get; set; }
-        public DateTime CreateAt { get; set; }
-
+        [JsonIgnore]
         public virtual Product? Product { get; set; }
+        [JsonIgnore]
         public virtual ApplicationUser? User { get; set; }
+        [JsonIgnore]
         public virtual ICollection<ReviewImage>? ReviewImages { get; set; }
     }
 
@@ -25,7 +27,7 @@ namespace Models.Models
     {
         public Guid ReviewId { get; set; }
         public String Url { get; set; }
-
-        public Review? Review { get; set; }
+        [JsonIgnore]
+        public virtual Review? Review { get; set; }
     }
 }

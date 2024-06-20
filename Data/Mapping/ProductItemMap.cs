@@ -28,6 +28,9 @@ namespace Data.Mapping
                 .HasOne(pi => pi.Color)
                 .WithMany(c => c.ProductItems)
                 .HasForeignKey(pi => pi.ColorId);
+            builder.Property(r => r.DateCreate)
+              .HasColumnType("DateTime")
+              .HasDefaultValueSql("GetUtcDate()");
             base.Configure(builder);
         }
     }

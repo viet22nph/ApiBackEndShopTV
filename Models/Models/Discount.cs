@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace Application.DAL.Models
@@ -16,7 +17,8 @@ namespace Application.DAL.Models
         public DateTime DateStart { get; set; }// 11/11/2024
         public DateTime DateEnd { get; set; }//11/12/2024
         public string Status { get; set; }// pending
-        public string? Description { get; set; } 
-        public ICollection<Product>? Products { get; set; }
+        public string? Description { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Product>? Products { get; set; }
     }
 }

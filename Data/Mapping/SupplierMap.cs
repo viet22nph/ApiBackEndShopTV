@@ -26,7 +26,9 @@ namespace Data.Mapping
                 .HasMaxLength(11)
                 .HasColumnType("char(11)");
 
-
+            builder.Property(r => r.DateCreate)
+              .HasColumnType("DateTime")
+              .HasDefaultValueSql("GetUtcDate()");
 
             base.Configure(builder);
         }

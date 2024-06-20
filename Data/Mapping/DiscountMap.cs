@@ -18,7 +18,9 @@ namespace Data.Mapping
             builder.Property(d => d.Code).HasMaxLength(255);
             builder.Property(d=> d.Status).HasMaxLength(30);
             builder.Property(d=> d.Type).HasMaxLength(30);
-
+            builder.Property(r => r.DateCreate)
+              .HasColumnType("DateTime")
+              .HasDefaultValueSql("GetUtcDate()");
             base.Configure(builder);
         }
     }

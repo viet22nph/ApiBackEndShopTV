@@ -21,7 +21,9 @@ namespace Data.Mapping
               .WithMany(p => p.ProductImages)
               .HasForeignKey(pi => pi.ProductItemId);
 
-
+            builder.Property(r => r.DateCreate)
+              .HasColumnType("DateTime")
+              .HasDefaultValueSql("GetUtcDate()");
 
             base.Configure(builder);
         }

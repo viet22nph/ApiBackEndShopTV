@@ -21,7 +21,9 @@ namespace Data.Mapping
                 .IsRequired();
             builder.Property(x => x.SpecValue)
               .IsRequired();
-
+            builder.Property(r => r.DateCreate)
+              .HasColumnType("DateTime")
+              .HasDefaultValueSql("GetUtcDate()");
 
             base.Configure(builder);
         }

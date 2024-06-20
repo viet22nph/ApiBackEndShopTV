@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace Application.DAL.Models
@@ -14,7 +15,7 @@ namespace Application.DAL.Models
         public string SupplierName { get; set; }
         public string? Address { get; set; }
         public string? Notes { get; set; }
-
-        public ICollection<Product> Products { get; set;}
+        [JsonIgnore]
+        public virtual ICollection<Product> Products { get; set;}
     }
 }

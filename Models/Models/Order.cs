@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace Application.DAL.Models
@@ -17,15 +18,15 @@ namespace Application.DAL.Models
         public decimal SubTotal { get; set; }
         public decimal GrandTotal { get; set; }
         public string Status { get; set; }
-        public DateTime CreateAt { get; set; }
-        public DateTime? UpdateAt { get; set; }
         public string? Notes { get; set; }
 
         public string? UserId { get; set; }
-        public ApplicationUser? User { get; set; }
-
-        public ICollection<OrderItem>? OrderItems { get; set; }
-        public Transaction? Transaction{ get; set; }
+        [JsonIgnore]
+        public virtual ApplicationUser? User { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<OrderItem>? OrderItems { get; set; }
+        [JsonIgnore]
+        public virtual Transaction? Transaction{ get; set; }
     }
 
     public class OrderItem
@@ -34,7 +35,9 @@ namespace Application.DAL.Models
         public Guid ProductItemId { get; set; }
         public int Quantity { get; set; }
         public decimal Price { get; set; }
-        public Order? Order { get; set; }
-        public ProductItem? Product { get; set; }
+        [JsonIgnore]
+        public  virtual Order? Order { get; set; }
+        [JsonIgnore]
+        public virtual ProductItem? Product { get; set; }
     }
 }

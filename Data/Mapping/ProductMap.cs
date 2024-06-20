@@ -28,6 +28,9 @@ namespace Data.Mapping
             builder.HasOne(p => p.Discount)
                 .WithMany(d => d.Products)
                 .HasForeignKey(p => p.DiscountId);
+            builder.Property(r => r.DateCreate)
+              .HasColumnType("DateTime")
+              .HasDefaultValueSql("GetUtcDate()");
             base.Configure(builder);
         }
     }

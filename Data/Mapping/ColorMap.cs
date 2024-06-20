@@ -21,7 +21,9 @@ namespace Data.Mapping
             builder.Property(x => x.ColorName)
                 .HasMaxLength(255)
                 .IsRequired();
-
+            builder.Property(r => r.DateCreate)
+              .HasColumnType("DateTime")
+              .HasDefaultValueSql("GetUtcDate()");
 
             base.Configure(builder);
         }

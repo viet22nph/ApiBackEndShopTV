@@ -1,4 +1,5 @@
 ﻿using Models.DbEntities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,14 @@ namespace Application.DAL.Models
         public Guid? CategoryParent { get; set; }
         public string? Description { get; set; }
         public string NomalizedName { get; set; }
-        public Category CategoryParentNavigation { get; set; }
-        public ICollection<Category>? CategoryChildren { get; set; }
-        public ICollection<Product>? Products { get; set; }
+        [JsonIgnore]
+
+        public virtual  Category CategoryParentNavigation { get; set; }
+        [JsonIgnore]
+
+        public virtual ICollection<Category>? CategoryChildren { get; set; }
+        [JsonIgnore]
+
+        public virtual ICollection<Product>? Products { get; set; }
     }
 }

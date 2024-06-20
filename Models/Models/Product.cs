@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace Application.DAL.Models
@@ -22,13 +23,19 @@ namespace Application.DAL.Models
         public bool IsPublished { get; set; } = false;
 
         public Guid? SupplierId { get; set; }
+        [JsonIgnore]
         public Supplier? Supplier { get; set; }
         public Guid? DiscountId { get; set; }
+        [JsonIgnore]
         public Discount? Discount { get; set; }
         public Guid CategoryId { get; set; }
+        [JsonIgnore]
         public Category? Category { get; set; }
-        public ICollection<ProductSpecification>? ProductSpecifications { get; set; }
-        public ICollection<ProductItem>? ProductItems { get; set; }
+        [JsonIgnore]
+        public  virtual ICollection<ProductSpecification>? ProductSpecifications { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<ProductItem>? ProductItems { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Review>? Reviews { get; set; }
         
     }
@@ -37,8 +44,8 @@ namespace Application.DAL.Models
         public Guid ProductId { get; set; }
         public string SpecValue { get; set; }
         public string SpecType { get; set; }
-
-        public Product? Product { get; set; }
+        [JsonIgnore]
+        public  virtual Product? Product { get; set; }
 
     }
     public class ProductItem:BaseEntity
@@ -46,24 +53,29 @@ namespace Application.DAL.Models
         public Guid ProductId { get; set; }
         public int Quantity { get; set; }
         public Guid? ColorId { get; set; }
-
-        public Product? Product { get; set; }
-        public ICollection<ProductImage>? ProductImages { get; set; }
-        public Color? Color { get; set; }
-        public ICollection<OrderItem>? OrderItems { get; set; }
+        [JsonIgnore]
+        public virtual Product? Product { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<ProductImage>? ProductImages { get; set; }
+        [JsonIgnore]
+        public virtual Color? Color { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<OrderItem>? OrderItems { get; set; }
     }
     public class Color: BaseEntity
     {
         public string ColorName { get; set; }
         [StringLength(256)]
         public string ColorCode { get; set; }
-        public ICollection<ProductItem>? ProductItems { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<ProductItem>? ProductItems { get; set; }
     }
     public class ProductImage: BaseEntity
     {
         public Guid ProductItemId { get; set; }
         public string Url { get; set; }
-        public ProductItem? ProductItem { get; set; }
+        [JsonIgnore]
+        public virtual ProductItem? ProductItem { get; set; }
     }
 
     

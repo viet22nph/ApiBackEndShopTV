@@ -19,7 +19,7 @@ namespace Data.Mapping
             builder.Property(r => r.ProductId)
                 .IsRequired();
             builder.Property(r => r.UserId);
-            builder.Property(r => r.CreateAt)
+            builder.Property(r => r.DateCreate)
                 .HasColumnType("DateTime")
                 .HasDefaultValueSql("GetUtcDate()");
             builder.HasOne(r => r.User)

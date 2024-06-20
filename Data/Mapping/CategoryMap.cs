@@ -23,6 +23,9 @@ namespace Data.Mapping
               .WithMany(c => c.CategoryChildren)
               .HasForeignKey(c => c.CategoryParent);
             builder.HasMany(c => c.Products).WithOne(c => c.Category).HasForeignKey(c => c.CategoryId);
+            builder.Property(r => r.DateCreate)
+              .HasColumnType("DateTime")
+              .HasDefaultValueSql("GetUtcDate()");
             base.Configure(builder);
         }
 
