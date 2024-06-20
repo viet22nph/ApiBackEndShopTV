@@ -22,6 +22,9 @@ namespace Services.Interfaces
 
         Task<BaseResponse<ProductDto>> UpdateProduct(Guid id, ProductUpdateRequest request);
         Task AddImage(Guid id, string url);
+        Task<BaseResponse<ICollection<object>>> GetTopBestSellingProductsLastMonth(int top);
+        Task<(BaseResponse<ICollection<ProductResponse>>, int count)> GetNewProducts(int limit, int offset);
+
 
     }
 }

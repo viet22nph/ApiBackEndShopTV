@@ -115,6 +115,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpPost("add-image/{id}")]
+
         public async Task<IActionResult> AddImage(Guid id, [FromBody] string url)
         {
             if(string.IsNullOrWhiteSpace(url))
@@ -124,6 +125,43 @@ namespace WebApi.Controllers
             await _productService.AddImage(id, url);
             _cacheManager.RemoveByPrefix("api/Product");
             return NoContent();
+        }
+        [HttpPost("top-best-selling-product")]
+        public async Task<IActionResult> GetTopBestSellingProduct([FromBody]int top)
+        {
+            if(top <= 0)
+            {
+                return BadRequest(new
+                {
+                    message = "The input value cannot be less than or equal to 0"
+                });
+            }    
+            var result = await _productService.GetTopBestSellingProductsLastMonth(top);
+            return Ok(result);
+        }
+
+        [HttpPost("new-product")]
+        public async Task<IActionResult> GetNewProducts(int offset =1, int limit = 10)
+        {
+            if(offset <= 0) {
+                offset = 1;
+            }
+            if(limit <= 0)
+            {
+                limit = 10;
+            }
+
+            var (result, count) =await _productService.GetNewProducts(limit, offset);
+                
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data,
+                offset = offset,
+                limit = limit,
+                count = count
+            });
+
         }
     }
 }

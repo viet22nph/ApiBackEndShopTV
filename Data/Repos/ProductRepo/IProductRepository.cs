@@ -17,5 +17,7 @@ namespace Data.Repos.ProductRepo
         Task<Product> GetProduct(Guid id);
 
         Task<ProductItem> GetProductItem(Guid id);
+        Task<(ICollection<Product>, int count)> GetNewProducts(int offset, int limit);
+        Task<ICollection<ProductItem>> TopSellingProduct(int top, DateTime dateStart, DateTime dateEnd);
     }
 }

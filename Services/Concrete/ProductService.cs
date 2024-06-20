@@ -1,10 +1,12 @@
 ﻿using Application.DAL.Models;
 using AutoMapper;
+using Caching;
 using Core.Exceptions;
 using Data.Contexts;
 using Data.Repos.ProductRepo;
 using Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Models.Constants;
 using Models.DTOs.Product;
 using Models.Models;
 using Models.ResponseModels;
@@ -17,6 +19,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using WebApi.Helpers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Services.Concrete
 {
@@ -25,15 +28,17 @@ namespace Services.Concrete
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
-
+        private readonly ICacheManager _cacheManager;
         public ProductService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            ICacheManager cacheManager)
         { 
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _context = context;
+            _cacheManager = cacheManager;
         }
 
         public async Task AddImage(Guid id, string url)
@@ -45,7 +50,10 @@ namespace Services.Concrete
             }
             var image = new ProductImage { ProductItemId = id , Url = url};
             image = await _unitOfWork.Repository<ProductImage>().Insert(image);
-            if(image == null)
+            _cacheManager.Remove(CacheContants.CacheListProduct);
+
+
+            if (image == null)
             {
                 throw new ApiException($"Internal server error: Add image is failed") { StatusCode = (int)HttpStatusCode.BadRequest };
             }
@@ -63,7 +71,7 @@ namespace Services.Concrete
                 await _context.Database.CommitTransactionAsync();
                 var data = await _unitOfWork.ProductRepository.GetProduct(product.Id);
                 var res = _mapper.Map<ProductDto>(data);
-                //
+                
                 return new BaseResponse<ProductDto>(res, "Create product successfully");
             }
             catch (Exception ex)
@@ -101,8 +109,12 @@ namespace Services.Concrete
                 {
 
                     productDto.ProductDiscount = new ProductDiscount();
-                    productDto.ProductDiscount.Value = product.Discount.DiscountValue;
-                    productDto.ProductDiscount.Type = product.Discount.Type;
+                    if(product.Discount.Status == DiscountStatus.ACTIVE)
+                    {
+                        productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                        productDto.ProductDiscount.Type = product.Discount.Type;
+
+                    }    
                 }
                 // get rating
                 productDto.Rating = new Rating();
@@ -292,6 +304,7 @@ namespace Services.Concrete
 
         }
 
+
         public async Task<BaseResponse<ProductDto>> UpdateProduct(Guid id, ProductUpdateRequest request)
         {
             await _context.Database.BeginTransactionAsync();
@@ -310,6 +323,8 @@ namespace Services.Concrete
                 EntityUpdater.UpdateIfNotNull(request.Price, value => product.Price = value);
                 EntityUpdater.UpdateIfNotNull(request.SupplierId, value => product.SupplierId = value);
                 EntityUpdater.UpdateIfNotNull(request.CategoryId, value => product.CategoryId = value);
+                EntityUpdater.UpdateIfNotNull(request.DiscoutId, value => product.DiscountId = value);
+
                 // Update ProductSpecifications
                 if (request.ProductSpecifications != null)
                 {
@@ -362,8 +377,7 @@ namespace Services.Concrete
                     }
                 }
                 product = await _unitOfWork.Repository<Product>().Update(product);
-
-                var res = _mapper.Map<ProductDto>(product);
+                                var res = _mapper.Map<ProductDto>(product);
                 return new BaseResponse<ProductDto>(res, "Product");
             }
             catch ( Exception ex)
@@ -386,7 +400,7 @@ namespace Services.Concrete
                 product.IsDraft = true;
                 product.IsPublished = false;
                 product = await _unitOfWork.Repository<Product>().Update(product);
-
+                _cacheManager.Remove(CacheContants.CacheListProduct);
                 var res = _mapper.Map<ProductDto>(product);
                 return new BaseResponse<ProductDto>(res, "update success");
 
@@ -410,7 +424,7 @@ namespace Services.Concrete
                 product.IsDraft = false;
                 product.IsPublished = true;
                 product = await _unitOfWork.Repository<Product>().Update(product);
-
+                _cacheManager.RemoveByPrefix(CacheContants.CacheProductControllerPrefix);
                 var res = _mapper.Map<ProductDto>(product);
                 return new BaseResponse<ProductDto>(res, "update success");
 
@@ -421,5 +435,103 @@ namespace Services.Concrete
             }
         }
 
+
+        // lấy top sản phẩm bán chạy
+        public async Task<BaseResponse<ICollection<object>>> GetTopBestSellingProductsLastMonth(int top)
+        {
+            var lastMonth = DateTime.Now.AddMonths(-1);
+            var startOfLastMonth = new DateTime(lastMonth.Year, lastMonth.Month, 1);
+            var endOfLastMonth = startOfLastMonth.AddMonths(1).AddDays(-1);
+
+            var productItems = await _unitOfWork.ProductRepository.TopSellingProduct(top, new DateTime(2024, 6, 1), new DateTime(2024, 6, 30));
+            var result = new List<object>();
+            if (productItems.Count == 0)
+            {
+                return new BaseResponse<ICollection<object>>(null, "Carts");
+            }
+            foreach ( var item in productItems)
+            {
+                result.Add(new
+                {
+                    ProductName = item?.Product.Name,
+                    CategoryName = item.Product?.Category.Name,
+                    Supplier = item.Product?.Supplier?.SupplierName ?? "",
+                    Price = item.Product.Price,
+                    
+                    Discount =item.Product.Discount.Status == DiscountStatus.ACTIVE? new
+                    {
+                        type = item.Product.Discount.Type ?? null,
+                        value = item.Product.Discount.DiscountValue
+                        
+                    }: null,
+                    Image = item.ProductImages.First().Url ?? ""
+                });
+            }    
+            return new BaseResponse<ICollection<object>>(result, $"Top {top} selling for {lastMonth} month");
+        }
+
+        public async Task<(BaseResponse<ICollection<ProductResponse>>, int count)> GetNewProducts(int limit, int offset)
+        {
+            try
+            {
+                var (products, count) = await _unitOfWork.ProductRepository.GetNewProducts(offset, limit);
+                if (products == null)
+                {
+                    throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
+                }
+                var productDtos = new List<ProductResponse>();
+                foreach (var product in products)
+                {
+                    var productDto = _mapper.Map<ProductResponse>(product);
+                    if (product?.ProductItems?.First()?.ProductImages.Count == 0)
+                    {
+                        productDto.Image = "";
+
+                    }
+                    else
+                    {
+                        productDto.Image = product.ProductItems.First().ProductImages.First().Url;
+                    }
+
+                    // get discount
+
+                    if (product.Discount == null)
+                    {
+                        productDto.ProductDiscount = new ProductDiscount();
+                    }
+                    else
+                    {
+                        productDto.ProductDiscount = new ProductDiscount();
+                        if (product.Discount.Status != DiscountStatus.ACTIVE)
+                        {
+                            productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                            productDto.ProductDiscount.Type = product.Discount.Type;
+                        }
+
+                    }
+                    // get rating
+                    var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 0);
+                    productDto.Rating = new Rating
+                    {
+                        Count = TotalCount,
+                        Rate = averageRating
+                    };
+
+                    productDtos.Add(productDto);
+                }
+                return (new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products"), count);
+            }
+            catch(Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+           
+        }
+
+
+        //public async Task<BaseResponse<ICollection<ProductDto>>> GetProductByCategory(Guid id)
+        //{
+
+        //}
     }
 }
