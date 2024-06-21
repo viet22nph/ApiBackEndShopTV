@@ -12,7 +12,6 @@ using Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Models.Constants;
 using Models.DTOs.Email;
 using Models.DTOs.Order;
 using Models.ResponseModels;
@@ -117,7 +116,6 @@ namespace Services.Concrete
                         Body = GenerateHtmlBody(request, order.Id), // Specify that the email body is HTML
                     });
                     var key = $"Cart:{request.UserId}";
-                    await _cacheManager.RemoveHashAll(key);
                 }
                 // xoa gio hang
                 

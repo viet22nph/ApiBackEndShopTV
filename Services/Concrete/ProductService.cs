@@ -6,7 +6,6 @@ using Data.Contexts;
 using Data.Repos.ProductRepo;
 using Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Models.Constants;
 using Models.DTOs.Product;
 using Models.Models;
 using Models.ResponseModels;
@@ -323,7 +322,7 @@ namespace Services.Concrete
                 EntityUpdater.UpdateIfNotNull(request.Price, value => product.Price = value);
                 EntityUpdater.UpdateIfNotNull(request.SupplierId, value => product.SupplierId = value);
                 EntityUpdater.UpdateIfNotNull(request.CategoryId, value => product.CategoryId = value);
-                EntityUpdater.UpdateIfNotNull(request.DiscoutId, value => product.DiscountId = value);
+                EntityUpdater.UpdateIfNotNull(request.DiscountId, value => product.DiscountId = value);
 
                 // Update ProductSpecifications
                 if (request.ProductSpecifications != null)

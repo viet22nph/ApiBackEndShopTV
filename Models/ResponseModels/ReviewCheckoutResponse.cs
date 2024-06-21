@@ -23,6 +23,7 @@ namespace Models.ResponseModels
         public string ProductName { get; set; }
         public int Quantity { get; set; }
         public decimal Price { get; set; }
+        public string Image { get; set; }
         public decimal AmountDiscount { get; set; } = 0;
         public decimal Total => Quantity * Price;
     }

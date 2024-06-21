@@ -1,8 +1,6 @@
 ﻿using Application.DAL.Models;
-using Caching;
 using Data.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Models.Constants;
 using Models.Status;
 using System;
 using System.Collections.Generic;
@@ -16,12 +14,9 @@ namespace Data.Repos.ProductRepo
     public class ProductRepository : IProductRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly ICacheManager _cacheManager;
-        public ProductRepository(ApplicationDbContext context,
-            ICacheManager cacheManager
+        public ProductRepository(ApplicationDbContext context
             ) {
             _context = context;
-            _cacheManager = cacheManager;
         }
 
         public async Task<Product> GetProduct(Guid id)
