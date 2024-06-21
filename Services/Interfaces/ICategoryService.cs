@@ -16,5 +16,15 @@ namespace Services.Interfaces
         Task<BaseResponse<CategoryDto>> UpdateCategory(Guid id,CategoryUpdateRequest request);
         Task<BaseResponse<string>> DeleteCategory(Guid id);
 
+        /// <summary>
+        /// Get list category parent 
+        ///
+        /// </summary>
+        /// <returns>
+        ///     BaseResponse<ICollection<CategoryDto>>
+        ///     Return data categories parent
+        /// </returns>
+
+        Task<BaseResponse<ICollection<CategoryDto>>> GetCategoriesParent();
     }
 }
