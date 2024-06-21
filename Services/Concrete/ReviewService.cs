@@ -78,7 +78,7 @@ namespace Services.Concrete
                 ProductId = r.ProductId,
                 Rating = r.Rating,
                 ReviewImages = r.ReviewImages.Select(ri =>new ReviewImageResponse { Id = ri.Id, Url = ri.Url}).ToList(),
-                CreateAt = r.CreateAt,
+                CreateAt = r.DateCreate,
                 Content = r.Content,
                 UserName = string.IsNullOrEmpty(r.UserId) ? "Ẩn danh" : r.User.UserName
             })
