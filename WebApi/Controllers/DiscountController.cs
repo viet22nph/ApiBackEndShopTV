@@ -80,7 +80,17 @@ namespace WebApi.Controllers
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
-
+        [HttpPost("continue")]
+        public async Task<IActionResult> ContinueDiscount([FromBody] Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new { message = "Id discount not null or empty" });
+            }
+            var result = await _discount.ContinueDiscountStatus(id);
+            _cacheManager.RemoveByPrefix("api/Discount");
+            return Ok(result);
+        }
         [HttpPatch("update-time/{id}")]
         public async Task<IActionResult> UpdateDatetime(Guid id, [FromBody] DiscountDateTimeRequest request)
         {

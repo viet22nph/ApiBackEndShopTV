@@ -19,6 +19,7 @@ namespace Services.Interfaces
         Task<BaseResponse<ICollection<DiscountDto>>> GetDiscounts(int pageNumber =0, int pageSize =10);
 
         Task<BaseResponse<DiscountDto>> UpdateDateTime(Guid id,DiscountDateTimeRequest request);
+        Task<BaseResponse<DiscountDto>> ContinueDiscountStatus(Guid id);
 
     }
 }

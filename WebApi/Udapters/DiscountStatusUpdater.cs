@@ -9,7 +9,7 @@ namespace WebApi.Udapters
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<DiscountStatusUpdater> _logger;
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMinutes(30); // Update every 5 minutes
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMinutes(1); // Update every 5 minutes
 
         public DiscountStatusUpdater(IServiceScopeFactory scopeFactory, ILogger<DiscountStatusUpdater> logger)
         {
