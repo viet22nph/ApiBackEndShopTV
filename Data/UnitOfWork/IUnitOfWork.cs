@@ -1,4 +1,5 @@
 ﻿using Data.Repos;
+using Data.Repos.CategoryRepo;
 using Data.Repos.DiscountRepo;
 using Data.Repos.OrderRepo;
 using Data.Repos.ProductRepo;
@@ -18,6 +19,7 @@ namespace Data.UnitOfWork
         IOrderRepository OrderRepository { get; }
         IDiscountRepository DiscountRepository { get; }
         IReviewRepository ReviewRepository { get; }
+        ICategoryRepository CategoryRepository { get; }
         Task<int> Complete();
         bool HasChanges();
     }

@@ -1,5 +1,6 @@
 ﻿using Data.Contexts;
 using Data.Repos;
+using Data.Repos.CategoryRepo;
 using Data.Repos.DiscountRepo;
 using Data.Repos.OrderRepo;
 using Data.Repos.ProductRepo;
@@ -16,7 +17,7 @@ namespace Data.UnitOfWork
     {
         private readonly ApplicationDbContext _context;
         private Hashtable _repositories;
-
+        
         public IUserRepository UserRepository => new UserRepository(_context);
 
         public IProductRepository ProductRepository => new ProductRepository(_context);
@@ -26,6 +27,8 @@ namespace Data.UnitOfWork
         public IDiscountRepository DiscountRepository =>  new DiscountRepository(_context);
 
         public IReviewRepository ReviewRepository =>  new ReviewRepository(_context);
+
+        public ICategoryRepository CategoryRepository =>  new CategoryRepository(_context);
 
         public UnitOfWork(ApplicationDbContext context)
         {
