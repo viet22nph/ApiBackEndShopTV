@@ -11,6 +11,7 @@ using Models.DTOs.Cart;
 using Models.DTOs.Discount;
 using Models.DTOs.Product;
 using Models.ResponseModels;
+using Models.Status;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -128,7 +129,9 @@ namespace Services.Concrete
                     price = productItem.Product.Price,
                     images = productItem.ProductImages.Select(pi => new { id = pi.Id, url = pi.Url }).ToList(),
                     color = new { colorName = productItem.Color.ColorName, colorCode = productItem.Color.ColorCode },
-                    discount = productItem.Product.Discount == null ? new ProductDiscount() : new ProductDiscount { Type = productItem.Product.Discount.Type, Value = productItem.Product.Discount.DiscountValue },
+                    discount = productItem.Product.Discount == null || productItem.Product.Discount.Status != DiscountStatus.ACTIVE
+                    ? new ProductDiscount() 
+                    :  new ProductDiscount { Type = productItem.Product.Discount.Type, Value = productItem.Product.Discount.DiscountValue },
                     quantityInStock = productItem.Quantity
                 };
                 productItems.Add(productItemResponse);
