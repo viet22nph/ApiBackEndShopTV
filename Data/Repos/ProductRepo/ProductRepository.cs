@@ -1,6 +1,7 @@
 ﻿using Application.DAL.Models;
 using Data.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.SqlServer.Server;
 using Models.Status;
 using System;
 using System.Collections.Generic;
@@ -120,7 +121,7 @@ namespace Data.Repos.ProductRepo
 
         public async Task<ICollection<ProductItem>> TopSellingProduct(int top, DateTime dateStart, DateTime dateEnd)
         {
-                var topProducts = await _context.Set<OrderItem>()
+               var topProducts = await _context.Set<OrderItem>()
              .Include(oi => oi.Order)
              .Where(oi => oi.Order.DateCreate >= dateStart && oi.Order.DateCreate < dateEnd && oi.Order.Status == OrderStatus.COMPLETED)
              .GroupBy(oi => oi.ProductItemId)
@@ -139,6 +140,48 @@ namespace Data.Repos.ProductRepo
             }
 
             return productItems;
+        }
+        public async Task<List<Product>> GetAllProductsByCategory(Guid categoryId)
+        {
+            var category = await _context.Set<Category>()
+                .Include(c => c.Products)
+                .Include(c => c.CategoryChildren)
+                .FirstOrDefaultAsync(c => c.Id == categoryId);
+
+            if (category == null)
+            {
+                return new List<Product>();
+            }
+
+            var products = new List<Product>();
+            await CollectProducts(category, products);
+            return products;
+        }
+
+        private async Task CollectProducts(Category category, List<Product> products)
+        {
+
+            if (category.CategoryChildren != null)
+            {
+                foreach (var childCategory in category.CategoryChildren)
+                {
+                    var data =  await GetAllProductsByCategory(childCategory.Id);
+                    products.AddRange(data);
+                }
+            }
+
+            if (category.Products != null)
+            {
+                foreach (var product in category.Products)
+                {
+                    var rs = await GetProduct(product.Id);
+                    if(rs.IsPublished == true)
+                    {
+                        products.Add(rs);
+
+                    }
+                }
+            }
         }
     }
 }

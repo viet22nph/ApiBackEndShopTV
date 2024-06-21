@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Product;
 using Services.Interfaces;
@@ -162,6 +163,20 @@ namespace WebApi.Controllers
                 count = count
             });
 
+        }
+
+        [HttpPost("get-product-by-category/{categoryId}")]
+        public async Task<IActionResult> GetProductByCategory(Guid categoryId, int offset =1, int limit=10)
+        {
+            var (result, count) = await _productService.GetProductByCategory(categoryId, limit, offset);
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data,
+                offset = offset,
+                limit = limit,
+                count = count
+            });
         }
     }
 }

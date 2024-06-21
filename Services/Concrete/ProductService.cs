@@ -6,12 +6,14 @@ using Data.Contexts;
 using Data.Repos.ProductRepo;
 using Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Identity.Client;
 using Models.DTOs.Product;
 using Models.Models;
 using Models.ResponseModels;
 using Models.Status;
 using Services.Interfaces;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -315,7 +317,7 @@ namespace Services.Concrete
                     throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
                 }
                 EntityUpdater.UpdateIfNotNull(request.Name, value => product.Name = value);
-                product.NormalizedName = request.Name.ToUpper();
+                product.NormalizedName = product.Name.ToUpper();
                 EntityUpdater.UpdateIfNotNull(request.Description, value => product.Description = value);
                 EntityUpdater.UpdateIfNotNull(request.ProductQuantity, value => product.ProductQuantity = value);
                 EntityUpdater.UpdateIfNotNull(request.ProductBrand, value => product.ProductBrand = value);
@@ -527,6 +529,67 @@ namespace Services.Concrete
            
         }
 
+        public async Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductByCategory(Guid id, int limit, int offset)
+        {
+            try
+            {
+                int count = 0;
+
+                var products = await _unitOfWork.ProductRepository.GetAllProductsByCategory(id);
+                count = products.Count;
+                products = products.Skip((offset-1)*limit).Take(limit).ToList();
+                if (products == null)
+                {
+                    throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
+                }
+                var productDtos = new List<ProductResponse>();
+                foreach (var product in products)
+                {
+                    var productDto = _mapper.Map<ProductResponse>(product);
+                    if (product?.ProductItems?.First()?.ProductImages.Count == 0)
+                    {
+                        productDto.Image = "";
+
+                    }
+                    else
+                    {
+                        productDto.Image = product.ProductItems.First().ProductImages.First().Url;
+                    }
+
+                    // get discount
+
+                    if (product.Discount == null)
+                    {
+                        productDto.ProductDiscount = new ProductDiscount();
+                    }
+                    else
+                    {
+                        productDto.ProductDiscount = new ProductDiscount();
+                        if (product.Discount.Status != DiscountStatus.ACTIVE)
+                        {
+                            productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                            productDto.ProductDiscount.Type = product.Discount.Type;
+                        }
+
+                    }
+                    // get rating
+                    var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 0);
+                    productDto.Rating = new Rating
+                    {
+                        Count = TotalCount,
+                        Rate = averageRating
+                    };
+
+                    productDtos.Add(productDto);
+                }
+                return (new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products by category"), count);
+            }
+            catch(Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
+
+            }
+        }
 
         //public async Task<BaseResponse<ICollection<ProductDto>>> GetProductByCategory(Guid id)
         //{
