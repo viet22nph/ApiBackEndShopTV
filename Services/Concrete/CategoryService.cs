@@ -164,5 +164,22 @@ namespace Services.Concrete
 
         }
         #endregion
+
+        public async Task<BaseResponse<ICollection< CategoryDto>>> GetCategoriesParent()
+        {
+            try
+            {
+                var data = await _unitOfWork.CategoryRepository.GetCategoriesParent();
+                var res = _mapper.Map<List<CategoryDto>>(data);
+                return new BaseResponse<ICollection<CategoryDto>>(res, "Categories Parent");
+
+            }catch(Exception  ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
+
+            }
+
+
+        }
     }
 }

@@ -86,5 +86,14 @@ namespace WebApi.Controllers
             _cacheManager.RemoveByPrefix("api/Category");
             return Ok(result);
         }
+        [Cache]
+        [HttpPost("categories-parent")]
+        public async Task<IActionResult> GetCategoriesParent()
+        {
+            var result =await _category.GetCategoriesParent();
+            return Ok(result);
+        }
+
+
     }
 }
