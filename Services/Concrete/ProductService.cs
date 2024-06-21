@@ -50,7 +50,7 @@ namespace Services.Concrete
             }
             var image = new ProductImage { ProductItemId = id , Url = url};
             image = await _unitOfWork.Repository<ProductImage>().Insert(image);
-            _cacheManager.Remove(CacheContants.CacheListProduct);
+        
 
 
             if (image == null)
@@ -400,7 +400,7 @@ namespace Services.Concrete
                 product.IsDraft = true;
                 product.IsPublished = false;
                 product = await _unitOfWork.Repository<Product>().Update(product);
-                _cacheManager.Remove(CacheContants.CacheListProduct);
+               
                 var res = _mapper.Map<ProductDto>(product);
                 return new BaseResponse<ProductDto>(res, "update success");
 
@@ -424,7 +424,7 @@ namespace Services.Concrete
                 product.IsDraft = false;
                 product.IsPublished = true;
                 product = await _unitOfWork.Repository<Product>().Update(product);
-                _cacheManager.RemoveByPrefix(CacheContants.CacheProductControllerPrefix);
+                
                 var res = _mapper.Map<ProductDto>(product);
                 return new BaseResponse<ProductDto>(res, "update success");
 
