@@ -135,7 +135,36 @@ namespace Services.Concrete
                 { StatusCode = (int)HttpStatusCode.BadRequest };
             }
         }
+        public async Task<BaseResponse<DiscountDto>> ContinueDiscountStatus(Guid id)
+        {
+            try
+            {
+                var discount = await _unitOfWork.Repository<Discount>().GetById(id);
+                if (discount == null)
+                {
+                    throw new ApiException($"Not found")
+                    { StatusCode = (int)HttpStatusCode.NotFound };
+                }
+                if (discount.Status != DiscountStatus.ACTIVE)
+                {
 
+                    throw new ApiException($"Discount is not active yet")
+                    { StatusCode = (int)HttpStatusCode.NotFound };
+                }
+                if (discount.Status == DiscountStatus.PAUSE)
+                {
+                    discount.Status = DiscountStatus.ACTIVE;
+                }
+                discount = await _unitOfWork.Repository<Discount>().Update(discount);
+                var res = _mapper.Map<DiscountDto>(discount);
+                return new BaseResponse<DiscountDto>(res, "Update successfully");
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}")
+                { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+        }
         public async Task<BaseResponse<DiscountDto>> PauseDiscountStatus(Guid id)
         {
             try
@@ -157,11 +186,7 @@ namespace Services.Concrete
                     discount.Status = DiscountStatus.PAUSE;
 
                 }
-                else
-                {
-                    discount.Status = DiscountStatus.ACTIVE;
-
-                }
+                
                 discount = await _unitOfWork.Repository<Discount>().Update(discount);
                 var res = _mapper.Map<DiscountDto>(discount);
                 return new BaseResponse<DiscountDto>(res, "Update successfully");
