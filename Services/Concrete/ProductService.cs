@@ -134,51 +134,8 @@ namespace Services.Concrete
             {
 
                 var products = await _unitOfWork.ProductRepository.GetProducts(pageNumber, pageSize);
-                if(products == null)
-                {
-                    throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
-                }
-                var productDtos = new List<ProductResponse>();
-                foreach(var product in products)
-                {
-                    var productDto = _mapper.Map<ProductResponse>(product);
-                    if (product?.ProductItems?.First()?.ProductImages.Count ==0)
-                    {
-                        productDto.Image ="";
-
-                    }
-                    else
-                    {
-                        productDto.Image = product.ProductItems.First().ProductImages.First().Url;
-                    }
-
-                    // get discount
-                  
-                    if(product.Discount == null)
-                    {
-                        productDto.ProductDiscount = new ProductDiscount();
-                    }
-                    else
-                    {
-                        productDto.ProductDiscount = new ProductDiscount();
-                        if(product.Discount.Status != DiscountStatus.ACTIVE)
-                        {
-                            productDto.ProductDiscount.Value = product.Discount.DiscountValue;
-                            productDto.ProductDiscount.Type = product.Discount.Type;
-                        }    
-                      
-                    }
-                    // get rating
-                    var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 0);
-                    productDto.Rating = new Rating
-                    {
-                        Count = TotalCount,
-                        Rate = averageRating
-                    };
-
-                    productDtos.Add(productDto);
-                }
-                return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
+                var res = await mapProductAsync(products);
+                return new BaseResponse<ICollection<ProductResponse>>(res, "Products");
             }
             catch (Exception ex)
             {
@@ -193,53 +150,8 @@ namespace Services.Concrete
             try
             {
                 var products = await _unitOfWork.ProductRepository.GetProductsIsDraft(pageNumber, pageSize);
-                if (products == null)
-                {
-                    throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
-                }
-                var productDtos = new List<ProductResponse>();
-                foreach (var product in products)
-                {
-                    var productDto = _mapper.Map<ProductResponse>(product);
-                    if (product?.ProductItems?.First()?.ProductImages.Count == 0)
-                    {
-                        productDto.Image = "";
-
-                    }
-                    else
-                    {
-                        productDto.Image = product.ProductItems.First().ProductImages.First().Url;
-                    }
-
-                    // get discount
-
-                    if (product.Discount == null)
-                    {
-                        productDto.ProductDiscount = new ProductDiscount();
-                    }
-                    else
-                    {
-                        productDto.ProductDiscount = new ProductDiscount();
-                        if (product.Discount.Status == DiscountStatus.ACTIVE)
-                        {
-                            productDto.ProductDiscount.Value = product.Discount.DiscountValue;
-                            productDto.ProductDiscount.Type = product.Discount.Type;
-                        }
-                      
-                        
-                    }
-                    // get rating
-                    var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 1);
-                    productDto.Rating = new Rating
-                    {
-                        Count = TotalCount,
-                        Rate = averageRating
-                    };
-                    
-                    productDtos.Add(productDto);
-                    
-                }
-                return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
+                var res = await mapProductAsync(products);
+                return new BaseResponse<ICollection<ProductResponse>>(res, "Products");
             }
             catch (Exception ex)
             {
@@ -254,49 +166,9 @@ namespace Services.Concrete
             {
 
                 var products = await _unitOfWork.ProductRepository.GetProductsIsPublish(pageNumber, pageSize);
-                if (products == null)
-                {
-                    throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
-                }
-                var productDtos = new List<ProductResponse>();
-                foreach (var product in products)
-                {
-                    var productDto = _mapper.Map<ProductResponse>(product);
-                    if (product?.ProductItems?.First()?.ProductImages.Count == 0)
-                    {
-                        productDto.Image = "";
 
-                    }
-                    else
-                    {
-                        productDto.Image = product.ProductItems.First().ProductImages.First().Url;
-                    }
-
-                    // get discount
-
-                    if (product.Discount == null)
-                    {
-                        productDto.ProductDiscount = new ProductDiscount();
-                    }
-                    else
-                    {
-                        productDto.ProductDiscount = new ProductDiscount();
-                        if (product.Discount.Status != DiscountStatus.ACTIVE)
-                        {
-                            productDto.ProductDiscount.Value = product.Discount.DiscountValue;
-                            productDto.ProductDiscount.Type = product.Discount.Type;
-                        }
-                    }
-                    // get rating
-                    var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 0);
-                    productDto.Rating = new Rating
-                    {
-                        Count = TotalCount,
-                        Rate = averageRating
-                    };
-                    productDtos.Add(productDto);
-                }
-                return new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products");
+                var res = await mapProductAsync(products);
+                return new BaseResponse<ICollection<ProductResponse>>(res, "Products");
             }
             catch (Exception ex)
             {
@@ -476,51 +348,8 @@ namespace Services.Concrete
             try
             {
                 var (products, count) = await _unitOfWork.ProductRepository.GetNewProducts(offset, limit);
-                if (products == null)
-                {
-                    throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
-                }
-                var productDtos = new List<ProductResponse>();
-                foreach (var product in products)
-                {
-                    var productDto = _mapper.Map<ProductResponse>(product);
-                    if (product?.ProductItems?.First()?.ProductImages.Count == 0)
-                    {
-                        productDto.Image = "";
-
-                    }
-                    else
-                    {
-                        productDto.Image = product.ProductItems.First().ProductImages.First().Url;
-                    }
-
-                    // get discount
-
-                    if (product.Discount == null)
-                    {
-                        productDto.ProductDiscount = new ProductDiscount();
-                    }
-                    else
-                    {
-                        productDto.ProductDiscount = new ProductDiscount();
-                        if (product.Discount.Status != DiscountStatus.ACTIVE)
-                        {
-                            productDto.ProductDiscount.Value = product.Discount.DiscountValue;
-                            productDto.ProductDiscount.Type = product.Discount.Type;
-                        }
-
-                    }
-                    // get rating
-                    var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 0);
-                    productDto.Rating = new Rating
-                    {
-                        Count = TotalCount,
-                        Rate = averageRating
-                    };
-
-                    productDtos.Add(productDto);
-                }
-                return (new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products"), count);
+                var res = await mapProductAsync(products);
+                return (new BaseResponse<ICollection<ProductResponse>>(res, "Products"), count);
             }
             catch(Exception ex)
             {
@@ -538,51 +367,9 @@ namespace Services.Concrete
                 var products = await _unitOfWork.ProductRepository.GetAllProductsByCategory(id);
                 count = products.Count;
                 products = products.Skip((offset-1)*limit).Take(limit).ToList();
-                if (products == null)
-                {
-                    throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
-                }
-                var productDtos = new List<ProductResponse>();
-                foreach (var product in products)
-                {
-                    var productDto = _mapper.Map<ProductResponse>(product);
-                    if (product?.ProductItems?.First()?.ProductImages.Count == 0)
-                    {
-                        productDto.Image = "";
 
-                    }
-                    else
-                    {
-                        productDto.Image = product.ProductItems.First().ProductImages.First().Url;
-                    }
-
-                    // get discount
-
-                    if (product.Discount == null)
-                    {
-                        productDto.ProductDiscount = new ProductDiscount();
-                    }
-                    else
-                    {
-                        productDto.ProductDiscount = new ProductDiscount();
-                        if (product.Discount.Status != DiscountStatus.ACTIVE)
-                        {
-                            productDto.ProductDiscount.Value = product.Discount.DiscountValue;
-                            productDto.ProductDiscount.Type = product.Discount.Type;
-                        }
-
-                    }
-                    // get rating
-                    var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 0);
-                    productDto.Rating = new Rating
-                    {
-                        Count = TotalCount,
-                        Rate = averageRating
-                    };
-
-                    productDtos.Add(productDto);
-                }
-                return (new BaseResponse<ICollection<ProductResponse>>(productDtos, "Products by category"), count);
+                var res = await mapProductAsync(products);
+                return (new BaseResponse<ICollection<ProductResponse>>(res, "Products by category"), count);
             }
             catch(Exception ex)
             {
@@ -591,9 +378,72 @@ namespace Services.Concrete
             }
         }
 
-        //public async Task<BaseResponse<ICollection<ProductDto>>> GetProductByCategory(Guid id)
-        //{
+        public async Task<(ICollection<ProductResponse>, int)> QueryProduct(string query, int limit, int offset)
+        {
+            try
+            {
+                int productCount = 0;
 
-        //}
+                ICollection<Product> products = await _unitOfWork.ProductRepository.QueryProductAsync(query);
+                productCount = products.Count;
+                products.Skip((offset -1)* limit).Take(limit);
+                var res = await mapProductAsync(products);
+                return (res, productCount);
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+        }
+
+
+        private async Task<ICollection<ProductResponse>> mapProductAsync(ICollection<Product> products)
+        {
+            if (products == null)
+            {
+                throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
+            }
+            var productDtos = new List<ProductResponse>();
+            foreach (var product in products)
+            {
+                var productDto = _mapper.Map<ProductResponse>(product);
+                if (product?.ProductItems?.First()?.ProductImages.Count == 0)
+                {
+                    productDto.Image = "";
+
+                }
+                else
+                {
+                    productDto.Image = product.ProductItems.First().ProductImages.First().Url;
+                }
+
+                // get discount
+
+                if (product.Discount == null)
+                {
+                    productDto.ProductDiscount = new ProductDiscount();
+                }
+                else
+                {
+                    productDto.ProductDiscount = new ProductDiscount();
+                    if (product.Discount.Status != DiscountStatus.ACTIVE)
+                    {
+                        productDto.ProductDiscount.Value = product.Discount.DiscountValue;
+                        productDto.ProductDiscount.Type = product.Discount.Type;
+                    }
+
+                }
+                // get rating
+                var (Reviews, TotalCount, averageRating) = await _unitOfWork.ReviewRepository.GetReviewsByProductId(product.Id, 1, 0);
+                productDto.Rating = new Rating
+                {
+                    Count = TotalCount,
+                    Rate = averageRating
+                };
+
+                productDtos.Add(productDto);
+            }
+            return productDtos;
+        }
     }
 }

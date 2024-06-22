@@ -25,6 +25,6 @@ namespace Services.Interfaces
         Task<BaseResponse<ICollection<object>>> GetTopBestSellingProductsLastMonth(int top);
         Task<(BaseResponse<ICollection<ProductResponse>>, int count)> GetNewProducts(int limit, int offset);
         Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductByCategory(Guid id, int limit, int offset);
-
+        Task<(ICollection<ProductResponse>, int)> QueryProduct(string query, int limit, int offset);
     }
 }

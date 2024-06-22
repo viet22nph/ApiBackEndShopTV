@@ -178,5 +178,23 @@ namespace WebApi.Controllers
                 count = count
             });
         }
+        [Cache]
+        [HttpPost("query-product")]
+        public async Task<IActionResult> QueryProduct([FromQuery] string? query, int offset =1, int limit = 10)
+        {
+            if(query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            var (data, count) = await _productService.QueryProduct(query, offset, limit);
+            return Ok(new
+            {
+                message = "Products",
+                data = data,
+                count = count,
+                limit = limit,
+                offset = offset
+            });
+        }
     }
 }

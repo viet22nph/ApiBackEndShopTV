@@ -1,13 +1,17 @@
-﻿using Application.DAL.Models;
+﻿using Application.DAL.Helper;
+using Application.DAL.Models;
+using Core.Extensions;
 using Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SqlServer.Server;
+using Models.DTOs.Product;
 using Models.Status;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Data.Repos.ProductRepo
 {
@@ -183,5 +187,26 @@ namespace Data.Repos.ProductRepo
                 }
             }
         }
+
+        public async Task<ICollection<Product>> QueryProductAsync(string query)
+        {
+            query = query.ToLower().RemoveDiacritics();
+            // Start with the base query
+            var productQuery = await _context.Set<Product>()
+                .Include(p => p.ProductSpecifications)
+                .Include(p => p.ProductItems)
+                    .ThenInclude(pi => pi.ProductImages)
+                .Include(p => p.ProductItems)
+                    .ThenInclude(pi => pi.Color)
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .Include(p => p.Discount)
+                .Where(p => p.IsPublished == true).ToListAsync();
+             productQuery = productQuery.Where(p => p.Name.ToLower().RemoveDiacritics().Contains(query) || (p.Description?? "").Contains(query)).ToList();
+               
+
+            return productQuery;
+        }
+       
     }
 }
