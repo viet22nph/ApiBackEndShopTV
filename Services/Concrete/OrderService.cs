@@ -112,10 +112,14 @@ namespace Services.Concrete
                     {
                         To = user.Email, // Set the recipient email address here
                         From = "nguyendinh.viet2002np@gmail.com", // Set the sender email address here
-                        Subject = "New Order",
+                        Subject = "ShopTV. Hóa đơn mới cho đơn hàng của quý khách đã được tạo",
                         Body = GenerateHtmlBody(request, order.Id), // Specify that the email body is HTML
                     });
                     var key = $"Cart:{request.UserId}";
+                    foreach(var item in request.Items)
+                    {
+                        await _cacheManager.RemoveHashAsync(key, item.ProductItemId.ToString());
+                    }    
                 }
                 // xoa gio hang
                 
@@ -372,20 +376,20 @@ namespace Services.Concrete
             var html = new StringBuilder();
             html.AppendLine("<html>");
             html.AppendLine("<body>");
-            html.AppendLine("<h2>Order Confirmation</h2>");
-            html.AppendLine("<p>Thank you for your order! Below are the details:</p>");
+            html.AppendLine("<h2>Đơn hàng mới</h2>");
+            html.AppendLine("<p>Cảm ơn bạn đã đặt hàng. Dưới đây là thông tin đơn hàng của bạn.</p>");
 
-            html.AppendLine("<h3>Order Information</h3>");
+            html.AppendLine("<h3>Thông tin đơn hàng</h3>");
             html.AppendLine("<ul>");
             html.AppendLine($"<li><strong>Mã hóa đơn:</strong> {idOrderId}</li>");
             html.AppendLine($"<li><strong>Loại hóa đơn:</strong> {request.OrderType}</li>");
             html.AppendLine($"<li><strong>Địa chỉ:</strong> {request.Address}</li>");
             html.AppendLine($"<li><strong>Số điện thoại:</strong> {request.Phone}</li>");
             html.AppendLine($"<li><strong>Tên người nhận:</strong> {request.RecipientName}</li>");
-            html.AppendLine($"<li><strong>Tổng phụ:</strong> {request.SubTotal:vnd}</li>");
-            html.AppendLine($"<li><strong>Tổng cộng:</strong> {request.GrandTotal:vnd}</li>");
+            html.AppendLine($"<li><strong>Tổng phụ:</strong> {request.SubTotal.ToString("#,##0")} VNĐ</li>");
+            html.AppendLine($"<li><strong>Tổng cộng:</strong> {request.GrandTotal.ToString("#,##0")} VNĐ</li>");
             html.AppendLine("</ul>");
-            html.AppendLine("<p>Phương thức vận chuyển đơn hàng vẽ được liên hệ sau khi nhân viên liên hệ lại với bạn.</p>");
+            html.AppendLine("<p>Phương thức vận chuyển và phí vận chuyển của đơn hàng sẽ được cập nhật sau khi nhân viên liên hệ và thống nhất lại với bạn.</p>");
             html.AppendLine("<p>Chúng tôi sẽ xử lý đơn đặt hàng của bạn trong thời gian ngắn.</p>");
             html.AppendLine("</body>");
             html.AppendLine("</html>");
