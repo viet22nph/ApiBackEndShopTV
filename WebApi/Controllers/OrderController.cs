@@ -15,10 +15,12 @@ namespace WebApi.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly ICacheManager _cacheManager;
-        public OrderController(IOrderService orderService, ICacheManager cacheManager)
+        private readonly ICartService _cartService;
+        public OrderController(IOrderService orderService, ICacheManager cacheManager, ICartService cartService)
         {
             _cacheManager = cacheManager;
             _orderService = orderService;
+            _cartService = cartService;
         }
 
         [HttpPost("review-checkout")]
@@ -42,6 +44,18 @@ namespace WebApi.Controllers
             }
 
             var result = await _orderService.CreateOrder(request);
+
+            if(result.Data.UserId != null)
+            {
+                await _orderService.SendMailOrder(result.Data.Id);
+                // clear cart
+
+                foreach (var item in result.Data.OrderItems)
+                {
+                    await _cartService.DeleteFromCart(result.Data.UserId, item.ProductItemId);
+                }
+            }    
+           
             _cacheManager.RemoveByPrefix("api/Product");
             _cacheManager.RemoveByPrefix("api/Order");
             return Ok(result);
@@ -79,7 +93,7 @@ namespace WebApi.Controllers
 
         [HttpPost("user/{id}")]
         public async Task<IActionResult> GetOrdersByUserId(string id)
-        {
+            {
             var result = await _orderService.GetOrdersByUserId(id);
             return Ok(result);
         }

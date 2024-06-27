@@ -1,5 +1,6 @@
 using Application.Api.Extentions;
 using Caching;
+using Data.Contexts;
 using Data.SeedData;
 using WebApi.Middlewares;
 using WebApi.Udapters;
@@ -35,9 +36,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://example.com",
-                                              "http://www.contoso.com").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
-                      });
+                          policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+});
 });
 
 var app = builder.Build();
@@ -62,8 +64,13 @@ app.UseMiddleware<AuthenticationErrorHandlingMiddleware>();
 //Seed
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
+
+
+
 try
 {
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    context.Database.EnsureCreated();
     var seed = services.GetService<SeedData>();
     if (seed != null)
     {
@@ -76,4 +83,5 @@ catch (Exception ex)
     var logger = services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "An error occurred during migration");
 }
+
 app.Run();

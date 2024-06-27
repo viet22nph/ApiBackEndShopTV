@@ -164,7 +164,7 @@ namespace Services.AccountServices
                 Email = request.Email,
                 UserName = request.UserName
             };
-            var result = await _userManager.CreateAsync(newUser, request.Password);
+            var result = await _userManager.CreateAsync(newUser, request.Password); 
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(newUser, RoleEnums.User.ToString());

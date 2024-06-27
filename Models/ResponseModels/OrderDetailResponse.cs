@@ -10,6 +10,7 @@ namespace Models.ResponseModels
     public class OrderResponse
     {
         public Guid OrderId { get; set; }
+        public string? UserId { get; set; }
         public string OrderType { get; set; }
         public string Address { get; set; }
         public string Phone { get; set; }
@@ -52,6 +53,7 @@ namespace Models.ResponseModels
     public class TransactionResponse
     {
         public DateTime CreatedAt { get; set; }
+        public string? UserId { get; set; }
         public decimal Amount { get; set; }
         public string Type { get; set; } // COD - MOMO - VN pay
         public string? Description { get; set; }

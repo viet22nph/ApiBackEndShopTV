@@ -1,6 +1,8 @@
 ﻿using Application.DAL.Models;
 using Data.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Identity.Client;
 using Models.Status;
 using System;
 using System.Collections.Generic;
@@ -72,6 +74,35 @@ namespace Data.Repos.OrderRepo
             .Where(o => o.DateCreate >= dateStart && o.DateCreate <= dateEnd && o.Status == OrderStatus.COMPLETED)
             .SumAsync(o => o.GrandTotal);
             return totalRevenue;
+        }
+
+        public async Task<bool> RemoveOrder(Guid orderId)
+        {
+            var order = await _context.Set<Order>()
+            .Include(o => o.OrderItems)
+            .Include(o => o.Transaction)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null)
+            {
+                return false;
+            }
+
+            // Remove related entities
+            if (order.OrderItems != null)
+            {
+                _context.Set<OrderItem>().RemoveRange(order.OrderItems);
+            }
+
+            if (order.Transaction != null)
+            {
+                _context.Set<Transaction>().Remove(order.Transaction);
+            }
+
+            _context.Set<Order>().Remove(order);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Identity.Client;
+using Models.DTOs.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,24 +18,12 @@ namespace Models.DTOs.Order
         public decimal SubTotal { get; set; }
         public decimal GrandTotal { get; set; }
         public string Status { get; set; }
+        public DateTime DateCreate { get; set; }
         public string? Notes { get; set; }
         public string? UserId { get; set; }
         public ICollection<OrderItemDto>? OrderItems { get; set; }
         //public TransactionDto Transaction { get; set; }
-    }
-    public class OrderItemDto
-    {
-        public Guid ProductItemId { get; set; }
-        public int Quantity { get; set; }
-        public decimal Price { get; set; }
-    }
-    public class TransactionDto
-    {
 
-        public decimal Amount { get; set; }
-        public string Type { get; set; } // COD - MOMO - VN pay
-        public string? Description { get; set; }
-        public string? UserId { get; set; }
-        public string Status { get; set; }
     }
+    
 }
