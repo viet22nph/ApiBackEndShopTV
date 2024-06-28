@@ -6,6 +6,6 @@ namespace Models.DbEntities
     {
         public Guid Id { get; set; }
         public DateTime DateCreate { get; set; }
-        public DateTime DateUpdate { get; set; }
+        public DateTime? DateUpdate { get; set; }
     }
 }

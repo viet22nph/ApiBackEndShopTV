@@ -31,4 +31,19 @@ namespace Models.Status
             return validStatuses.Contains(status);
         }
     }
+
+    public static class TransactionStatus
+    {
+        public const string PENDING = "PENDING";
+        public const string COMPLETED = "COMPLETED";
+        public static bool IsValidStatus(string status)
+        {
+            var validStatuses = new HashSet<string>
+            {
+                COMPLETED, PENDING
+            };
+
+            return validStatuses.Contains(status);
+        }
+    }
 }

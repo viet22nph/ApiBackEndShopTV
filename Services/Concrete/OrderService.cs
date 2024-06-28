@@ -62,7 +62,10 @@ namespace Services.Concrete
                     Phone = request.Phone,
                     RecipientName = request.RecipientName,
                     SubTotal = request.SubTotal,
-                    GrandTotal = request.GrandTotal,
+                    Total = request.Total,
+                    DateCreate = DateTime.Now,
+                    TotalDiscount = request.TotalDiscount,
+                    
                     Notes = request.Notes,
                     UserId = request.UserId,
                     Status = OrderStatus.NEWORDER, // Assuming a new order status
@@ -72,17 +75,22 @@ namespace Services.Concrete
                         {
                             ProductItemId = s.ProductItemId,
                             Quantity = s.Quantity,
-                            Price = s.Price
+                            Price = s.Price,
+                            AmountDiscount = s.AmountDiscount
                         };
                     }).ToList(),
-                    Transaction = new Transaction
+                    Transactions = request.Transactions.Select(t =>
                     {
-                        Amount = request.Transaction.Amount,
-                        Type = request.Transaction.Type,
-                        Description = request.Transaction.Description,
-                        UserId = request.Transaction.UserId,
-                        Status = request.Transaction.Status
-                    }
+                        return new Transaction
+                        {
+                            Amount = t.Amount,
+                            DateCreate = DateTime.Now,
+                            Description = t.Description,
+                            Status = t.Status,
+                            UserId = t.UserId,
+                            Type = t.Type
+                        };
+                    }).ToList(),
                  
                 };
                 // Tru san pham 
@@ -154,7 +162,7 @@ namespace Services.Concrete
             }
         }
 
-        public async Task<BaseResponse<OrderResponse>> GetOrderDetail(Guid id)
+        public async Task<BaseResponse<OrderDetailDto>> GetOrderDetail(Guid id)
         {
             try
             {
@@ -165,49 +173,58 @@ namespace Services.Concrete
                     { StatusCode = (int)HttpStatusCode.NotFound };
                 }
 
-                var response = new OrderResponse
+                var response = new OrderDetailDto
                 {
                     OrderId = order.Id,
+                    UserId = order.UserId,
                     OrderType = order.OrderType,
                     Address = order.Address,
                     Phone = order.Phone,
                     RecipientName = order.RecipientName,
                     SubTotal = order.SubTotal,
-                    GrandTotal = order.GrandTotal,
+                    Total = order.Total,
+                    TotalDiscount = order.TotalDiscount,
                     Status = order.Status,
-                    CreatedAt = order.DateCreate,
                     Notes = order.Notes,
-                    OrderItems = order.OrderItems?.Select(oi => new OrderItemResponse
-                    {
-                        ProductItemId = oi.ProductItemId,
-                        Quantity = oi.Quantity,
-                        Price = oi.Price,
-                        Product = oi.Product != null ? new ProductItemResponse
-                        {
-                            ProductId = oi.Product.ProductId,
-                           
-                            ProductName = oi.Product.Product.Name,
-                            Color = oi.Product.Color != null ? new ColorResponse
-                            {
-                                ColorName = oi.Product.Color.ColorName,
-                                ColorCode = oi.Product.Color.ColorCode
-                            } : null,
-                            ProductImages = oi.Product.ProductImages?.Select(pi => new ProductImageResponse
-                            {
-                                Url = pi.Url
-                            }).ToList()
-                        } : null
-                    }).ToList(),
-                    Transaction = order.Transaction != null ? new TransactionResponse
-                    {
-                        CreatedAt = order.Transaction.CreateAt,
-                        Amount = order.Transaction.Amount,
-                        Type = order.Transaction.Type,
-                        Description = order.Transaction.Description,
-                        Status = order.Transaction.Status
-                    } : null
+                    DateCreate = order.DateCreate,
+                    DateUpdate = order.DateUpdate,
                 };
-                return new BaseResponse<OrderResponse>(response, "Order");
+                response.OrderItems = order.OrderItems == null ? null : order.OrderItems?.Select(oi => new OrderDetailDto.OrderItem()
+                {
+                    OrderId = oi.OrderId,
+                    ProductItemId = oi.ProductItemId,
+                    Quantity = oi.Quantity,
+                    Price = oi.Price,
+                    Product = oi.Product != null ? new OrderDetailDto.OrderItem.ProductItem()
+                    {
+                        ProductId = oi.Product.ProductId,
+
+                        ProductName = oi?.Product?.Product?.Name ?? null,
+                        Image = oi?.Product.ProductImages == null ? oi?.Product.ProductImages.First().Url : null,
+                        ColorItem = oi?.Product?.Color != null ? new OrderDetailDto.OrderItem.ProductItem.Color
+                        {
+                            Id = oi.Product.Color.Id,
+                            ColorName = oi.Product.Color.ColorName,
+                            ColorCode = oi.Product.Color.ColorCode
+                        } : null,
+
+                    } : null
+                }).ToList();
+                response.Transactions = order.Transactions == null? null:  order.Transactions?.Select(t =>
+                {
+                    return new OrderDetailDto.Transaction
+                    {
+                        Id = t.Id,
+                        UserId = t.UserId,
+                        Amount = t.Amount,
+                        Type = t.Type,
+                        Description = t.Description,
+                        Status = t.Status,
+                        DateCreate = t.DateCreate,
+                        DateUpdate = t.DateUpdate
+                    };
+                }).ToList();
+                return new BaseResponse<OrderDetailDto>(response, "Order");
             }
             catch (Exception ex)
             {
@@ -239,8 +256,7 @@ namespace Services.Concrete
                 { StatusCode = (int)HttpStatusCode.BadRequest };
             }
         }
-
-        public async Task<BaseResponse<ReviewCheckoutResponse>>  ReviewCheckoutOrder(ReviewCheckoutRequest request)
+        public async Task<BaseResponse<ReviewCheckoutResponse>> ReviewCheckoutOrder(ReviewCheckoutRequest request)
         {
             try
             {    // duyệt items
@@ -417,7 +433,7 @@ namespace Services.Concrete
             html.AppendLine($"<li><strong>Số điện thoại:</strong> {order.Phone}</li>");
             html.AppendLine($"<li><strong>Tên người nhận:</strong> {order.RecipientName}</li>");
             html.AppendLine($"<li><strong>Tổng phụ:</strong> {order.SubTotal.ToString("#,##0")} VNĐ</li>");
-            html.AppendLine($"<li><strong>Tổng cộng:</strong> {order.GrandTotal.ToString("#,##0")} VNĐ</li>");
+            html.AppendLine($"<li><strong>Tổng cộng:</strong> {order.Total.ToString("#,##0")} VNĐ</li>");
             html.AppendLine("</ul>");
             html.AppendLine("<p>Phương thức vận chuyển và phí vận chuyển của đơn hàng sẽ được cập nhật sau khi nhân viên liên hệ và thống nhất lại với bạn.</p>");
             html.AppendLine("<p>Chúng tôi sẽ xử lý đơn đặt hàng của bạn trong thời gian ngắn.</p>");

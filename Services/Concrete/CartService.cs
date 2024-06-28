@@ -19,7 +19,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using ProductItemResponse = Models.ResponseModels.ProductItemResponse;
 
 namespace Services.Concrete
 {

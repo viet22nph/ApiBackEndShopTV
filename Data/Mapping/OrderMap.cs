@@ -13,7 +13,7 @@ namespace Data.Mapping
     {
         public override void Configure(EntityTypeBuilder<Order> builder)
         {
-            builder.ToTable("Order");
+            builder.ToTable("tbl_Order");
             builder.HasKey(o => o.Id);
             builder.Property(o => o.OrderType)
                 .HasMaxLength(30)
@@ -29,9 +29,9 @@ namespace Data.Mapping
             builder.HasOne(u => u.User)
                 .WithMany(o => o.Order)
                 .HasForeignKey(o => o.UserId);
-            builder.HasOne(o => o.Transaction)
+            builder.HasMany(o => o.Transactions)
            .WithOne(t => t.Order)
-           .HasForeignKey<Transaction>(t => t.OrderId);
+           .HasForeignKey(o => o.OrderId);
             builder.Property(r => r.DateCreate)
               .HasColumnType("DateTime")
               .HasDefaultValueSql("GetUtcDate()");

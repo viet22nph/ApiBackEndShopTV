@@ -16,14 +16,13 @@ namespace Models.DTOs.Order
         public string? Phone { get; set; }
         public string? RecipientName { get; set; }
         public decimal SubTotal { get; set; }
-        public decimal GrandTotal { get; set; }
+        public decimal Total { get; set; }
+        public decimal TotalDiscount { get; set; }
         public string Status { get; set; }
         public DateTime DateCreate { get; set; }
+        public DateTime DateUpdate { get; set; }
         public string? Notes { get; set; }
         public string? UserId { get; set; }
-        public ICollection<OrderItemDto>? OrderItems { get; set; }
-        //public TransactionDto Transaction { get; set; }
-
     }
     
 }

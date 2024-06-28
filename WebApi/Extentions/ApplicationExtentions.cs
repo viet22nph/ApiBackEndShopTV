@@ -49,7 +49,7 @@ namespace Application.Api.Extentions
             services.AddScoped<IUploadPhotoCoreService, UploadPhotoCoreService>();
 
             services.AddScoped<IOrderService, OrderService>();
-
+            services.AddScoped<ITransactionService, TransactionService>();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICartService, CartService>();

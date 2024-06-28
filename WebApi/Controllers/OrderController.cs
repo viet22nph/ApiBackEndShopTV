@@ -50,7 +50,7 @@ namespace WebApi.Controllers
                 await _orderService.SendMailOrder(result.Data.Id);
                 // clear cart
 
-                foreach (var item in result.Data.OrderItems)
+                foreach (var item in request.Items)
                 {
                     await _cartService.DeleteFromCart(result.Data.UserId, item.ProductItemId);
                 }

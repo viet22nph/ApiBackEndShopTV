@@ -40,8 +40,6 @@ namespace WebApi.Helpers
             CreateMap<ProductItemRequest, ProductItem>().ReverseMap();
             CreateMap<ProductImageRequest, ProductImage>().ReverseMap();
             CreateMap<ProductSpecificationRequest, ProductSpecification>().ReverseMap();
-
-
             CreateMap<Discount, DiscountDto>()
                 .ForMember(d=>d.Condition, dt=> dt.MapFrom(s=> s.MinimumPurchase))
                 .ReverseMap();
@@ -51,8 +49,7 @@ namespace WebApi.Helpers
             CreateMap<OrderDto, Order>().ReverseMap();
 
             CreateMap<TransactionDto, Transaction>().ReverseMap();
-            CreateMap<OrderItemDto, OrderItem>()
-                .ReverseMap();
+            
             CreateMap<UserDto, ApplicationUser>().ReverseMap();
 
             CreateMap<Review, ReviewRequest>().ReverseMap();

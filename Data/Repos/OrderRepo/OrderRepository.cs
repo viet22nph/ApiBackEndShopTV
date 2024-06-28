@@ -34,7 +34,7 @@ namespace Data.Repos.OrderRepo
            .Include(o => o.OrderItems)
               .ThenInclude(oi => oi.Product)
                   .ThenInclude(p => p.Product)
-          .Include(o => o.Transaction)
+          .Include(o => o.Transactions)
           .Where(o=> o.UserId == userId)
           .ToListAsync();
         }
@@ -52,7 +52,7 @@ namespace Data.Repos.OrderRepo
             .Include(o => o.OrderItems)
                .ThenInclude(oi => oi.Product)
                    .ThenInclude(p => p.Product)
-           .Include(o => o.Transaction)
+           .Include(o => o.Transactions)
            
            .FirstOrDefaultAsync(o => o.Id == id);
         }
@@ -72,7 +72,7 @@ namespace Data.Repos.OrderRepo
         {
             var totalRevenue = await _context.Set<Order>()
             .Where(o => o.DateCreate >= dateStart && o.DateCreate <= dateEnd && o.Status == OrderStatus.COMPLETED)
-            .SumAsync(o => o.GrandTotal);
+            .SumAsync(o => o.Total);
             return totalRevenue;
         }
 
@@ -80,7 +80,7 @@ namespace Data.Repos.OrderRepo
         {
             var order = await _context.Set<Order>()
             .Include(o => o.OrderItems)
-            .Include(o => o.Transaction)
+            .Include(o => o.Transactions)
             .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
@@ -94,9 +94,9 @@ namespace Data.Repos.OrderRepo
                 _context.Set<OrderItem>().RemoveRange(order.OrderItems);
             }
 
-            if (order.Transaction != null)
+            if (order.Transactions != null)
             {
-                _context.Set<Transaction>().Remove(order.Transaction);
+                _context.Set<Transaction>().RemoveRange(order.Transactions);
             }
 
             _context.Set<Order>().Remove(order);
