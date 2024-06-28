@@ -19,5 +19,6 @@ namespace Services.Interfaces
         Task SendMailOrder(Guid orderId);
         Task<(decimal totalRevenue, DateTime startDate, DateTime endDate)> GetTotalRevenueLastMonth();
         Task<bool> RemoveOrder(Guid orderId);
+        Task<ICollection<OrderDetailDto>> GetListOrderByDate(DateTime date);
     }
 }

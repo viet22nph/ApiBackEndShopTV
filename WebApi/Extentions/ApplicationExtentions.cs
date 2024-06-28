@@ -61,7 +61,7 @@ namespace Application.Api.Extentions
             services.AddScoped<IDiscountService, DiscountService>();
             services.AddScoped<DiscountStatusUpdater>();
             services.AddSingleton<IVnPayService, VnpayService>();
-            
+            services.AddScoped<IReportService, ReportService>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              .AddJwtBearer(options =>

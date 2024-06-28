@@ -172,59 +172,9 @@ namespace Services.Concrete
                     throw new ApiException($"Not found")
                     { StatusCode = (int)HttpStatusCode.NotFound };
                 }
+                var rs = mapOrderDetail(order);
 
-                var response = new OrderDetailDto
-                {
-                    OrderId = order.Id,
-                    UserId = order.UserId,
-                    OrderType = order.OrderType,
-                    Address = order.Address,
-                    Phone = order.Phone,
-                    RecipientName = order.RecipientName,
-                    SubTotal = order.SubTotal,
-                    Total = order.Total,
-                    TotalDiscount = order.TotalDiscount,
-                    Status = order.Status,
-                    Notes = order.Notes,
-                    DateCreate = order.DateCreate,
-                    DateUpdate = order.DateUpdate,
-                };
-                response.OrderItems = order.OrderItems == null ? null : order.OrderItems?.Select(oi => new OrderDetailDto.OrderItem()
-                {
-                    OrderId = oi.OrderId,
-                    ProductItemId = oi.ProductItemId,
-                    Quantity = oi.Quantity,
-                    Price = oi.Price,
-                    Product = oi.Product != null ? new OrderDetailDto.OrderItem.ProductItem()
-                    {
-                        ProductId = oi.Product.ProductId,
-
-                        ProductName = oi?.Product?.Product?.Name ?? null,
-                        Image = oi?.Product.ProductImages == null ? oi?.Product.ProductImages.First().Url : null,
-                        ColorItem = oi?.Product?.Color != null ? new OrderDetailDto.OrderItem.ProductItem.Color
-                        {
-                            Id = oi.Product.Color.Id,
-                            ColorName = oi.Product.Color.ColorName,
-                            ColorCode = oi.Product.Color.ColorCode
-                        } : null,
-
-                    } : null
-                }).ToList();
-                response.Transactions = order.Transactions == null? null:  order.Transactions?.Select(t =>
-                {
-                    return new OrderDetailDto.Transaction
-                    {
-                        Id = t.Id,
-                        UserId = t.UserId,
-                        Amount = t.Amount,
-                        Type = t.Type,
-                        Description = t.Description,
-                        Status = t.Status,
-                        DateCreate = t.DateCreate,
-                        DateUpdate = t.DateUpdate
-                    };
-                }).ToList();
-                return new BaseResponse<OrderDetailDto>(response, "Order");
+                return new BaseResponse<OrderDetailDto>(rs, "Order");
             }
             catch (Exception ex)
             {
@@ -416,6 +366,76 @@ namespace Services.Concrete
                 
             }
          
+
+        }
+        public async Task<ICollection<OrderDetailDto>> GetListOrderByDate(DateTime date)
+        {
+            var orders = await _unitOfWork.OrderRepository.GetListOrderByDate(date);
+            if (orders == null)
+            {
+                return [];
+            }
+            var data = orders.Select(x =>
+                {
+                    return mapOrderDetail(x);
+                }).ToList();
+            return data;
+        }
+        private OrderDetailDto mapOrderDetail(Application.DAL.Models.Order order)
+        {
+
+            var rs = new OrderDetailDto
+            {
+                OrderId = order.Id,
+                UserId = order.UserId,
+                OrderType = order.OrderType,
+                Address = order.Address,
+                Phone = order.Phone,
+                RecipientName = order.RecipientName,
+                SubTotal = order.SubTotal,
+                Total = order.Total,
+                TotalDiscount = order.TotalDiscount,
+                Status = order.Status,
+                Notes = order.Notes,
+                DateCreate = order.DateCreate,
+                DateUpdate = order.DateUpdate,
+            };
+            rs.OrderItems = order.OrderItems == null ? null : order.OrderItems?.Select(oi => new OrderDetailDto.OrderItem()
+            {
+                OrderId = oi.OrderId,
+                ProductItemId = oi.ProductItemId,
+                Quantity = oi.Quantity,
+                Price = oi.Price,
+                Product = oi.Product != null ? new OrderDetailDto.OrderItem.ProductItem()
+                {
+                    ProductId = oi.Product.ProductId,
+
+                    ProductName = oi?.Product?.Product?.Name ?? null,
+                    Image = oi?.Product.ProductImages == null ? oi?.Product.ProductImages.First().Url : null,
+                    ColorItem = oi?.Product?.Color != null ? new OrderDetailDto.OrderItem.ProductItem.Color
+                    {
+                        Id = oi.Product.Color.Id,
+                        ColorName = oi.Product.Color.ColorName,
+                        ColorCode = oi.Product.Color.ColorCode
+                    } : null,
+
+                } : null
+            }).ToList();
+            rs.Transactions = order.Transactions == null ? null : order.Transactions?.Select(t =>
+            {
+                return new OrderDetailDto.Transaction
+                {
+                    Id = t.Id,
+                    UserId = t.UserId,
+                    Amount = t.Amount,
+                    Type = t.Type,
+                    Description = t.Description,
+                    Status = t.Status,
+                    DateCreate = t.DateCreate,
+                    DateUpdate = t.DateUpdate
+                };
+            }).ToList();
+            return rs;
         }
         private string GenerateHtmlBody(Application.DAL.Models.Order order)
         {

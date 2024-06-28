@@ -114,5 +114,16 @@ namespace WebApi.Controllers
             };
             return Ok(result);
         }
+        [HttpPost("order-by-date")]
+        public async Task<IActionResult> GetOrderByDate(DateTime date)
+        {
+            var data = await _orderService.GetListOrderByDate(date);
+            return Ok(new
+            {
+                messaege = $"Order date {date.Date}",
+                data = data
+            }) ;
+            
+        }
     }
 }

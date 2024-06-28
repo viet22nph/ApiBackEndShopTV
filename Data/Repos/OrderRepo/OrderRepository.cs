@@ -3,6 +3,7 @@ using Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Identity.Client;
+using Models.DTOs.Report;
 using Models.Status;
 using System;
 using System.Collections.Generic;
@@ -103,6 +104,59 @@ namespace Data.Repos.OrderRepo
             await _context.SaveChangesAsync();
 
             return true;
+        }
+        public async Task<ICollection<DailyOrderSummary>> GetOrderSummary(DateTime startDate, DateTime endDate)
+        {
+            var summaries = new List<DailyOrderSummary>();
+
+            // tính khoảng cách từ ngày bắt đầu đến ngày kết thúc
+            var dateRange = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                                      .Select(offset => startDate.AddDays(offset))
+                                      .ToList();
+            // lấy danh sách
+            var orders = await _context.Set<Order>()
+                                    .Include(o => o.OrderItems)
+                                    .Where(o => o.DateCreate.Date >= startDate.Date && o.DateCreate <= endDate.Date)
+                                    .ToListAsync();
+            
+            if (orders == null)
+                return null;
+
+            foreach (var date in dateRange)
+            {
+                var order = orders.Where(o => o.DateCreate.Date == date.Date).ToList();
+
+                var dailySummary = new DailyOrderSummary
+                {
+                    Date = date,
+                    TotalOrder = order.Count,
+                    TotalProductSold = order.SelectMany(o => o.OrderItems).Sum(oi => oi.Quantity),
+                    TotalRevenue = order.Sum(o => o.Total)
+                };
+
+                summaries.Add(dailySummary);
+            }
+
+            return summaries;
+        }
+        public async Task<ICollection<Order>> GetListOrderByDate(DateTime date)
+        {
+            return await _context.Set<Order>()
+        .Include(o => o.User)
+        .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
+                .ThenInclude(p => p.Color)
+        .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
+                .ThenInclude(p => p.ProductImages)
+         .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
+                .ThenInclude(p => p.Product)
+        .Include(o => o.Transactions)
+        .Where(p => p.DateCreate.Date == date.Date
+        ).ToListAsync();
+
+       
         }
     }
 }

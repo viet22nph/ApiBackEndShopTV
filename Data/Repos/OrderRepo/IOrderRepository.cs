@@ -1,4 +1,5 @@
 ﻿using Application.DAL.Models;
+using Models.DTOs.Report;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,5 +18,7 @@ namespace Data.Repos.OrderRepo
 
         Task<bool> RemoveOrder(Guid orderId);
         Task<decimal> GetTotalRevenue(DateTime dateStart, DateTime dateEnd);
+        Task<ICollection<DailyOrderSummary>> GetOrderSummary(DateTime startDate, DateTime endDate);
+        Task<ICollection<Order>> GetListOrderByDate(DateTime date);
     }
 }
