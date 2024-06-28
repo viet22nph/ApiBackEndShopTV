@@ -102,10 +102,8 @@ namespace Services.Concrete
             {
                 return new BaseResponse<string>("Item removed from cart.");
             }
-            else
-            {
-                throw new ApiException($"Internal server error: Item not found in cart.") { StatusCode = (int)HttpStatusCode.NotFound };
-            }
+                return new BaseResponse<string>("Item không có trong giỏ hàng.");
+
         }
 
         public async Task<BaseResponse<ICollection<object>>> GetCart(string userId)

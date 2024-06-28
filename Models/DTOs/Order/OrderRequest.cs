@@ -22,6 +22,7 @@ namespace Models.DTOs.Order
         [Required(ErrorMessage = "Total required")]
         public decimal Total { get; set; }
         public decimal? TotalDiscount { get; set; }
+        public string? Status { get; set; }
         public string? Notes { get; set; }
         [Required(ErrorMessage = "Items required")]
         public ICollection<OrderItemRequest> Items { get; set; }
@@ -43,7 +44,7 @@ namespace Models.DTOs.Order
             public string Type { get; set; } // COD - MOMO - VN pay
             public string? Description { get; set; }
             public string? UserId { get; set; }
-            public string Status { get; set; }
+            public string? Status { get; set; }
         }
     }
 }

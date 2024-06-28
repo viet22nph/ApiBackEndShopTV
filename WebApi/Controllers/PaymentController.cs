@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Order;
 using Models.RequestModels;
+using Models.Status;
+using Newtonsoft.Json;
 using Services.Concrete;
 using Services.Interfaces;
 
@@ -28,19 +30,15 @@ namespace WebApi.Controllers
         [HttpPost("vnpay")]
         public async Task<IActionResult> PaymentVnpay([FromBody] OrderRequest request)
         {
-            var orderResponse = await _order.CreateOrder(request);
-            if (orderResponse == null)
-            {
-                return BadRequest(new
-                {
-                    message = "Payment Error"
-                });
-            }
+
+            Guid id = Guid.NewGuid();
+            await _cacheManager.SetAsync($"OrderPayment:{id}", request, 15);
+           
             var vnpayRequest = new VnpayRequest()
             {
-                OrderId = orderResponse.Data.Id,
-                UserId = orderResponse?.Data.UserId,
-                Amount = orderResponse.Data.GrandTotal
+                OrderId = id,
+                UserId = request.UserId,
+                Amount = request.Total
             };
 
             return Ok(new {
@@ -57,23 +55,21 @@ namespace WebApi.Controllers
 
                 if (res.VnPayResponseCode == "00")
                 {
-                    await _order.UpdateStatus(new OrderUpdateStatusRequest
+                    var dataCache = await _cacheManager.GetAsync($"OrderPayment:{res.OrderId}");
+                    var order = JsonConvert.DeserializeObject<OrderRequest>(dataCache);
+                    order.Status = OrderStatus.COMPLETED;
+                    order.Transactions.First().Status = TransactionStatus.COMPLETED;
+                    var result = await _order.CreateOrder(order);
+                    if (result.Data.UserId != null)
                     {
-                        Id = res.OrderId,
-                        Status = "COMPLETED"
-                    });
-                    var order = await _order.GetOrderDetail(res.OrderId);
-                    if (res.OrderId != null)
-                    {
-                        await _order.SendMailOrder(order.Data.OrderId);
+                        await _order.SendMailOrder(result.Data.Id);
                         // clear cart
 
-                        foreach (var item in order.Data.OrderItems)
+                        foreach (var item in order.Items)
                         {
-                            await _cart.DeleteFromCart(order.Data.UserId, item.ProductItemId);
+                            await _cart.DeleteFromCart(result.Data.UserId, item.ProductItemId);
                         }
                     }
-
                     _cacheManager.RemoveByPrefix("api/Product");
                     _cacheManager.RemoveByPrefix("api/Order");
                     return Ok(new { RspCode = "00", Message = "Confirm Success" });

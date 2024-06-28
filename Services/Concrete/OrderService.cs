@@ -68,7 +68,7 @@ namespace Services.Concrete
                     
                     Notes = request.Notes,
                     UserId = request.UserId,
-                    Status = OrderStatus.NEWORDER, // Assuming a new order status
+                    Status = request.Status ?? OrderStatus.NEWORDER, // Assuming a new order status
                     OrderItems = request.Items.Select(s =>
                     {
                         return new OrderItem
@@ -86,7 +86,7 @@ namespace Services.Concrete
                             Amount = t.Amount,
                             DateCreate = DateTime.Now,
                             Description = t.Description,
-                            Status = t.Status,
+                            Status = t.Status?? TransactionStatus.PENDING,
                             UserId = t.UserId,
                             Type = t.Type
                         };
