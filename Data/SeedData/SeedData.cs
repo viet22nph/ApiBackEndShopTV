@@ -17,7 +17,7 @@ namespace Data.SeedData
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
-      
+
         private List<Category> Categories = new List<Category>();
         private List<Supplier> Suppliers = new List<Supplier>();
         private List<Color> Colors = new List<Color>();
@@ -27,16 +27,16 @@ namespace Data.SeedData
         private List<ProductSpecification> ProductSpecifications = new List<ProductSpecification>();
 
 
-      
+
         public SeedData(
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager, 
+            RoleManager<IdentityRole> roleManager,
             ApplicationDbContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
-        #region Data
+            #region Data
             #region DataCategory
             var idCategory = new List<string>{
                 "18a8604b-4234-4a2f-93de-16270a79dfb9",
@@ -47,42 +47,48 @@ namespace Data.SeedData
             var dataCate = new List<Category>{
                 new Category
                 {
-                    Name ="Ghế",
+                    Name ="Phòng làm việc",
+                    NomalizedName ="PHÒNG LÀM VIỆC",
                     Id=Guid.Parse(idCategory[0]),
-                    NomalizedName="GHẾ",
-                    Description ="Mọi loại ghế",
+                    Description ="Tại danh mục phòng làm việc, các sản phẩm nội thất thường được" +
+                    " thiết kế để tối ưu hóa không gian, tăng cường sự thoải mái và nâng cao hiệu quả công việc",
                     CategoryChildren = null,
                     CategoryParent = null,
                 },
                  new Category
                 {
-                    Name ="Bàn",
+                    Name ="Kệ sách",
+                    NomalizedName ="KỆ SÁCH",
                     Id=Guid.Parse(idCategory[1]),
-                    NomalizedName="GHẾ",
-                    Description ="Mọi loại ghế",
+                    Description ="Kệ sách là một phần quan trọng trong không gian phòng làm việc, giúp tổ chức sách vở," +
+                    " tài liệu và các vật dụng trang trí một cách gọn gàng và thẩm mỹ."
+,
                     CategoryChildren = null,
-                    CategoryParent = null,
+                    CategoryParent = Guid.Parse(idCategory[0]),
                 },
                   new Category
                 {
-                    Name ="Sofa",
+                    Name ="Bàn làm việc",
+                    NomalizedName = "BÀN LÀM VIỆC",
                     Id=Guid.Parse(idCategory[2]),
-                    NomalizedName="SOFA",
-                    Description ="Mọi loại ghế sofa",
+                    Description ="Bàn làm việc là một phần quan trọng trong không gian văn phòng, được thiết kế để hỗ trợ" +
+                    " tốt nhất cho các hoạt động công việc hàng ngày.",
                     CategoryChildren = null,
                     CategoryParent = Guid.Parse(idCategory[0]),
                 },
                 new Category
                 {
-                    Name ="Sofa - da",
+                    Name ="Ghế làm việc",
+                    NomalizedName ="GHẾ LÀM VIỆC",
                     Id=Guid.Parse(idCategory[3]),
-                    NomalizedName="GHẾ",
-                    Description ="Mọi loại ghế sofa - da",
+                    Description ="Ghế làm việc là một yếu tố quan trọng trong bất kỳ không gian văn phòng nào," +
+                    " ảnh hưởng trực tiếp đến sự thoải mái và hiệu suất làm việc của người sử dụng. "
+,
                     CategoryChildren = null,
-                    CategoryParent = Guid.Parse(idCategory[2]),
+                    CategoryParent = Guid.Parse(idCategory[0]),
                 },
 
-               
+
 
             };
             Categories.AddRange(dataCate);
@@ -120,201 +126,317 @@ namespace Data.SeedData
             #endregion
 
             #region DataProduct
-            var idProduct = new List<string>
-            {
-                "d230d218-72c7-4d7a-a9af-9691b2e26bcd",
-                "bb74e4ee-879f-4dc9-95f1-32e3f5e1ddeb",
-                "e4da7f4f-077f-4760-bdc9-dfacc23e55ee",
-                "f5ee7ecb-fa60-4853-87fe-a1c36c56018f",
-                "d1fdbf4d-b003-45ed-88da-f4c569cc9cfa"
-            };
+
             List<Product> dataProd = new List<Product>
             {
                 new Product
                 {
-                    Id=Guid.Parse(idProduct[0]),
-                    Name = "Ghế văn phòng",
-                    NormalizedName = "GHE_VAN_PHONG",
-                    Description = "Ghế ngồi văn phòng cao cấp",
-                    ProductQuantity = 100,
-                    ProductBrand = "NDV",
-                    Price = 1500000,
-                    SupplierId = Guid.Parse(idSupplier[0]),
-                    CategoryId = Guid.Parse(idCategory[0])
-                },
-                new Product
-                {
-                     Id=Guid.Parse(idProduct[1]),
-                    Name = "Bàn làm việc",
-                    NormalizedName = "BAN_LAM_VIEC",
-                    Description = "Bàn làm việc hiện đại",
+                    Name = "Ghế làm việc Monica",
+                    NormalizedName = "GHẾ LÀM VIỆC MONICA",
+                    Description = "<p>Với thiết kế hiện đại, kiểu dáng sang trọng và chất lượng bền bỉ, " +
+                    "ghế Lounge Monica nhập khẩu cao cấp của thương hiệu The Center sẽ mang đến luồng gió mới cho bất gì không gian nội thất nào" +
+                    ".</p><p>Ghế Lounge Monica cấu tạo đơn giản không quá cầu kì, phức tạp nên dễ dàng tháo lắp," +
+                    " kích thước nhỏ gọn và trọng lượng tương đối nhẹ nên thuận tiện hơn cho việc di chuyển khi cần thiết.</p><p>Sản phẩm" +
+                    " thiết kế kiểu đáng đặc biệt, tựa lưng thấp kết cấu liền với phần tay vịn và đệm ngồi tạo thành một khối thống nhất mang đến" +
+                    " sự chắc chắn, an toàn cao.</p><p>Cấu trúc khung chân đặc biệt, được gia công 100% từ hợp kim nhôm cao cấp nên độ bền chất lượng cao," +
+                    " chống hoen gỉ, khả năng chống chịu tải trọng cao tốt và giữ thăng bằng ổn định khi ngồi.</p><p>Phần đệm tựa chế tạo từ chất liệu ván" +
+                    " ép định dạng cứng cáp + mouse xốp đúc dày có tỉ trọng cao nên không bị xẹp lún và bề mặt ngoài bọc lớp vải chất lượng cho cảm" +
+                    " giác ngồi êm ái, dễ chịu nhất.</p><p>Màu sắc ghế đa dạng với các tone màu trung tính thời thượng hợp thời trang nên quý khách hàng" +
+                    " có thể phong phú hóa việc lựa chọn theo sở thích cá nhân.</p><p>Ghế Lounge Monica tuy không quá đặc biệt về chất liệu nhưng lại được " +
+                    "nhiều chuyên gia đánh giá cao về sự tỉ mỉ trong từng chi tiết. Sản phẩm hiện được ưa chuộng sử dụng cho các không gian phòng khách," +
+                    " quán cafe, nhà hàng, khách sạn…</p>",
                     ProductQuantity = 50,
-                    ProductBrand = "NKT",
-                    Price = 2000000,
-                    SupplierId = Guid.Parse(idSupplier[1]),
-                    CategoryId = Guid.Parse(idCategory[1])
-                },
-                new Product
-                {
+                    ProductBrand = "Nội Thất NDV",
+                    Price = 13000000,
+                    SupplierId = Guid.Parse(idSupplier[0]),
+                    CategoryId = Guid.Parse(idCategory[3]),
+                    ProductSpecifications = new  List<ProductSpecification>()
+                    {
+                        new ProductSpecification()
+                        {
+                            SpecType= "Vật liệu",
+                            SpecValue ="\"Khung gỗ sồi Nga tự nhiên bề mặt sơn căng mịn sử dụng chủng loại sơn Inchem, phủ verne Óc Chó, mút D40, bọc da Microfiber\",\r\n      "
+                        },
+                        new ProductSpecification()
+                        {
+                            SpecType ="Kích thước",
+                            SpecValue ="D830 - R760 - C790 mm"
+                        }
 
-                     Id=Guid.Parse(idProduct[2]),
-                    Name = "Sofa da thật",
-                    NormalizedName = "SOFA_DA_THAT",
-                    Description = "Sofa da thật cao cấp",
-                    ProductQuantity = 20,
-                    ProductBrand = "NDV",
-                    Price = 10000000,
-                    SupplierId = Guid.Parse(idSupplier[0]),
-                    CategoryId = Guid.Parse(idCategory[2])
+                    },
+                    ProductItems = new List<ProductItem>
+                    {
+                        new ProductItem
+                        {
+                            Quantity = 50,
+                            ColorId = Guid.Parse("4D2EA9FF-6462-43A2-A6C8-B417AC001648"),
+                            ProductImages = new List<ProductImage>
+                            {
+                                new ProductImage
+                                {
+                                    Url ="http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718906803/NDV_Images/lkdr9w2vbk1ceqhn36d0.jpg",
+
+                                },
+                                 new ProductImage
+                                {
+                                    Url ="http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718906804/NDV_Images/doxh0ip61xkbmy42liai.jpg",
+
+                                },
+                                  new ProductImage
+                                {
+                                    Url ="http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718906805/NDV_Images/apo3cojhskwyetxn85eu.jpg",
+
+                                }, new ProductImage
+                                {
+                                    Url ="http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718906806/NDV_Images/s1hvm0rxuyn1cejyc4br.jpg",
+
+                                }, new ProductImage
+                                {
+                                    Url ="http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718906807/NDV_Images/xwgs3yzvyniwgmv0efam.jpg",
+
+                                }, new ProductImage
+                                {
+                                    Url ="http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718906808/NDV_Images/apmrz4xvxqc763yqxqbi.jpg",
+
+                                },
+                                   new ProductImage
+                                {
+                                    Url ="http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718906809/NDV_Images/ss7gkg4rel9tyl0se8zf.jpg",
+
+                                }, new ProductImage
+                                {
+                                    Url ="http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718906810/NDV_Images/jav9hpoai7fn3h2lutel.jpg",
+
+                                }
+                            }
+                        }
+                    }
+
+
                 },
-                new Product
+               new Product
+{
+    Name = "Ghế làm việc check out 83959K",
+    NormalizedName = "GHẾ LÀM VIỆC CHECK OUT 83959K",
+    Description = "<p>Với thiết kế hiện đại, kiểu dáng sang trọng và chất lượng bền bỉ, ghế làm việc check out 83959K là lựa chọn hoàn hảo cho không gian làm việc của bạn. Chân ghế kim loại có bánh xe xoay giúp dễ dàng di chuyển, lưng MDF veneer - bọc da công nghiệp mang đến sự thoải mái và độ bền cao.</p><p>Kích thước ghế D750 - R750 - C1180 mm phù hợp với nhiều không gian văn phòng khác nhau.</p>",
+    ProductQuantity = 50,
+    ProductBrand = "Nội Thất NDV",
+    Price = 24000000, SupplierId = Guid.Parse(idSupplier[0]),
+                    CategoryId = Guid.Parse(idCategory[3]), // Thay bằng id thực tế
+    ProductSpecifications = new List<ProductSpecification>
+    {
+        new ProductSpecification
+        {
+            SpecType = "Vật liệu",
+            SpecValue = "Chân kim loại có bánh xe xoay, lưng mdf veneer - bọc da công nghiệp"
+        },
+        new ProductSpecification
+        {
+            SpecType = "Kích thước",
+            SpecValue = "D750 - R750 - C1180 mm"
+        }
+    },
+    ProductItems = new List<ProductItem>
+    {
+        new ProductItem
+        {
+            Quantity = 50,
+            ColorId = Guid.Parse("4D2EA9FF-6462-43A2-A6C8-B417AC001648"),
+            ProductImages = new List<ProductImage>
+            {
+                new ProductImage
                 {
-                    Id = Guid.Parse(idProduct[3]),
-                    Name = "Sofa vải",
-                    NormalizedName = "SOFA_VAI",
-                    Description = "Sofa vải mềm mại",
-                    ProductQuantity = 30,
-                    ProductBrand = "NKT",
-                    Price = 7000000,
-                    SupplierId = Guid.Parse(idSupplier[1]),
-                    CategoryId = Guid.Parse(idCategory[2])
+                    Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718907232/NDV_Images/x8cowzojvsqbqug7uknf.jpg"
                 },
-                new Product
+                new ProductImage
                 {
-                    Id = Guid.Parse(idProduct[4]),
-                    Name = "Sofa da cao cấp",
-                    NormalizedName = "SOFA_DA_CAO_CAP",
-                    Description = "Sofa da cao cấp từ Italy",
-                    ProductQuantity = 10,
-                    ProductBrand = "NDV",
-                    Price = 15000000,
-                    SupplierId = Guid.Parse(idSupplier[0]),
-                    CategoryId = Guid.Parse(idCategory[3])
+                    Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718907233/NDV_Images/qs6xabgg2lhx3vfohztv.jpg"
+                },
+                new ProductImage
+                {
+                    Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718907234/NDV_Images/wubvmhjpdijgk2dfzjkk.jpg"
+                },
+                new ProductImage
+                {
+                    Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718907235/NDV_Images/apjdug9gztzmvypw6dwb.jpg"
                 }
+            }
+        }
+    }
+}
+,
+            new Product
+{
+    Name = "Ghế làm việc xoay Marla",
+    NormalizedName ="GHẾ LÀM VIỆC XOAY MARLA",
+    Description = "<p>Ghế làm việc xoay Marla được thiết kế với chân mạ Chrome xoay 360 độ, nệm ghế da công nghiệp mang đến sự thoải mái và phong cách hiện đại.</p><p>Kích thước ghế D490 - R590 - C900 mm phù hợp với nhiều không gian văn phòng khác nhau.</p>",
+    ProductQuantity = 50,
+    ProductBrand = "Nội Thất NDV",
+    Price = 12500000,
+                SupplierId = Guid.Parse(idSupplier[0]),
+                    CategoryId = Guid.Parse(idCategory[3]),  // Thay bằng id thực tế
+    ProductSpecifications = new List<ProductSpecification>
+    {
+        new ProductSpecification
+        {
+            SpecType = "Vật liệu",
+            SpecValue = "Chân mạ Chrome xoay 360 độ, nệm ghế da công nghiệp"
+        },
+        new ProductSpecification
+        {
+            SpecType = "Kích thước",
+            SpecValue = "D490 - R590 - C900 mm"
+        }
+    },
+    ProductItems = new List<ProductItem>
+    {
+        new ProductItem
+        {
+            Quantity = 50,
+            ColorId = Guid.Parse("8EA83FDD-ECF0-4C68-8DF0-D9238E098400"),
+            ProductImages = new List<ProductImage>
+            {
+                new ProductImage
+                {
+                    Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718907491/NDV_Images/vyqh076tl68mwnefo4sx.jpg"
+                },
+                new ProductImage
+                {
+                    Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718907492/NDV_Images/vqhlfc3nbq2spjccy7nx.jpg"
+                },
+                new ProductImage
+                {
+                    Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718907493/NDV_Images/chkrtljpwrvuhgq3kivu.jpg"
+                },
+                new ProductImage
+                {
+                    Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718907495/NDV_Images/wun8d4xfmnligf0kzbef.jpg"
+                },
+                new ProductImage
+                {
+                    Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1718907496/NDV_Images/telvqp4ujtva9kyjkhr3.jpg"
+                }
+            }
+        }
+    } 
+}, new Product
+{
+    Name = "Bàn làm việc Fence",
+    ProductQuantity = 50,
+    ProductBrand = "Shop NDV",
+    Price = 30000000,
+    CategoryId = Guid.Parse("0dfc0abc-d45f-4df1-8490-68921ae348a5"),
+    ProductSpecifications = new List<ProductSpecification>
+    {
+        new ProductSpecification
+        {
+            SpecType = "Vật liệu",
+            SpecValue = "Chân kim loại - mặt kính"
+        },
+        new ProductSpecification
+        {
+            SpecType = "Kích thước",
+            SpecValue = "D1280 - R295 - C700 mm"
+        }
+    },
+    ProductItems = new List<ProductItem>
+    {
+        new ProductItem
+        {
+            Quantity = 50,
+            ColorId = Guid.Parse("99FE8BAB-42AB-444C-A5B8-8195DDB2BA88"),
+            ProductImages = new List<ProductImage>
+            {
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719833267/NDV_Images/xhk9zavkdyngzsfncz3i.jpg" },
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719833270/NDV_Images/vuhxefucvt5t0m1bgj0j.jpg" },
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719833271/NDV_Images/xxy21boqj7yx12gohy9q.jpg" },
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719833272/NDV_Images/jxrostkpidruuaboyn3d.jpg" },
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719833273/NDV_Images/ntx5czsozafte1jligis.jpg" },
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719833274/NDV_Images/fl2dx5adszlv2p4gtlp4.jpg" },
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719833275/NDV_Images/gllk1nwve3rrlsa9jtxf.jpg" }
+            }
+        }
+    }
+}, new Product
+{
+    Name = "Bàn làm việc Finn 260011",
+    ProductQuantity = 50,
+    ProductBrand = "Shop NDV",
+    Price = 25500000,
+    CategoryId = Guid.Parse("0dfc0abc-d45f-4df1-8490-68921ae348a5"),
+    ProductSpecifications = new List<ProductSpecification>
+    {
+        new ProductSpecification
+        {
+            SpecType = "Vật liệu",
+            SpecValue = "Gỗ nâu"
+        },
+        new ProductSpecification
+        {
+            SpecType = "Kích thước",
+            SpecValue = "D1100 - R565 - C1020 mm"
+        }
+    },
+    ProductItems = new List<ProductItem>
+    {
+        new ProductItem
+        {
+            Quantity = 50,
+            ColorId = Guid.Parse("4D2EA9FF-6462-43A2-A6C8-B417AC001648"),
+            ProductImages = new List<ProductImage>
+            {
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719833653/NDV_Images/etbbcem6t5uk7cuyz1og.jpg" },
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719833655/NDV_Images/fbkfftv5ptdyx05g5fnc.jpg" },
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719833662/NDV_Images/yvritfdhfu1xkqarblkf.jpg" }
+            }
+        }
+    }
+}, new Product
+{
+    Name = "Kệ Sách Artigo",
+    ProductQuantity = 50,
+    ProductBrand = "Shop NDV",
+    Price = 28800000,
+    CategoryId = Guid.Parse("147f3a51-78eb-4e92-ab3d-883169472504"),
+    ProductSpecifications = new List<ProductSpecification>
+    {
+        new ProductSpecification
+        {
+            SpecType = "Collection",
+            SpecValue = "Coci"
+        },
+        new ProductSpecification
+        {
+            SpecType = "Vật liệu",
+            SpecValue = "Gỗ Sồi kết hợp MDF veneer, chân thép sơn tĩnh điện"
+        },
+        new ProductSpecification
+        {
+            SpecType = "Kích thước",
+            SpecValue = "D850 - R380 - C1980 mm"
+        }
+    },
+    ProductItems = new List<ProductItem>
+    {
+        new ProductItem
+        {
+            Quantity = 50,
+            ColorId = Guid.Parse("4D2EA9FF-6462-43A2-A6C8-B417AC001648"),
+            ProductImages = new List<ProductImage>
+            {
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719834193/NDV_Images/xqpsyxga81pj72uomndg.jpg" },
+                new ProductImage { Url = "http://res.cloudinary.com/dpnqk5rk8/image/upload/v1719834195/NDV_Images/bneb4vrlrkyoqpzroq9k.jpg" }
+            }
+        }
+    }
+}
+
+
             };
 
             Products.AddRange(dataProd);
             #endregion
-            #region DataProductSpecification
-            List<ProductSpecification> dataProdSpec = new List<ProductSpecification>
-            {
-                // Specifications for Product 1
-                new ProductSpecification
-                {
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[0]),
-                    SpecType = "Material",
-                    SpecValue = "Leather"
-                },
-                new ProductSpecification
-                {
-
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[0]),
-                    SpecType = "Size",
-                    SpecValue = "50x50x120cm"
-                },
-                new ProductSpecification
-                {
-
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[0]),
-                    SpecType = "Weight",
-                    SpecValue = "15kg"
-                },
-
-                // Specifications for Product 2
-                new ProductSpecification
-                {
-
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[1]),
-                    SpecType = "Material",
-                    SpecValue = "Wood"
-                },
-                new ProductSpecification
-                {
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[1]),
-                    SpecType = "Size",
-                    SpecValue = "120x60cm"
-                },
-                new ProductSpecification
-                {
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[1]),
-                    SpecType = "Weight",
-                    SpecValue = "20kg"
-                },
-
-                // Specifications for Product 3
-                new ProductSpecification
-                {
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[2]),
-                    SpecType = "Material",
-                    SpecValue = "Genuine Leather"
-                },
-                new ProductSpecification
-                {
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[2]),
-                    SpecType = "Size",
-                    SpecValue = "200x90x85cm"
-                },
-                new ProductSpecification
-                {
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[2]),
-                    SpecType = "Weight",
-                    SpecValue = "50kg"
-                },
-
-                // Specifications for Product 4
-                new ProductSpecification
-                {Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[3]),
-                    SpecType = "Material",
-                    SpecValue = "Fabric"
-                },
-                new ProductSpecification
-                {Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[3]),
-                    SpecType = "Size",
-                    SpecValue = "180x85x80cm"
-                },
-                new ProductSpecification
-                {Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[3]),
-                    SpecType = "Weight",
-                    SpecValue = "45kg"
-                },
-
-                // Specifications for Product 5
-                new ProductSpecification
-                {Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[4]),
-                    SpecType = "Material",
-                    SpecValue = "Italian Leather"
-                },
-                new ProductSpecification
-                {
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[4]),
-                    SpecType = "Size",
-                    SpecValue = "210x95x90cm"
-                },
-                new ProductSpecification
-                {
-                    Id = Guid.NewGuid(),
-                    ProductId = Guid.Parse(idProduct[4]),
-                    SpecType = "Weight",
-                    SpecValue = "55kg"
-                }
-            };
-
-            ProductSpecifications.AddRange(dataProdSpec);
-            #endregion
+            
             #region DataColor
             var idColors = new List<string>
             {
@@ -387,27 +509,7 @@ namespace Data.SeedData
             Colors.AddRange(dataColors);
             #endregion
 
-            #region DataProductItem
-            var random = new Random();
-            List<ProductItem> dataProductItems = new List<ProductItem>();
-
-            foreach (var productId in idProduct)
-            {
-                int numberOfItems = random.Next(1, 3); // Randomly decide between 1 or 2 items per product
-                for (int i = 0; i < numberOfItems; i++)
-                {
-                    var colorId = Guid.Parse(idColors[random.Next(idColors.Count)]); // Randomly select a color
-                    dataProductItems.Add(new ProductItem
-                    {
-                        ProductId = Guid.Parse(productId),
-                        Quantity = random.Next(1, 101), // Randomly select a quantity between 1 and 100
-                        ColorId = colorId
-                    });
-                }
-            }
-
-            ProductItems.AddRange(dataProductItems);
-            #endregion
+          
             #endregion
         }
 
@@ -420,8 +522,6 @@ namespace Data.SeedData
             await SeedSupplier();
             await SeedColor();
             await SeedProduct();
-            await SeedProductSpec();
-            await SeedProductItem();
         }
 
         #endregion
@@ -441,7 +541,7 @@ namespace Data.SeedData
         {
 
             if (await _userManager.Users.AnyAsync()) return;
-             var userArray = new[]
+            var userArray = new[]
 {
                     new { UserName = "Admin", Email = "admin@yam.cl", NumberPhone ="034211112", Role = Enum.GetName<RoleEnums>(RoleEnums.Admin)?? "User", Password = "Admin@123" },
                     new { UserName = "ndviet2020", Email = "viet22np@yam.cl", NumberPhone ="034211111",  Role =Enum.GetName<RoleEnums>(RoleEnums.Admin)?? "User", Password = "Viet@123" },
@@ -491,7 +591,7 @@ namespace Data.SeedData
         public async Task SeedColor()
         {
             if (_context.Set<Color>().Any()) return;
-            await _context.Set<Color> ().AddRangeAsync(Colors);
+            await _context.Set<Color>().AddRangeAsync(Colors);
             _context.SaveChanges();
         }
         #endregion
@@ -503,21 +603,6 @@ namespace Data.SeedData
             _context.SaveChanges();
         }
         #endregion
-        #region SeedProductSpec
-        public async Task SeedProductSpec()
-        {
-            if (_context.Set<ProductSpecification>().Any()) return;
-            await _context.Set<ProductSpecification>().AddRangeAsync(ProductSpecifications);
-            _context.SaveChanges();
-        }
-        #endregion
-        #region SeedProductItem
-        public async Task SeedProductItem()
-        {
-            if (_context.Set<ProductItem>().Any()) return;
-            await _context.Set<ProductItem>().AddRangeAsync(ProductItems);
-            _context.SaveChanges();
-        }
-        #endregion
+       
     }
 }
