@@ -28,8 +28,13 @@ namespace WebApi.Helpers
                 .ForMember(p=> p.SupplierName, c=> c.MapFrom(s=>s!.Supplier.SupplierName))
                 .ReverseMap();
             CreateMap<Product, ProductResponse>()
-            .ForMember(p => p.CategoryName, c => c.MapFrom(s => s.Category.Name))
+            .ForMember(p => p.Category, c => c.MapFrom(s => s.Category))
+            .ForMember(p=> p.Supplier, c=> c.MapFrom(s=> s.Supplier))
             .ReverseMap();
+
+            CreateMap<Category, ProductResponse.CategoryProduct>().ReverseMap();
+            CreateMap<Supplier, ProductResponse.SupplierProduct>().ReverseMap();
+
             CreateMap<ProductImage, ProductImageDto>().ReverseMap();
             CreateMap<ProductItem, ProductItemDto>().ReverseMap();
             CreateMap<ProductSpecification, ProductSpecificationDto>().ReverseMap();

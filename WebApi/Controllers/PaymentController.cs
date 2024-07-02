@@ -76,7 +76,6 @@ namespace WebApi.Controllers
                 }
                 else
                 {
-                    await _order.RemoveOrder(res.OrderId);
                     return Ok(new { RspCode = "01", Message = "Confirm Fail" });
                 }
             }

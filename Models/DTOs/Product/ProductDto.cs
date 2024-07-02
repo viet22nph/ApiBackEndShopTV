@@ -28,12 +28,25 @@ namespace Models.DTOs.Product
         public int ProductQuantity { get; set; }
         public string? ProductBrand { get; set; }
         public decimal Price { get; set; }
-        public string CategoryName { get; set; }
+        public CategoryProduct Category { get; set; }
+        public SupplierProduct? Supplier { get; set; }
         public string Image { get; set; }
         public ICollection<ProductSpecificationDto>? ProductSpecifications { get; set; }
         public ICollection<ProductItemResponse>? ProductItems { get; set; }
         public Rating? Rating { get; set; }
         public ProductDiscount? ProductDiscount { get; set; }
+
+
+        public class CategoryProduct
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+        }
+        public class SupplierProduct
+        {
+            public Guid Id { get; set; }
+            public string SupplierName { get; set; }
+        }
     }
 
     public class ProductItemResponse
@@ -61,6 +74,7 @@ namespace Models.DTOs.Product
     }
     public partial class ProductDiscount
     {
+        public Guid? Id { get; set; }
         public string? Type { get; set; }
         public decimal? Value { get; set; }
     }
