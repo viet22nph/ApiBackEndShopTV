@@ -112,6 +112,8 @@ namespace Services.Concrete
                     productDto.ProductDiscount = new ProductDiscount();
                     if(product.Discount.Status == DiscountStatus.ACTIVE)
                     {
+
+                        productDto.ProductDiscount.Id = product.Discount.Id;
                         productDto.ProductDiscount.Value = product.Discount.DiscountValue;
                         productDto.ProductDiscount.Type = product.Discount.Type;
 
