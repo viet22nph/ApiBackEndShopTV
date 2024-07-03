@@ -13,7 +13,8 @@ namespace Models.DTOs.Product
         [Range(1, int.MaxValue, ErrorMessage = "Product quantity must be at least 1")]
         public int Quantity { get; set; }
         [Required(ErrorMessage ="Color not null")]
-        public Guid? ColorId { get; set; }
+        public Guid ColorId { get; set; }
+         [Required(ErrorMessage = "The product items must contain at least 1 photo")]
         public ICollection<ProductImageRequest> ProductImages { get; set; }
     }
     public class ProductImageRequest

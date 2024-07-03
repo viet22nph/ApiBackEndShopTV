@@ -28,6 +28,7 @@ namespace Models.DTOs.Product
         public Guid CategoryId { get; set; }
         public Guid? DiscountId { get; set; }
         public ICollection<ProductSpecificationRequest>? ProductSpecifications { get; set; }
+        [Required(ErrorMessage = "The product must have at least 1 item")]
         public ICollection<ProductItemRequest> ProductItems { get; set; }
     }
 }
