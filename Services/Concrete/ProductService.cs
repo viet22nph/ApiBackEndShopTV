@@ -359,7 +359,44 @@ namespace Services.Concrete
             }
            
         }
+        public async Task RemoveProductItem(Guid id)
+        {
+            try
+            {
+                var checkRemoveSuccess = await _unitOfWork.ProductRepository.RemoveProductItem(id);
+                if(checkRemoveSuccess == false)
+                {
+                    throw new ApiException($"Internal server error: Can not delete product item {id}") { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                
 
+            }catch(Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+        }
+        public async Task RemoveProductSpecification(Guid id)
+        {
+            try
+            {
+                var productSpec = await _unitOfWork.Repository<ProductSpecification>().GetById(id);
+                if(productSpec == null)
+                {
+                    throw new ApiException($"Internal server error: Not found") { StatusCode = (int)HttpStatusCode.NotFound };
+                }
+                var checkRemoveSuccess = await _unitOfWork.Repository<ProductSpecification>().Delete(productSpec);
+                if(checkRemoveSuccess <=0 )
+                {
+                    throw new ApiException($"Internal server error: Can not delete product specification {id}") { StatusCode = (int)HttpStatusCode.BadRequest };
+                }    
+                
+
+            }
+            catch(Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+        }
         public async Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductByCategory(Guid id, int limit, int offset)
         {
             try
@@ -409,7 +446,7 @@ namespace Services.Concrete
             foreach (var product in products)
             {
                 var productDto = _mapper.Map<ProductResponse>(product);
-                if (product?.ProductItems?.First()?.ProductImages.Count == 0)
+                if (product?.ProductItems?.Count ==0 || product?.ProductItems?.First()?.ProductImages?.Count == 0)
                 {
                     productDto.Image = "";
 

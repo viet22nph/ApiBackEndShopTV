@@ -21,5 +21,6 @@ namespace Data.Repos.ProductRepo
         Task<ICollection<ProductItem>> TopSellingProduct(int top, DateTime dateStart, DateTime dateEnd);
         Task<List<Product>> GetAllProductsByCategory(Guid categoryId);
         Task<ICollection<Product>> QueryProductAsync(string query);
+        Task<bool> RemoveProductItem(Guid id);
     }
 }

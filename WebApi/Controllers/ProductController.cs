@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Models.DTOs.Cart;
 using Models.DTOs.Product;
 using Services.Interfaces;
 using System.Net.WebSockets;
@@ -195,6 +196,22 @@ namespace WebApi.Controllers
                 limit = limit,
                 offset = offset
             });
+        }
+        [HttpPost("remove-product-item/{id}")]
+        public async Task<IActionResult> RemoveProductItem(Guid id)
+        {
+             await _productService.RemoveProductItem(id);
+
+            _cacheManager.RemoveByPrefix("api/Product");
+            return NoContent();
+        }
+        [HttpPost("remove-product-specification/{id}")]
+        public async Task<IActionResult> RemoveProductSpec(Guid id)
+        {
+            await _productService.RemoveProductSpecification(id);
+
+            _cacheManager.RemoveByPrefix("api/Product");
+            return NoContent();
         }
     }
 }

@@ -8,6 +8,7 @@ using Models.DTOs.Product;
 using Models.Status;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -208,5 +209,38 @@ namespace Data.Repos.ProductRepo
             return productQuery;
         }
        
+        public async Task<bool> RemoveProductItem(Guid id)
+        {
+            try
+            {
+                var productItem = _context.Set<ProductItem>().Include(p => p.ProductImages).Include(p => p.OrderItems).Include(p => p.Product).Where(p => p.Id == id).FirstOrDefault();
+                if (productItem == null)
+                {
+                    return false;
+                }
+                if (productItem.OrderItems.Any())
+                {
+                    return false;
+                }
+                if(productItem.Product.ProductItems.Count <=1)
+                {
+                    return false;
+                }    
+                if (productItem.ProductImages != null)
+                {
+                    _context.Set<ProductImage>().RemoveRange(productItem.ProductImages);
+                }
+                var productItemQuantity = productItem.Quantity;
+                productItem.Product.ProductQuantity -= productItemQuantity;
+                _context.Set<ProductItem>().Remove(productItem);
+                _context.SaveChanges();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+           
+        }
     }
 }
