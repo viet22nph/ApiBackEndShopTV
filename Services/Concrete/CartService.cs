@@ -124,7 +124,7 @@ namespace Services.Concrete
                     name = productItem?.Product?.Name,
                     quantity = item.Value,
                     price = productItem.Product.Price,
-                    images = productItem.ProductImages.Select(pi => new { id = pi.Id, url = pi.Url }).ToList(),
+                    image = productItem.ProductImages.Select(pi => new { id = pi.Id, url = pi.Url }).First(),
                     color = new { colorName = productItem.Color.ColorName, colorCode = productItem.Color.ColorCode },
                     discount = productItem.Product.Discount == null || productItem.Product.Discount.Status != DiscountStatus.ACTIVE
                     ? new ProductDiscount() 
