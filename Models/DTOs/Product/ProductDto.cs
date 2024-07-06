@@ -17,6 +17,7 @@ namespace Models.DTOs.Product
         public decimal Price { get; set; }
         public string CategoryName { get; set; }
         public string SupplierName { get; set; }
+        
         public ICollection<ProductSpecificationDto>? ProductSpecifications { get; set; }
         public ICollection<ProductItemDto>? ProductItems { get; set; }
     }
@@ -35,7 +36,7 @@ namespace Models.DTOs.Product
         public ICollection<ProductItemResponse>? ProductItems { get; set; }
         public Rating? Rating { get; set; }
         public ProductDiscount? ProductDiscount { get; set; }
-
+        public bool IsPublished { get; set; }
 
         public class CategoryProduct
         {

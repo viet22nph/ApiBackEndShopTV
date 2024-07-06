@@ -56,26 +56,47 @@ namespace WebApi.Controllers
         [Cache]
         public async Task<IActionResult> GetProducts(int pageNumber = 1, int pageSize = 10)
         {
-            var result = await _productService.GetProducts(pageNumber, pageSize);
-           
-            return Ok(result);
+            var (result, total) = await _productService.GetProducts(pageNumber, pageSize);
+
+            return Ok(new {
+                message = result.Message,
+                data = result.Data,
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                total = total
+            });
+
         }
 
         [HttpPost("list-draft")]
         [Cache]
         public async Task<IActionResult> GetProductsIsDraft(int pageNumber = 1, int pageSize = 10)
         {
-            var result = await _productService.GetProductsIsDraft(pageNumber, pageSize);
-           
-            return Ok(result);
+            var (result, total) = await _productService.GetProductsIsDraft(pageNumber, pageSize);
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data,
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                total = total
+            });
         }
         [HttpPost("list-publish")]
         [Cache]
         public async Task<IActionResult> GetProductsIsPublish(int pageNumber = 1, int pageSize = 10)
         {
-            var result = await _productService.GetProductsIsPublish(pageNumber, pageSize);
-         
-            return Ok(result);
+            var (result, total) = await _productService.GetProductsIsPublish(pageNumber, pageSize);
+
+            return Ok(new
+            {
+                message =result.Message,
+                data = result.Data,
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                total = total
+            });
         }
         [Cache]
         [AllowAnonymous]

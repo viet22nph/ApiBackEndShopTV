@@ -130,14 +130,14 @@ namespace Services.Concrete
             }
         }
 
-        public async Task<BaseResponse<ICollection<ProductResponse>>> GetProducts(int pageNumber, int pageSize)
+        public async Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProducts(int pageNumber, int pageSize)
         {
             try
             {
 
-                var products = await _unitOfWork.ProductRepository.GetProducts(pageNumber, pageSize);
+                var (products,count) = await _unitOfWork.ProductRepository.GetProducts(pageNumber, pageSize);
                 var res = await mapProductAsync(products);
-                return new BaseResponse<ICollection<ProductResponse>>(res, "Products");
+                return (new BaseResponse<ICollection<ProductResponse>>(res, "Products"), count);
             }
             catch (Exception ex)
             {
@@ -147,13 +147,14 @@ namespace Services.Concrete
 
         }
 
-        public async Task<BaseResponse<ICollection<ProductResponse>>> GetProductsIsDraft(int pageNumber, int pageSize)
+        public async Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductsIsDraft(int pageNumber, int pageSize)
         {
             try
             {
-                var products = await _unitOfWork.ProductRepository.GetProductsIsDraft(pageNumber, pageSize);
+
+                var (products, count) = await _unitOfWork.ProductRepository.GetProductsIsDraft(pageNumber, pageSize);
                 var res = await mapProductAsync(products);
-                return new BaseResponse<ICollection<ProductResponse>>(res, "Products");
+                return (new BaseResponse<ICollection<ProductResponse>>(res, "Products"), count);
             }
             catch (Exception ex)
             {
@@ -162,15 +163,16 @@ namespace Services.Concrete
 
         }
 
-        public async Task<BaseResponse<ICollection<ProductResponse>>> GetProductsIsPublish(int pageNumber, int pageSize)
+        public async Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductsIsPublish(int pageNumber, int pageSize)
         {
             try
             {
 
-                var products = await _unitOfWork.ProductRepository.GetProductsIsPublish(pageNumber, pageSize);
+
+                var (products, count) = await _unitOfWork.ProductRepository.GetProductsIsPublish(pageNumber, pageSize);
 
                 var res = await mapProductAsync(products);
-                return new BaseResponse<ICollection<ProductResponse>>(res, "Products");
+                return (new BaseResponse<ICollection<ProductResponse>>(res, "Products"), count);
             }
             catch (Exception ex)
             {

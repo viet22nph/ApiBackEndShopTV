@@ -10,13 +10,11 @@ namespace Services.Interfaces
 {
     public interface IProductService
     {
-        Task<BaseResponse<ICollection<ProductResponse>>> GetProducts(int pageNumber, int pageSize);
+        Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProducts(int pageNumber, int pageSize);
         Task<BaseResponse<ProductResponse>> GetProduct(Guid id);
         Task<BaseResponse<ProductDto>> CreateProduct(ProductRequest request);
-
-        Task<BaseResponse<ICollection<ProductResponse>>> GetProductsIsDraft(int pageNumber, int pageSize);
-
-        Task<BaseResponse<ICollection<ProductResponse>>> GetProductsIsPublish(int pageNumber, int pageSize);
+        Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductsIsDraft(int pageNumber, int pageSize);
+        Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductsIsPublish(int pageNumber, int pageSize);
         Task<BaseResponse<ProductDto>> UpdateProductPublish(Guid id);
         Task<BaseResponse<ProductDto>> UpdateProductDraft(Guid id);
 
