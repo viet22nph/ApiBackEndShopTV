@@ -11,8 +11,8 @@ namespace Services.Interfaces
 {
     public interface ICartService
     {
-        Task AddToCart(CartRequest request);
+        Task<BaseResponse<ICollection<object>>> AddToCart(CartRequest request);
         Task<BaseResponse<ICollection<object>>> GetCart(string userId);
-        Task<BaseResponse<string>> DeleteFromCart(string userId, Guid productItemId);
+        Task<BaseResponse<ICollection<object>>> DeleteFromCart(string userId, Guid productItemId);
     }
 }
