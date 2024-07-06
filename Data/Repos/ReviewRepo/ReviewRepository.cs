@@ -22,6 +22,7 @@ namespace Data.Repos.ReviewRepo
           .Where(r => r.ProductId == productId)
           .Include(r => r.Product)
           .Include(r => r.ReviewImages)
+          .Include(r=> r.User)
           .ToListAsync();
          
 
