@@ -411,7 +411,7 @@ namespace Services.Concrete
                     ProductId = oi.Product.ProductId,
 
                     ProductName = oi?.Product?.Product?.Name ?? null,
-                    Image = oi?.Product.ProductImages == null ? oi?.Product.ProductImages.First().Url : null,
+                    Image = oi?.Product?.ProductImages?.Count>0 ? oi?.Product.ProductImages.First().Url : null,
                     ColorItem = oi?.Product?.Color != null ? new OrderDetailDto.OrderItem.ProductItem.Color
                     {
                         Id = oi.Product.Color.Id,
