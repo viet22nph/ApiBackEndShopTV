@@ -37,12 +37,12 @@ namespace Services.Concrete
             _mapper = mapper;
         }
 
-        public async Task AddToCart(CartRequest request)
+        public async Task<BaseResponse<ICollection<object>>> AddToCart(CartRequest request)
         {
             var key = $"Cart:{request.UserId}";
 
             // lay tu cache
-            var productItem = await _unitOfWork.Repository<ProductItem>().GetById(request.ProductItemId);
+            var productItem = await _unitOfWork.Repository<ProductItem>().GetById(Guid.Parse(request.ProductItemId.ToString()));
             if(productItem == null)
             {
                 throw new ApiException($"Internal server error: Product not found")
@@ -92,17 +92,20 @@ namespace Services.Concrete
                 await _cacheManager.HashIncrementAsync(key, request.ProductItemId.ToString(),(long)request.IncrementBy);
 
             }
+            return await GetCart(request.UserId);
         }
 
-        public async Task<BaseResponse<string>> DeleteFromCart(string userId, Guid productItemId)
+        public async Task<BaseResponse<ICollection<object>>> DeleteFromCart(string userId, Guid productItemId)
         {
             var key = $"Cart:{userId}";
             bool removed = await _cacheManager.RemoveHashAsync(key, productItemId.ToString());
-            if(removed)
+            if (!removed)
             {
-                return new BaseResponse<string>("Item removed from cart.");
+
+                throw new ApiException($"Internal server error: Remove is failed")
+                { StatusCode = (int)HttpStatusCode.BadRequest };
             }
-                return new BaseResponse<string>("Item không có trong giỏ hàng.");
+                return await GetCart(userId);
 
         }
 

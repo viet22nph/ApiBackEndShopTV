@@ -30,8 +30,8 @@ namespace WebApi.Controllers
             {
                 return BadRequest("Invalid cart request.");
             }
-            await _cartService.AddToCart(request);
-            return NoContent();
+            var rs = await _cartService.AddToCart(request);
+            return Ok(rs);
         }
 
         [HttpPost("get-cart/{id}")]
