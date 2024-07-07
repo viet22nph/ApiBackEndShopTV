@@ -41,7 +41,8 @@ namespace WebApi.Controllers
                 AverageRating = averageRating,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
-                Reviews = reviews
+                message = reviews.Message,
+                data = reviews.Data
             };
 
             return Ok(result);
