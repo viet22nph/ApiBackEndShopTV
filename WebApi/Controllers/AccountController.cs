@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Account;
@@ -60,7 +62,7 @@ namespace WebApi.Controllers
         {
             return Ok(await _accountService.RefreshTokenAsync(request));
         }
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("logout")]
         public async Task<IActionResult> LogoutAsync(string userEmail)
         {
