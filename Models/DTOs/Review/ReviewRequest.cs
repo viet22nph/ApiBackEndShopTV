@@ -15,7 +15,7 @@ namespace Models.DTOs.Review
         public string? UserId { get; set; }
         [Required(ErrorMessage = "Rating is required")]
         [Range(0, 5, ErrorMessage = "Rating must be between 0 and 5")]
-        public int Rating { get; set; }
+        public double Rating { get; set; }
         [Required(ErrorMessage = "Content is required")]
         [StringLength(1000, ErrorMessage = "Content must be less than 1000 characters")]
         public string Content { get; set; }

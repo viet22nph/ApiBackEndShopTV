@@ -13,7 +13,7 @@ namespace Models.Models
     {
         public Guid ProductId { get; set; }
         public string? UserId { get; set; }
-        public int Rating { get; set; }
+        public double Rating { get; set; }
         public string Content { get; set; }
         [JsonIgnore]
         public virtual Product? Product { get; set; }

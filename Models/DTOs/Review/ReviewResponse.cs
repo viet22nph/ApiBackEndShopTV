@@ -11,7 +11,7 @@ namespace Models.DTOs.Review
         public Guid Id { get; set; }
         public Guid ProductId { get; set; }
         public string? UserId { get; set; }
-        public int Rating { get; set; }
+        public double Rating { get; set; }
         public string Content { get; set; }
         public ICollection<ReviewImageResponse>? ReviewImages { get; set; }
 
