@@ -76,20 +76,16 @@ namespace Application.Api.Extentions
                  };
                  options.Events = new JwtBearerEvents()
                  {
-                     OnAuthenticationFailed = c =>
-                     {
-                         c.NoResult();
-                         c.Response.StatusCode = 500;
-                         c.Response.ContentType = "text/plain";
-                         return c.Response.WriteAsync(c.Exception.ToString());
-                     },
+                    
                      OnChallenge = context =>
                      {
-                         context.HandleResponse();
-                         context.Response.StatusCode = 401;
-                         context.Response.ContentType = "application/json";
-                         var result = JsonConvert.SerializeObject(new BaseResponse<string>("You are not Authorized"));
-                         return context.Response.WriteAsync(result);
+                        
+                             context.HandleResponse();
+                             context.Response.StatusCode = 401;
+                             context.Response.ContentType = "application/json";
+                             var result = JsonConvert.SerializeObject(new BaseResponse<string>("You are not Authorized"));
+                             return context.Response.WriteAsync(result);
+                       
                      },
                      OnForbidden = context =>
                      {

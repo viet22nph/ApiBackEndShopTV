@@ -5,7 +5,7 @@ using Models.RequestModels;
 using Services.Interfaces;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace WebApi.Attributes
+namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -23,7 +23,7 @@ namespace WebApi.Attributes
             return Ok(new
             {
                 message = "Create transaction",
-                data = data
+                data
             });
         }
 

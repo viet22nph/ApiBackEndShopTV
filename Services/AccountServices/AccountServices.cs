@@ -138,10 +138,11 @@ namespace Services.AccountServices
             response.JWToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             response.Email = user.Email;
             response.UserName = user.UserName;
-            //IList<string> rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
-            //response.Roles = rolesList.ToList();
-            //response.IsVerified = user.EmailConfirmed;
+            IList<string> rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+            response.Roles = rolesList.ToList();
+            response.IsVerified = user.EmailConfirmed;
             response.RefreshToken = await GenerateRefreshToken(user);
+
 
             await _signInManager.SignInAsync(user, false);
             return new BaseResponse<AuthenticationResponse>(response, $"Authenticated {user.UserName}");
@@ -212,7 +213,7 @@ namespace Services.AccountServices
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),
+                expires: DateTime.UtcNow.AddMinutes(1),
                 signingCredentials: signingCredentials);
             return jwtSecurityToken;
         }

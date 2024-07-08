@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.User;
 using Models.DTOs.UserManagement;
 using Models.Models;
+using Org.BouncyCastle.Utilities;
 using Services.Interfaces;
 using System.Net;
 using System.Security.Claims;
@@ -119,6 +120,63 @@ namespace WebApi.Controllers
         {
             var result = await _userService.GetUsers(pageNumber, pageSize);
             return Ok(result);
+        }
+        [HttpDelete("user-remove-role")]
+        public async Task<IActionResult> UserRemoveRole([FromBody] UserRemoveRoleRequest request)
+        {
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+                var user = await _userManager.FindByIdAsync(request.userId);
+                if (user == null)
+                {
+                    return BadRequest(new
+                    {
+                        message = $"Not found user by id {request.userId}"
+                    });
+                }
+                if (!request.RoleNames.Any())
+                {
+                    return BadRequest(new
+                    {
+                        message = $"Please provide roles"
+                    });
+                }
+                foreach (var roleName in request.RoleNames)
+                {
+                    if (!await _userManager.IsInRoleAsync(user, roleName))
+                    {
+                        await _context.Database.RollbackTransactionAsync();
+                        return BadRequest($"User is not in role '{roleName}'.");
+
+                    }
+                    var result = await _userManager.RemoveFromRoleAsync(user, roleName);
+                    if (!result.Succeeded)
+                    {
+                        await _context.Database.RollbackTransactionAsync();
+                        return BadRequest($"Failed to remove user from role {roleName}.");
+                    }
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+                return Ok(new
+                {
+                    message = "Remove role success",
+                    data = roles
+                });
+            }catch(Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}")
+                { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+            
+        }
+
+
+        public class UserRemoveRoleRequest
+        {
+            public string userId { get; set; }
+            public ICollection<String> RoleNames { get; set; }
         }
     }
 }
