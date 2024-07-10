@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Data.Migrations
 {
     /// <inheritdoc />
-    public partial class initdatabase : Migration
+    public partial class viet : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,9 @@ namespace Data.Migrations
                     Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     CategoryParent = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NomalizedName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    NomalizedName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    DateCreate = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()"),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -37,7 +39,9 @@ namespace Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ColorName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    ColorCode = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
+                    ColorCode = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    DateCreate = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()"),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -56,7 +60,9 @@ namespace Data.Migrations
                     DateStart = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateEnd = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateCreate = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()"),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -86,7 +92,9 @@ namespace Data.Migrations
                     ContactPerson = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     SupplierName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateCreate = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()"),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -155,7 +163,9 @@ namespace Data.Migrations
                     IsPublished = table.Column<bool>(type: "bit", nullable: false),
                     SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DiscountId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DateCreate = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()"),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -179,7 +189,7 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Order",
+                name: "tbl_Order",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -188,18 +198,19 @@ namespace Data.Migrations
                     Phone = table.Column<string>(type: "char(11)", maxLength: 11, nullable: false),
                     RecipientName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    GrandTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    DateCreate = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()"),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Order", x => x.Id);
+                    table.PrimaryKey("PK_tbl_Order", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Order_Users_UserId",
+                        name: "FK_tbl_Order_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id");
@@ -297,7 +308,9 @@ namespace Data.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    ColorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ColorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DateCreate = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()"),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -322,7 +335,9 @@ namespace Data.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SpecValue = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SpecType = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    SpecType = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    DateCreate = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()"),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -341,10 +356,11 @@ namespace Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false),
-                    content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreateAt = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()")
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Rating = table.Column<double>(type: "float", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateCreate = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()"),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -359,8 +375,7 @@ namespace Data.Migrations
                         name: "FK_Review_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -368,28 +383,29 @@ namespace Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DateCreate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Transaction", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Transaction_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Transaction_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Transaction_tbl_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "tbl_Order",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -399,21 +415,22 @@ namespace Data.Migrations
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AmountDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OrderItem", x => new { x.OrderId, x.ProductItemId });
                     table.ForeignKey(
-                        name: "FK_OrderItem_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_OrderItem_ProductItem_ProductItemId",
                         column: x => x.ProductItemId,
                         principalTable: "ProductItem",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderItem_tbl_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "tbl_Order",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -425,7 +442,8 @@ namespace Data.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CloudPublic = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    DateCreate = table.Column<DateTime>(type: "DateTime", nullable: false, defaultValueSql: "GetUtcDate()"),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -438,15 +456,31 @@ namespace Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ReviewImage",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ReviewId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateCreate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReviewImage", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ReviewImage_Review_ReviewId",
+                        column: x => x.ReviewId,
+                        principalTable: "Review",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Category_CategoryParent",
                 table: "Category",
                 column: "CategoryParent");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Order_UserId",
-                table: "Order",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItem_ProductItemId",
@@ -499,6 +533,11 @@ namespace Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ReviewImage_ReviewId",
+                table: "ReviewImage",
+                column: "ReviewId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RoleClaims_RoleId",
                 table: "RoleClaims",
                 column: "RoleId");
@@ -511,10 +550,14 @@ namespace Data.Migrations
                 filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_tbl_Order_UserId",
+                table: "tbl_Order",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transaction_OrderId",
                 table: "Transaction",
-                column: "OrderId",
-                unique: true);
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transaction_UserId",
@@ -562,7 +605,7 @@ namespace Data.Migrations
                 name: "ProductSpecification");
 
             migrationBuilder.DropTable(
-                name: "Review");
+                name: "ReviewImage");
 
             migrationBuilder.DropTable(
                 name: "RoleClaims");
@@ -586,7 +629,10 @@ namespace Data.Migrations
                 name: "ProductItem");
 
             migrationBuilder.DropTable(
-                name: "Order");
+                name: "Review");
+
+            migrationBuilder.DropTable(
+                name: "tbl_Order");
 
             migrationBuilder.DropTable(
                 name: "Roles");

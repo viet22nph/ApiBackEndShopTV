@@ -31,6 +31,14 @@ namespace Data.Migrations
                     b.Property<Guid?>("CategoryParent")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("DateCreate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DateTime")
+                        .HasDefaultValueSql("GetUtcDate()");
+
+                    b.Property<DateTime?>("DateUpdate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -67,6 +75,14 @@ namespace Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<DateTime>("DateCreate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DateTime")
+                        .HasDefaultValueSql("GetUtcDate()");
+
+                    b.Property<DateTime?>("DateUpdate")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.ToTable("Color", (string)null);
@@ -83,10 +99,18 @@ namespace Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<DateTime>("DateCreate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DateTime")
+                        .HasDefaultValueSql("GetUtcDate()");
+
                     b.Property<DateTime>("DateEnd")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateUpdate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
@@ -123,11 +147,13 @@ namespace Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("DateCreate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DateTime")
+                        .HasDefaultValueSql("GetUtcDate()");
 
-                    b.Property<decimal>("GrandTotal")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<DateTime?>("DateUpdate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
@@ -155,8 +181,11 @@ namespace Data.Migrations
                     b.Property<decimal>("SubTotal")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("UpdateAt")
-                        .HasColumnType("datetime2");
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("TotalDiscount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -165,7 +194,7 @@ namespace Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Order", (string)null);
+                    b.ToTable("tbl_Order", (string)null);
                 });
 
             modelBuilder.Entity("Application.DAL.Models.OrderItem", b =>
@@ -175,6 +204,9 @@ namespace Data.Migrations
 
                     b.Property<Guid>("ProductItemId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("AmountDiscount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -197,6 +229,14 @@ namespace Data.Migrations
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DateCreate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DateTime")
+                        .HasDefaultValueSql("GetUtcDate()");
+
+                    b.Property<DateTime?>("DateUpdate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -248,9 +288,13 @@ namespace Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CloudPublic")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("DateCreate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DateTime")
+                        .HasDefaultValueSql("GetUtcDate()");
+
+                    b.Property<DateTime?>("DateUpdate")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("ProductItemId")
                         .HasColumnType("uniqueidentifier");
@@ -275,6 +319,14 @@ namespace Data.Migrations
                     b.Property<Guid?>("ColorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("DateCreate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DateTime")
+                        .HasDefaultValueSql("GetUtcDate()");
+
+                    b.Property<DateTime?>("DateUpdate")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
@@ -295,6 +347,14 @@ namespace Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DateCreate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DateTime")
+                        .HasDefaultValueSql("GetUtcDate()");
+
+                    b.Property<DateTime?>("DateUpdate")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -333,6 +393,14 @@ namespace Data.Migrations
                         .HasMaxLength(11)
                         .HasColumnType("char(11)");
 
+                    b.Property<DateTime>("DateCreate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DateTime")
+                        .HasDefaultValueSql("GetUtcDate()");
+
+                    b.Property<DateTime?>("DateUpdate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
@@ -355,7 +423,10 @@ namespace Data.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("CreateAt")
+                    b.Property<DateTime>("DateCreate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateUpdate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
@@ -379,8 +450,7 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId")
-                        .IsUnique();
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("UserId");
 
@@ -594,23 +664,26 @@ namespace Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreateAt")
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateCreate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("DateTime")
                         .HasDefaultValueSql("GetUtcDate()");
 
+                    b.Property<DateTime?>("DateUpdate")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
+                    b.Property<double>("Rating")
+                        .HasColumnType("float");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("content")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -619,6 +692,32 @@ namespace Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Review", (string)null);
+                });
+
+            modelBuilder.Entity("Models.Models.ReviewImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DateCreate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateUpdate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ReviewId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReviewId");
+
+                    b.ToTable("ReviewImage");
                 });
 
             modelBuilder.Entity("Application.DAL.Models.Category", b =>
@@ -723,8 +822,8 @@ namespace Data.Migrations
             modelBuilder.Entity("Application.DAL.Models.Transaction", b =>
                 {
                     b.HasOne("Application.DAL.Models.Order", "Order")
-                        .WithOne("Transaction")
-                        .HasForeignKey("Application.DAL.Models.Transaction", "OrderId")
+                        .WithMany("Transactions")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -798,13 +897,22 @@ namespace Data.Migrations
 
                     b.HasOne("Models.Models.ApplicationUser", "User")
                         .WithMany("Reviews")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Product");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Models.Models.ReviewImage", b =>
+                {
+                    b.HasOne("Models.Models.Review", "Review")
+                        .WithMany("ReviewImages")
+                        .HasForeignKey("ReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("Application.DAL.Models.Category", b =>
@@ -828,7 +936,7 @@ namespace Data.Migrations
                 {
                     b.Navigation("OrderItems");
 
-                    b.Navigation("Transaction");
+                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("Application.DAL.Models.Product", b =>
@@ -857,6 +965,11 @@ namespace Data.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("Models.Models.Review", b =>
+                {
+                    b.Navigation("ReviewImages");
                 });
 #pragma warning restore 612, 618
         }
