@@ -200,7 +200,6 @@ namespace Services.Concrete
                 EntityUpdater.UpdateIfNotNull(request.Price, value => product.Price = value);
                 EntityUpdater.UpdateIfNotNull(request.SupplierId, value => product.SupplierId = value);
                 EntityUpdater.UpdateIfNotNull(request.CategoryId, value => product.CategoryId = value);
-                EntityUpdater.UpdateIfNotNull(request.DiscountId, value => product.DiscountId = value);
 
                 // Update ProductSpecifications
                 if (request.ProductSpecifications != null)
@@ -238,6 +237,26 @@ namespace Services.Concrete
                             {
                                 EntityUpdater.UpdateIfNotNull(itemRequest.Quantity, value => item.Quantity = value);
                                 EntityUpdater.UpdateIfNotNull(itemRequest.ColorId, value => item.ColorId = value);
+                               if(itemRequest.ProductImages != null)
+                                {
+                                    foreach(var image in  itemRequest.ProductImages)
+                                    {
+                                        if(image.Id.HasValue)
+                                        {
+                                            EntityUpdater.UpdateIfNotNull(image.Url, value => image.Url = value);
+                                        }
+                                        else
+                                        {
+                                            var newImages = new ProductImage
+                                            {
+                                                Url = image.Url
+                                            };
+                                            item?.ProductImages?.Add(newImages);
+                                        }
+
+                                    }
+                                }
+                                
                             }
                         }
                         else
@@ -245,7 +264,12 @@ namespace Services.Concrete
                             var newItem = new ProductItem
                             {
                                 Quantity = itemRequest.Quantity ?? 0,
-                                ColorId = itemRequest.ColorId
+                                ColorId = itemRequest.ColorId,
+                                ProductImages = itemRequest?.ProductImages?.Select(i => new ProductImage
+                                {
+                                    Url = i.Url
+                                }).ToList()
+                               
                             };
 
                             // Add new ProductImages
@@ -254,7 +278,9 @@ namespace Services.Concrete
                     }
                 }
                 product = await _unitOfWork.Repository<Product>().Update(product);
-                                var res = _mapper.Map<ProductDto>(product);
+
+                product = await _unitOfWork.ProductRepository.GetProduct(id);
+                var res = _mapper.Map<ProductDto>(product);
                 return new BaseResponse<ProductDto>(res, "Product");
             }
             catch ( Exception ex)

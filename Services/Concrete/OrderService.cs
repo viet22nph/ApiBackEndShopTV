@@ -252,7 +252,7 @@ namespace Services.Concrete
                 }
                 reviewCheckoutRes.SubTotal = reviewCheckoutRes.ReviewCheckoutItems.Sum(s => s.Total);
                 reviewCheckoutRes.DiscountAmount = reviewCheckoutRes.ReviewCheckoutItems.Sum(s => s.AmountDiscount);
-                reviewCheckoutRes.GrandTotal = reviewCheckoutRes.SubTotal - reviewCheckoutRes.DiscountAmount;
+                reviewCheckoutRes.Total = reviewCheckoutRes.SubTotal - reviewCheckoutRes.DiscountAmount;
                 return new BaseResponse<ReviewCheckoutResponse>(reviewCheckoutRes, "checkout");
 
             }

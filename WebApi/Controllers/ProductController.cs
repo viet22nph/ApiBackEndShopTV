@@ -26,28 +26,28 @@ namespace WebApi.Controllers
             _productService = productService;
         }
         [HttpPost("publish")]
-        public async Task<IActionResult> UpdatePublish([FromBody] Guid id)
+        public async Task<IActionResult> UpdatePublish([FromBody] ProductId request)
         {
-            if (id == null)
+            if (request?.Id == null)
             {
                 return BadRequest(new { message = "Id not null or empty" });
             }
 
-            var result = await _productService.UpdateProductPublish(id);
+            var result = await _productService.UpdateProductPublish(request.Id);
             _cacheManager.RemoveByPrefix("api/Product");
             return Ok(result);
 
         }
 
         [HttpPost("draft")]
-        public async Task<IActionResult> UpdateDraft([FromBody] Guid id)
+        public async Task<IActionResult> UpdateDraft([FromBody] ProductId request)
         {
-            if (id == null)
+            if (request?.Id == null)
             {
                 return BadRequest(new { message = "Id not null or empty" });
             }
 
-            var result = await _productService.UpdateProductDraft(id);
+            var result = await _productService.UpdateProductDraft(request.Id);
             _cacheManager.RemoveByPrefix("api/Product");
             return Ok(result);
 
@@ -234,5 +234,9 @@ namespace WebApi.Controllers
             _cacheManager.RemoveByPrefix("api/Product");
             return NoContent();
         }
+    }
+    public class ProductId
+    {
+        public Guid Id { get; set; }
     }
 }
