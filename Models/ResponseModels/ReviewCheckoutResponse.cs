@@ -11,7 +11,7 @@ namespace Models.ResponseModels
         public ICollection<ReviewCheckoutItem> ReviewCheckoutItems { get; set; }
         public decimal SubTotal { get; set; }
         public decimal DiscountAmount { get; set; }
-        public decimal GrandTotal { get; set; }
+        public decimal Total { get; set; }
         public ReviewCheckoutResponse()
         {
             ReviewCheckoutItems = new List<ReviewCheckoutItem>();

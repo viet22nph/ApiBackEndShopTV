@@ -11,5 +11,11 @@ namespace Models.DTOs.Product
         public Guid? Id { get; set; }
         public int? Quantity { get; set; }
         public Guid? ColorId { get; set; }
+        public ICollection<ImageProductUpdateRequest>? ProductImages { get; set; }
+    }
+    public class ImageProductUpdateRequest
+    {
+        public Guid? Id { get; set;}
+        public string? Url { get; set; }
     }
 }
