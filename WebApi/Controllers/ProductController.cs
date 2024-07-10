@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Cart;
+using Models.DTOs.Discount;
 using Models.DTOs.Product;
 using Services.Interfaces;
 using System.Net.WebSockets;
@@ -26,28 +27,28 @@ namespace WebApi.Controllers
             _productService = productService;
         }
         [HttpPost("publish")]
-        public async Task<IActionResult> UpdatePublish([FromBody] ProductId request)
+        public async Task<IActionResult> UpdatePublish([FromBody] ProductIdDto request)
         {
-            if (request?.Id == null)
+            if (request?.ProductId == null)
             {
                 return BadRequest(new { message = "Id not null or empty" });
             }
 
-            var result = await _productService.UpdateProductPublish(request.Id);
+            var result = await _productService.UpdateProductPublish(request.ProductId);
             _cacheManager.RemoveByPrefix("api/Product");
             return Ok(result);
 
         }
 
         [HttpPost("draft")]
-        public async Task<IActionResult> UpdateDraft([FromBody] ProductId request)
+        public async Task<IActionResult> UpdateDraft([FromBody] ProductIdDto request)
         {
-            if (request?.Id == null)
+            if (request?.ProductId == null)
             {
                 return BadRequest(new { message = "Id not null or empty" });
             }
 
-            var result = await _productService.UpdateProductDraft(request.Id);
+            var result = await _productService.UpdateProductDraft(request.ProductId);
             _cacheManager.RemoveByPrefix("api/Product");
             return Ok(result);
 
@@ -234,9 +235,14 @@ namespace WebApi.Controllers
             _cacheManager.RemoveByPrefix("api/Product");
             return NoContent();
         }
+        [HttpPost("update-discount/{productId}")]
+        public async Task<IActionResult> UpdateDiscount(Guid productId, [FromBody] DiscountIdDto request)
+        {
+            var rs = await _productService.updateProductDiscount(productId, request.DiscountId);
+            return Ok(rs);
+        }
     }
-    public class ProductId
-    {
-        public Guid Id { get; set; }
-    }
+
+
+
 }

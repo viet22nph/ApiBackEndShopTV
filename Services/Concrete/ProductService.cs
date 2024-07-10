@@ -463,6 +463,7 @@ namespace Services.Concrete
             }
         }
 
+        
 
         private async Task<ICollection<ProductResponse>> mapProductAsync(ICollection<Product> products)
         {
@@ -512,6 +513,38 @@ namespace Services.Concrete
                 productDtos.Add(productDto);
             }
             return productDtos;
+        }
+
+        public async Task<BaseResponse<string>> updateProductDiscount(Guid productId, Guid? discountId)
+        {
+                var product = await _unitOfWork.Repository<Product>().GetById(productId);
+                if(product == null)
+                {
+                    throw new ApiException($"Not found product") { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                if(discountId != null) {
+                
+                    var discount = await _unitOfWork.Repository<Discount>().GetById(discountId.Value);
+                    if(discount == null)
+                    {
+                        throw new ApiException($"Not found discount with id = {discountId.Value}") { StatusCode = (int)HttpStatusCode.BadRequest };
+                    }
+                    product.DiscountId = discount.Id;
+                }
+                else
+                {
+                    product.DiscountId = null;
+                }
+
+                product = await _unitOfWork.Repository<Product>().Update(product);
+                if(product == null)
+                {
+                    throw new ApiException($"Update product is failed with discount id ={productId} ") { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                return new BaseResponse<string>("Update success");
+
+            
+
         }
     }
 }

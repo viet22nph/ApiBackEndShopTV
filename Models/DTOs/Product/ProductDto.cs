@@ -35,8 +35,12 @@ namespace Models.DTOs.Product
             public string? Description { get; set; }
         }
     }
-    
 
+
+    public class ProductIdDto
+    {
+        public Guid ProductId { get; set; }
+    }
 
     public class ProductResponse
     {

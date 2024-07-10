@@ -19,4 +19,9 @@ namespace Models.DTOs.Discount
         public string? Description { get; set; }
         public string Status { get; set; }// pending
     }
+
+    public class DiscountIdDto
+    {
+        public Guid? DiscountId { get; set; }
+    }
 }

@@ -59,35 +59,35 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("cancel")]
-        public async Task<IActionResult> CancelDiscount([FromBody] DiscountId payload)
+        public async Task<IActionResult> CancelDiscount([FromBody] DiscountIdDto payload)
         {
-            if (payload.Id == Guid.Empty)
+            if (payload.DiscountId == null ||  payload.DiscountId == Guid.Empty)
             {
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
-            var result = await _discount.CancelledDiscountStatus(payload.Id);
+            var result = await _discount.CancelledDiscountStatus(payload.DiscountId.Value);
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
         [HttpPost("pause")]
-        public async Task<IActionResult> PauseDiscount([FromBody] DiscountId payload)
+        public async Task<IActionResult> PauseDiscount([FromBody] DiscountIdDto payload)
         {
-            if (payload.Id == Guid.Empty)
+            if (payload.DiscountId == null || payload.DiscountId == Guid.Empty)
             {
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
-            var result = await _discount.PauseDiscountStatus(payload.Id);
+            var result = await _discount.PauseDiscountStatus(payload.DiscountId.Value);
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
         [HttpPost("continue")]
-        public async Task<IActionResult> ContinueDiscount([FromBody] DiscountId payload)
+        public async Task<IActionResult> ContinueDiscount([FromBody] DiscountIdDto payload)
         {
-            if (payload.Id == Guid.Empty)
+            if (payload.DiscountId == null || payload.DiscountId == Guid.Empty)
             {
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
-            var result = await _discount.ContinueDiscountStatus(payload.Id);
+            var result = await _discount.ContinueDiscountStatus(payload.DiscountId.Value);
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
@@ -103,9 +103,5 @@ namespace WebApi.Controllers
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
-    }
-    public class DiscountId
-    {
-        public Guid Id { get; set; }
     }
 }
