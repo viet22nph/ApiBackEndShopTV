@@ -59,35 +59,35 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("cancel")]
-        public async Task<IActionResult> CancelDiscount([FromBody] Guid id)
+        public async Task<IActionResult> CancelDiscount([FromBody] DiscountId payload)
         {
-            if (id == Guid.Empty)
+            if (payload.Id == Guid.Empty)
             {
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
-            var result = await _discount.CancelledDiscountStatus(id);
+            var result = await _discount.CancelledDiscountStatus(payload.Id);
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
         [HttpPost("pause")]
-        public async Task<IActionResult> PauseDiscount([FromBody] Guid id)
+        public async Task<IActionResult> PauseDiscount([FromBody] DiscountId payload)
         {
-            if (id == Guid.Empty)
+            if (payload.Id == Guid.Empty)
             {
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
-            var result = await _discount.PauseDiscountStatus(id);
+            var result = await _discount.PauseDiscountStatus(payload.Id);
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
         [HttpPost("continue")]
-        public async Task<IActionResult> ContinueDiscount([FromBody] Guid id)
+        public async Task<IActionResult> ContinueDiscount([FromBody] DiscountId payload)
         {
-            if (id == Guid.Empty)
+            if (payload.Id == Guid.Empty)
             {
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
-            var result = await _discount.ContinueDiscountStatus(id);
+            var result = await _discount.ContinueDiscountStatus(payload.Id);
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
@@ -103,5 +103,9 @@ namespace WebApi.Controllers
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
+    }
+    public class DiscountId
+    {
+        public Guid Id { get; set; }
     }
 }
