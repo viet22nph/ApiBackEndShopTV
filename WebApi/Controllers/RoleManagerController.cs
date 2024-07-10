@@ -37,29 +37,29 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("create-role")]
-        public async Task<IActionResult> CreateRole([FromBody] string roleName)
+        public async Task<IActionResult> CreateRole([FromBody] RoleName roleName)
         {
 
-            if (string.IsNullOrWhiteSpace(roleName))
+            if (string.IsNullOrWhiteSpace(roleName.Name))
             {
                 return BadRequest(new { message = $"Role name is null or empty" });
             }
             try
             {
-                var roleExist = await _roleManager.RoleExistsAsync(roleName);
+                var roleExist = await _roleManager.RoleExistsAsync(roleName.Name);
                 if (roleExist)
                 {
-                    return BadRequest(new { message = $"Internal server error: The {roleName} role already exist" });
+                    return BadRequest(new { message = $"Internal server error: The {roleName.Name} role already exist" });
 
                 }
-                var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+                var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName.Name));
                 if (!roleResult.Succeeded)
                 {
-                    return BadRequest(new { message = $"Internal server error: Create role {roleName} is failed" });
+                    return BadRequest(new { message = $"Internal server error: Create role {roleName.Name} is failed" });
                 }
 
 
-                return Ok(new { message = $"Create role {roleName} is successfully" });
+                return Ok(new { message = $"Create role {roleName.Name} is successfully" });
             }
             catch (Exception ex)
             {
@@ -189,5 +189,9 @@ namespace WebApi.Controllers
             var res = roleClaims.Select(cl=> new {type = cl.Type, value = cl.Value});
             return Ok(new {message ="Role Claims", data = res});
         }
+    }
+    public class RoleName
+    {
+        public string Name { get; set; }
     }
 }
