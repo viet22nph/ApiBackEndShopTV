@@ -47,7 +47,7 @@ namespace Services.Concrete
             vnpay.AddRequestData("vnp_ReturnUrl", vnp_Returnurl);
             
             vnpay.AddRequestData("vnp_ExpireDate", expireDate.ToString("yyyyMMddHHmmss"));
-            vnpay.AddRequestData("vnp_TxnRef",request.OrderId.ToString());
+            vnpay.AddRequestData("vnp_TxnRef",request.TxnRef.ToString());
             vnpay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(context));
             string paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
             return paymentUrl;

@@ -8,7 +8,7 @@ namespace Models.RequestModels
 {
     public class VnpayRequest
     {
-        public Guid? OrderId { get; set; }
+        public Guid TxnRef { get; set; }
         public String? UserId { get; set; }
         public decimal? Amount { get; set; }
 

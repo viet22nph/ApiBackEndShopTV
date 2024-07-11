@@ -31,12 +31,12 @@ namespace WebApi.Controllers
         public async Task<IActionResult> PaymentVnpay([FromBody] OrderRequest request)
         {
 
-            Guid id = Guid.NewGuid();
-            await _cacheManager.SetAsync($"OrderPayment:{id}", request, 15);
+            Guid txnRef = Guid.NewGuid();
+            await _cacheManager.SetAsync($"OrderPayment:{txnRef}", request, 15);
            
             var vnpayRequest = new VnpayRequest()
             {
-                OrderId = id,
+                TxnRef = txnRef,
                 UserId = request.UserId,
                 Amount = request.Total
             };
@@ -45,17 +45,10 @@ namespace WebApi.Controllers
                 Url = _vnPay.CreateVnpayUrl(HttpContext, vnpayRequest)
             });
         }
-        [HttpGet("vnpay-return")]
-        public async Task<IActionResult> VnPayReturn()
+        [HttpPost("create-order/{txnRef}")]
+        public async Task<IActionResult> CreateOrder(string txnRef)
         {
-            var res = _vnPay.PaymentExecute(Request.Query);
-
-            if (res.Success)
-            {
-
-                if (res.VnPayResponseCode == "00")
-                {
-                    var dataCache = await _cacheManager.GetAsync($"OrderPayment:{res.OrderId}");
+                    var dataCache = await _cacheManager.GetAsync($"OrderPayment:{txnRef}");
                     var order = JsonConvert.DeserializeObject<OrderRequest>(dataCache);
                     order.Status = OrderStatus.COMPLETED;
                     order.Transactions.First().Status = TransactionStatus.COMPLETED;
@@ -63,7 +56,6 @@ namespace WebApi.Controllers
                     if (result.Data.UserId != null)
                     {
                         await _order.SendMailOrder(result.Data.Id);
-                        // clear cart
 
                         foreach (var item in order.Items)
                         {
@@ -72,18 +64,8 @@ namespace WebApi.Controllers
                     }
                     _cacheManager.RemoveByPrefix("api/Product");
                     _cacheManager.RemoveByPrefix("api/Order");
-                    return Ok(new { RspCode = "00", Message = "Confirm Success" });
-                }
-                else
-                {
-                    return Ok(new { RspCode = "01", Message = "Confirm Fail" });
-                }
-            }
-            else
-            {
-                await _order.RemoveOrder(res.OrderId);
-                return BadRequest(new { RspCode = "97", Message = "Invalid signature" });
-            }
+                    return Ok(result);
+               
         }
 
     }

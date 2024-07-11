@@ -99,7 +99,7 @@ namespace WebApi.Controllers
                 total = total
             });
         }
-        [Cache]
+        [Cache(1)]
         [AllowAnonymous]
         [HttpPost("{id}")]
         public async Task<IActionResult> GetProduct(Guid id)
