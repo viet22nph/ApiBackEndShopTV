@@ -145,12 +145,7 @@ namespace Services.Concrete
                     throw new ApiException($"Not found")
                     { StatusCode = (int)HttpStatusCode.NotFound };
                 }
-                if (discount.Status != DiscountStatus.ACTIVE)
-                {
-
-                    throw new ApiException($"Discount is not active yet")
-                    { StatusCode = (int)HttpStatusCode.NotFound };
-                }
+              
                 if (discount.Status == DiscountStatus.PAUSE)
                 {
                     discount.Status = DiscountStatus.ACTIVE;
