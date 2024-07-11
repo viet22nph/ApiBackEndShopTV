@@ -278,8 +278,7 @@ namespace Services.Concrete
                     }
                 }
                 product = await _unitOfWork.Repository<Product>().Update(product);
-
-                product = await _unitOfWork.ProductRepository.GetProduct(id);
+                _context.Database.CommitTransaction();
                 var res = _mapper.Map<ProductDto>(product);
                 return new BaseResponse<ProductDto>(res, "Product");
             }
