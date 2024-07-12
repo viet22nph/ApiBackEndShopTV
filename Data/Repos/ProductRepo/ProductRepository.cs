@@ -5,11 +5,13 @@ using Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SqlServer.Server;
 using Models.DTOs.Product;
+using Models.Enums;
 using Models.Status;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -203,23 +205,24 @@ namespace Data.Repos.ProductRepo
 
             return productQuery;
         }
-       
-        public async Task<bool> RemoveProductItem(Guid id)
+        
+        public async Task<ResultRemoveItemEnums> RemoveProductItem(Guid id)
         {
             try
             {
                 var productItem = _context.Set<ProductItem>().Include(p => p.ProductImages).Include(p => p.OrderItems).Include(p => p.Product).Where(p => p.Id == id).FirstOrDefault();
                 if (productItem == null)
                 {
-                    return false;
+                    return ResultRemoveItemEnums.NotFound;
                 }
                 if (productItem.OrderItems.Any())
                 {
-                    return false;
+                    return ResultRemoveItemEnums.CanNotDelete;
                 }
-                if(productItem.Product.ProductItems.Count <=1)
-                {
-                    return false;
+                var product = await GetProduct(productItem.Product.Id);
+                if(product.ProductItems.Count <=1)
+                { 
+                    return ResultRemoveItemEnums.CanNotDelete;
                 }    
                 if (productItem.ProductImages != null)
                 {
@@ -229,11 +232,11 @@ namespace Data.Repos.ProductRepo
                 productItem.Product.ProductQuantity -= productItemQuantity;
                 _context.Set<ProductItem>().Remove(productItem);
                 _context.SaveChanges();
-                return true;
+                return ResultRemoveItemEnums.RemoveSuccess;
             }
             catch(Exception ex)
             {
-                return false;
+                return ResultRemoveItemEnums.CanNotDelete;
             }
            
         }

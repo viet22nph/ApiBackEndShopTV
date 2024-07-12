@@ -8,6 +8,7 @@ using Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Identity.Client;
 using Models.DTOs.Product;
+using Models.Enums;
 using Models.Models;
 using Models.ResponseModels;
 using Models.Status;
@@ -204,11 +205,12 @@ namespace Services.Concrete
                 // Update ProductSpecifications
                 if (request.ProductSpecifications != null)
                 {
+                    var existingSpecs = product.ProductSpecifications.ToList();
                     foreach (var specRequest in request.ProductSpecifications)
                     {
                         if (specRequest.Id.HasValue)
                         {
-                            var spec = product.ProductSpecifications?.FirstOrDefault(s => s.Id == specRequest.Id.Value);
+                            var spec = existingSpecs.FirstOrDefault(s => s.Id == specRequest.Id.Value);
                             if (spec != null)
                             {
                                 EntityUpdater.UpdateIfNotNull(specRequest.SpecValue, value => spec.SpecValue = value);
@@ -224,43 +226,71 @@ namespace Services.Concrete
                             });
                         }
                     }
+
+                    // Remove specifications not in the request
+                    var specIdsToRemove = existingSpecs
+                        .Where(s => !request.ProductSpecifications.Any(r => r.Id.HasValue && r.Id.Value == s.Id))
+                        .ToList();
+
+                    foreach (var spec in specIdsToRemove)
+                    {
+                        await RemoveProductSpecification(spec.Id);
+
+
+                    }
                 }
                 // Update ProductItems
                 if (request.ProductItems != null)
                 {
+                    var existingItems = product.ProductItems.ToList();
                     foreach (var itemRequest in request.ProductItems)
                     {
                         if (itemRequest.Id.HasValue)
                         {
-                            var item = product.ProductItems?.FirstOrDefault(i => i.Id == itemRequest.Id.Value);
+                            var item = existingItems.FirstOrDefault(i => i.Id == itemRequest.Id.Value);
                             if (item != null)
                             {
                                 EntityUpdater.UpdateIfNotNull(itemRequest.Quantity, value => item.Quantity = value);
                                 EntityUpdater.UpdateIfNotNull(itemRequest.ColorId, value => item.ColorId = value);
-                               if(itemRequest.ProductImages != null)
+
+                                if (itemRequest.ProductImages != null)
                                 {
-                                    foreach(var image in  itemRequest.ProductImages)
+                                    var existingImages = item.ProductImages.ToList();
+                                    foreach (var imageRequest in itemRequest.ProductImages)
                                     {
-                                        if(image.Id.HasValue)
+                                        if (imageRequest.Id.HasValue)
                                         {
-                                            EntityUpdater.UpdateIfNotNull(image.Url, value => image.Url = value);
+                                            var image = existingImages.FirstOrDefault(img => img.Id == imageRequest.Id.Value);
+                                            if (image != null)
+                                            {
+                                                EntityUpdater.UpdateIfNotNull(imageRequest.Url, value => image.Url = value);
+                                            }
                                         }
                                         else
                                         {
-                                            var newImages = new ProductImage
+                                            var newImage = new ProductImage
                                             {
-                                                Url = image.Url
+                                                Url = imageRequest.Url
                                             };
-                                            item?.ProductImages?.Add(newImages);
+                                            item.ProductImages?.Add(newImage);
                                         }
+                                    }
 
+                                    // Remove images not in the request
+                                    var imageIdsToRemove = existingImages
+                                        .Where(img => !itemRequest.ProductImages.Any(r => r.Id.HasValue && r.Id.Value == img.Id))
+                                        .ToList();
+
+                                    foreach (var image in imageIdsToRemove)
+                                    {
+                                        item.ProductImages?.Remove(image);
                                     }
                                 }
-                                
                             }
                         }
                         else
                         {
+                            // add product id
                             var newItem = new ProductItem
                             {
                                 Quantity = itemRequest.Quantity ?? 0,
@@ -269,12 +299,34 @@ namespace Services.Concrete
                                 {
                                     Url = i.Url
                                 }).ToList()
-                               
                             };
-
-                            // Add new ProductImages
                             product.ProductItems?.Add(newItem);
                         }
+                    }
+
+                    // Remove items not in the request
+                    var itemIdsToRemove = existingItems
+                        .Where(i => !request.ProductItems.Any(r => r.Id.HasValue && r.Id.Value == i.Id))
+                        .ToList();
+
+                    foreach (var item in itemIdsToRemove)
+                    {
+                       var checkRemove = await _unitOfWork.ProductRepository.RemoveProductItem(item.Id);
+                        if(checkRemove == ResultRemoveItemEnums.ConstraintOrder)
+                        {
+                            await _context.Database.RollbackTransactionAsync();
+                            throw new ApiException($"Internal server error: Not remove product item id = {item.Id}") { StatusCode = (int)HttpStatusCode.BadRequest };
+
+                        }    else if(checkRemove == ResultRemoveItemEnums.CanNotDelete)
+                        {
+                            await _context.Database.RollbackTransactionAsync();
+                            throw new ApiException($"Internal server error: Not remove product item") { StatusCode = (int)HttpStatusCode.BadRequest };
+                        }    
+                        else if(checkRemove == ResultRemoveItemEnums.NotFound)
+                        {
+                            await _context.Database.RollbackTransactionAsync();
+                            throw new ApiException($"Internal server error:Not found") { StatusCode = (int)HttpStatusCode.NotFound };
+                        }    
                     }
                 }
                 product = await _unitOfWork.Repository<Product>().Update(product);
@@ -390,14 +442,25 @@ namespace Services.Concrete
         {
             try
             {
-                var checkRemoveSuccess = await _unitOfWork.ProductRepository.RemoveProductItem(id);
-                if(checkRemoveSuccess == false)
+                var checkRemove = await _unitOfWork.ProductRepository.RemoveProductItem(id);
+                if (checkRemove == ResultRemoveItemEnums.ConstraintOrder)
                 {
-                    throw new ApiException($"Internal server error: Can not delete product item {id}") { StatusCode = (int)HttpStatusCode.BadRequest };
-                }
-                
+                    throw new ApiException($"Internal server error: Not remove product item id = {id}") { StatusCode = (int)HttpStatusCode.BadRequest };
 
-            }catch(Exception ex)
+                }
+                else if (checkRemove == ResultRemoveItemEnums.CanNotDelete)
+                {
+                  
+                    throw new ApiException($"Internal server error: Not remove product item") { StatusCode = (int)HttpStatusCode.BadRequest };
+                }else if(checkRemove == ResultRemoveItemEnums.NotFound)
+                {
+                    throw new ApiException($"Internal server error: Not found") { StatusCode = (int)HttpStatusCode.NotFound };
+
+                }
+
+
+            }
+            catch(Exception ex)
             {
                 throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
             }

@@ -1,4 +1,5 @@
 ﻿using Application.DAL.Models;
+using Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,6 @@ namespace Data.Repos.ProductRepo
         Task<ICollection<ProductItem>> TopSellingProduct(int top, DateTime dateStart, DateTime dateEnd);
         Task<List<Product>> GetAllProductsByCategory(Guid categoryId);
         Task<ICollection<Product>> QueryProductAsync(string query);
-        Task<bool> RemoveProductItem(Guid id);
+        Task<ResultRemoveItemEnums> RemoveProductItem(Guid id);
     }
 }

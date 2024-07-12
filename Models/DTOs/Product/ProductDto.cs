@@ -20,20 +20,8 @@ namespace Models.DTOs.Product
         
         public ICollection<ProductSpecificationDto>? ProductSpecifications { get; set; }
         public ICollection<ProductItemDto>? ProductItems { get; set; }
-        public DiscountDto? Discount { get; set; }
 
-        public class DiscountDto
-        {
-            public Guid Id { get; set; }
-            public string Code { get; set; }
-            public string Type { get; set; } // percentage or fix-amount
-            public decimal DiscountValue { get; set; }// 10000  or 10% 
-            public decimal MinimumPurchase { get; set; }// 200000 d
-            public DateTime DateStart { get; set; }// 11/11/2024
-            public DateTime DateEnd { get; set; }//11/12/2024
-            public string Status { get; set; }// pending
-            public string? Description { get; set; }
-        }
+       
     }
 
 
