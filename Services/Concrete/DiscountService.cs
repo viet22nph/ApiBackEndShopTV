@@ -58,7 +58,7 @@ namespace Services.Concrete
         public async Task<BaseResponse<DiscountDto>> CreateDiscount(DiscountRequest request)
         {
             
-            if(request.DateStart < DateTime.Now)
+            if(request.DateStart < DateTime.Now.Date)
             {
                 throw new ApiException("Date time start must be greater than to date time now")
                 { StatusCode = (int)HttpStatusCode.BadRequest };
