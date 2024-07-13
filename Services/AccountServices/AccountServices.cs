@@ -1,4 +1,5 @@
-﻿using Core.Exceptions;
+﻿using Caching;
+using Core.Exceptions;
 using Core.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -30,11 +31,12 @@ namespace Services.AccountServices
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly JWTSettings _jwtSettings;
         private readonly IConfiguration _conf;
+        private readonly ICacheManager _cacheManager;
         public AccountServices(UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IOptions<JWTSettings> jwtSettings,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration conf
+            IConfiguration conf, ICacheManager cacheManager
             )
         {
             _userManager = userManager;
@@ -42,23 +44,26 @@ namespace Services.AccountServices
             _signInManager = signInManager;
             _jwtSettings = jwtSettings.Value;
             _conf = conf;
+            _cacheManager = cacheManager;
         }
         public async Task<BaseResponse<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request)
         {
-            ApplicationUser user = await _userManager.FindByEmailAsync(request.Email.Trim());
+            ApplicationUser user = await _userManager.FindByEmailAsync(request.UserNameOrEmail.Trim());
             if (user == null)
             {
-                throw new ApiException($"You are not registered with '{request.Email}'.") { StatusCode = (int)HttpStatusCode.BadRequest };
+                user = await _userManager.FindByNameAsync(request.UserNameOrEmail);
+                if(user == null)
+                {
+                    throw new ApiException($"You are not registered with '{request.UserNameOrEmail}'.") { StatusCode = (int)HttpStatusCode.BadRequest };
+
+                }
             }
-            //if (!user.EmailConfirmed)
-            //{
-            //    throw new ApiException($"Account Not Confirmed for '{request.Email}'.") { StatusCode = (int)HttpStatusCode.BadRequest };
-            //}
+           
 
             SignInResult signInResult = await _signInManager.PasswordSignInAsync(user, request.Password, false, lockoutOnFailure: false);
             if (!signInResult.Succeeded)
             {
-                throw new ApiException($"Invalid Credentials for '{request.Email}'.") { StatusCode = (int)HttpStatusCode.BadRequest };
+                throw new ApiException($"Invalid Credentials for '{request.UserNameOrEmail}'.") { StatusCode = (int)HttpStatusCode.BadRequest };
             }
 
             string ipAddress = IpHelper.GetIpAddress();
@@ -213,21 +218,38 @@ namespace Services.AccountServices
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(1),
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),// 130 phuts
                 signingCredentials: signingCredentials);
             return jwtSecurityToken;
         }
 
         private async Task<string> GenerateRefreshToken(ApplicationUser user)
         {
-            await _userManager.RemoveAuthenticationTokenAsync(user, "MyApp", "RefreshToken");
-            var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, "MyApp", "RefreshToken");
-            IdentityResult result = await _userManager.SetAuthenticationTokenAsync(user, "MyApp", "RefreshToken", newRefreshToken);
-            if (!result.Succeeded)
+            try
+            {  //await _userManager.RemoveAuthenticationTokenAsync(user, "MyApp", "RefreshToken");
+               //var tokenRefresh =  await _userManager.GenerateUserTokenAsync(user, "MyApp", "RefreshToken")
+                //IdentityResult result = await _userManager.SetAuthenticationTokenAsync(user, "MyApp", "RefreshToken", newRefreshToken);
+
+
+                // set token in cache
+                var tokenRefreshKey = $"TOKEN_REFRESH_KEY:{user.Id}";
+                var newRefreshToken = RandomTokenString();
+                var getRefreshToken = await _cacheManager.GetAsync(tokenRefreshKey);
+                if (string.IsNullOrWhiteSpace(getRefreshToken))
+                {
+                    // remove token
+                    _cacheManager.Remove(tokenRefreshKey);
+
+                }
+                await _cacheManager.SetAsync(tokenRefreshKey, newRefreshToken, 4320);
+                return newRefreshToken;
+
+            }
+            catch(Exception ex)
             {
                 throw new ApiException($"An error occured while set refreshtoken.") { StatusCode = (int)HttpStatusCode.InternalServerError };
             }
-            return newRefreshToken;
+          
         }
         private string RandomTokenString()
         {
