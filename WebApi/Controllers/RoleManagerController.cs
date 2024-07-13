@@ -35,7 +35,28 @@ namespace WebApi.Controllers
 
             return Ok(new {message="Roles",data = roles});
         }
+        [HttpPost("get-role-by-id/{id}")]
+        public async Task<IActionResult> GetRoleById(string id)
+        {
+            
+            var role =await  _roleManager.FindByIdAsync(id);
+            if(role == null)
+            {
+                return NotFound(new { message = $"No role by id {id}" });
+            }
+            var claims = await _roleManager.GetClaimsAsync(role);
 
+            return Ok(new
+            {
+                message = "Roles",
+                data = new
+                {
+                    id = role.Id,
+                    name = role.Name,
+                    claims = claims.ToList()
+                }
+            });
+        }
         [HttpPost("create-role")]
         public async Task<IActionResult> CreateRole([FromBody] RoleName roleName)
         {
