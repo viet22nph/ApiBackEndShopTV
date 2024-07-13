@@ -1,4 +1,5 @@
-﻿using Application.DAL.Models;
+﻿using Application.DAL.Helper;
+using Application.DAL.Models;
 using AutoMapper;
 using Caching;
 using Core.Exceptions;
@@ -200,12 +201,12 @@ namespace Services.Concrete
             foreach(var discount in discounts)
             {
                 var currentDate = DateTime.Now;
-                if (currentDate > discount.DateStart && currentDate <= discount.DateEnd)
+                if (currentDate.Date > discount.DateStart.Date && currentDate.Date.Date <= discount.DateEnd.Date && discount.Status == DiscountStatus.PENDING)
                 {
                     discount.Status = DiscountStatus.ACTIVE;
                     isUpdate = true;
                 }
-                else if (currentDate > discount.DateEnd)
+                else if (currentDate.Date > discount.DateEnd.Date)
                 {
                     discount.Status = DiscountStatus.EXPIRED;
                     isUpdate = true;
