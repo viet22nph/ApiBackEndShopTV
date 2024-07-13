@@ -58,7 +58,7 @@ namespace Services.Concrete
         public async Task<BaseResponse<DiscountDto>> CreateDiscount(DiscountRequest request)
         {
             
-            if(request.DateStart < DateTime.Now)
+            if(request.DateStart < DateTime.Now.Date)
             {
                 throw new ApiException("Date time start must be greater than to date time now")
                 { StatusCode = (int)HttpStatusCode.BadRequest };
@@ -200,7 +200,7 @@ namespace Services.Concrete
             foreach(var discount in discounts)
             {
                 var currentDate = DateTime.Now;
-                if (currentDate >= discount.DateStart && currentDate <= discount.DateEnd)
+                if (currentDate > discount.DateStart && currentDate <= discount.DateEnd)
                 {
                     discount.Status = DiscountStatus.ACTIVE;
                     isUpdate = true;
