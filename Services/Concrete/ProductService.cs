@@ -329,6 +329,9 @@ namespace Services.Concrete
                         }    
                     }
                 }
+                // update quantity
+                product.ProductQuantity = (int)(product?.ProductItems.Sum(pi => pi.Quantity));
+
                 product = await _unitOfWork.Repository<Product>().Update(product);
                 _context.Database.CommitTransaction();
                 var res = _mapper.Map<ProductDto>(product);

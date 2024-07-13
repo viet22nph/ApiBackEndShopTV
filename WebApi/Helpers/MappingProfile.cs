@@ -64,7 +64,6 @@ namespace WebApi.Helpers
             CreateMap<ReviewImageResponse, ReviewImage>().ReverseMap();
 
 
-            CreateMap<Discount, ProductDto.DiscountDto>().ReverseMap();
         }
     }
 }
