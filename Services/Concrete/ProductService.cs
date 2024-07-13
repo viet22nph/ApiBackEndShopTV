@@ -559,7 +559,7 @@ namespace Services.Concrete
                 else
                 {
                     productDto.ProductDiscount = new ProductDiscount();
-                    if (product.Discount.Status != DiscountStatus.ACTIVE)
+                    if (product.Discount.Status == DiscountStatus.ACTIVE)
                     {
                         productDto.ProductDiscount.Id = product.Discount.Id;
                         productDto.ProductDiscount.Value = product.Discount.DiscountValue;

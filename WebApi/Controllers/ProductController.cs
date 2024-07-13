@@ -239,6 +239,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> UpdateDiscount(Guid productId, [FromBody] DiscountIdDto request)
         {
             var rs = await _productService.updateProductDiscount(productId, request.DiscountId);
+            _cacheManager.RemoveByPrefix("api/Product");
             return Ok(rs);
         }
     }
