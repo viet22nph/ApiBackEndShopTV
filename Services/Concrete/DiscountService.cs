@@ -45,6 +45,7 @@ namespace Services.Concrete
                 }
 
                 discount.Status = DiscountStatus.CANCELLED;
+                discount.DateUpdate = DateTime.Now;
                 discount = await _unitOfWork.Repository<Discount>().Update(discount);
                 var res = _mapper.Map<DiscountDto>(discount);
                 return new BaseResponse<DiscountDto>(res, "Update successfully");
@@ -151,6 +152,7 @@ namespace Services.Concrete
                 {
                     discount.Status = DiscountStatus.ACTIVE;
                 }
+                discount.DateUpdate = DateTime.Now;
                 discount = await _unitOfWork.Repository<Discount>().Update(discount);
                 var res = _mapper.Map<DiscountDto>(discount);
                 return new BaseResponse<DiscountDto>(res, "Update successfully");
@@ -182,7 +184,7 @@ namespace Services.Concrete
                     discount.Status = DiscountStatus.PAUSE;
 
                 }
-                
+                discount.DateUpdate = DateTime.Now;
                 discount = await _unitOfWork.Repository<Discount>().Update(discount);
                 var res = _mapper.Map<DiscountDto>(discount);
                 return new BaseResponse<DiscountDto>(res, "Update successfully");
@@ -211,11 +213,13 @@ namespace Services.Concrete
                     discount.Status = DiscountStatus.EXPIRED;
                     isUpdate = true;
                 }
+                discount.DateUpdate = DateTime.Now;
                 await _unitOfWork.Repository<Discount>().Update(discount);
             }    
             if(isUpdate == true)
             {
                 _cacheManager.RemoveByPrefix("api/Discount");
+                _cacheManager.RemoveByPrefix("api/Product");
             }    
         }
 
@@ -268,6 +272,7 @@ namespace Services.Concrete
                         discount.DateEnd = (DateTime)request.DateEnd;
                     }
                 }
+                discount.DateUpdate = DateTime.Now;
                 discount = await _unitOfWork.Repository<Discount>().Update(discount);
                 if (discount == null) {
                     throw new ApiException($"Update error")

@@ -63,14 +63,14 @@ namespace Services.Concrete
 
         public async Task<BaseResponse<ProductDto>> CreateProduct(ProductRequest request)
         {
-            await _context.Database.BeginTransactionAsync();
+            using var transaction =  await _context.Database.BeginTransactionAsync();
             try
             {
                 var product = _mapper.Map<Product>(request);
                 product.NormalizedName = product.Name.ToUpper();
                 product.Id = Guid.NewGuid();
                 product = await _unitOfWork.Repository<Product>().Insert(product);
-                await _context.Database.CommitTransactionAsync();
+                await transaction.CommitAsync();
                 var data = await _unitOfWork.ProductRepository.GetProduct(product.Id);
                 var res = _mapper.Map<ProductDto>(data);
                 
@@ -78,7 +78,7 @@ namespace Services.Concrete
             }
             catch (Exception ex)
             {
-                _context.Database.RollbackTransaction();
+                await transaction.RollbackAsync();
                 throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
             };
         }
@@ -101,9 +101,9 @@ namespace Services.Concrete
                 }
                 else
                 {
-                    productDto.Image = product.ProductItems.First().ProductImages.First().Url;
+                    productDto.Image = product?.ProductItems?.First()?.ProductImages?.First()?.Url;
                 }
-                if (product.Discount == null)
+                if (product?.Discount == null)
                 {
                     productDto.ProductDiscount = new ProductDiscount();
                 }
@@ -252,7 +252,7 @@ namespace Services.Concrete
                             {
                                 EntityUpdater.UpdateIfNotNull(itemRequest.Quantity, value => item.Quantity = value);
                                 EntityUpdater.UpdateIfNotNull(itemRequest.ColorId, value => item.ColorId = value);
-
+                                item.DateUpdate = new DateTime();
                                 if (itemRequest.ProductImages != null)
                                 {
                                     var existingImages = item.ProductImages.ToList();
@@ -263,6 +263,7 @@ namespace Services.Concrete
                                             var image = existingImages.FirstOrDefault(img => img.Id == imageRequest.Id.Value);
                                             if (image != null)
                                             {
+                                                image.DateUpdate = DateTime.Now;
                                                 EntityUpdater.UpdateIfNotNull(imageRequest.Url, value => image.Url = value);
                                             }
                                         }
@@ -270,6 +271,7 @@ namespace Services.Concrete
                                         {
                                             var newImage = new ProductImage
                                             {
+                                               
                                                 Url = imageRequest.Url
                                             };
                                             item.ProductImages?.Add(newImage);
@@ -331,7 +333,7 @@ namespace Services.Concrete
                 }
                 // update quantity
                 product.ProductQuantity = (int)(product?.ProductItems.Sum(pi => pi.Quantity));
-
+                product.DateUpdate = DateTime.Now;
                 product = await _unitOfWork.Repository<Product>().Update(product);
                 _context.Database.CommitTransaction();
                 var res = _mapper.Map<ProductDto>(product);
@@ -356,6 +358,7 @@ namespace Services.Concrete
                 }
                 product.IsDraft = true;
                 product.IsPublished = false;
+                product.DateUpdate = DateTime.Now;
                 product = await _unitOfWork.Repository<Product>().Update(product);
                
                 var res = _mapper.Map<ProductDto>(product);
@@ -380,6 +383,7 @@ namespace Services.Concrete
                 }
                 product.IsDraft = false;
                 product.IsPublished = true;
+                product.DateUpdate = DateTime.Now;
                 product = await _unitOfWork.Repository<Product>().Update(product);
                 
                 var res = _mapper.Map<ProductDto>(product);
@@ -600,7 +604,7 @@ namespace Services.Concrete
                 {
                     product.DiscountId = null;
                 }
-
+                product.DateUpdate = DateTime.Now;
                 product = await _unitOfWork.Repository<Product>().Update(product);
                 if(product == null)
                 {

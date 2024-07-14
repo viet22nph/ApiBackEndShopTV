@@ -119,6 +119,7 @@ namespace Services.Concrete
                 EntityUpdater.UpdateIfNotNull(request.Description, value => category.Description = value);
                 category.CategoryParent = request.CategoryParent;
                 category.NomalizedName = request.Name.ToUpper();
+                category.DateUpdate = DateTime.Now;
                 var cateoryUpdate = await _repository.Update(category);
                 var res = _mapper.Map<CategoryDto>(cateoryUpdate);
                 return new BaseResponse<CategoryDto>(res, "Category");

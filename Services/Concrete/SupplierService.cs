@@ -135,6 +135,7 @@ namespace Services.Concrete
                 supplier.ContactPhone = request.ContactPhone;
                 supplier.ContactPerson = request.ContactPerson;
                 supplier.Notes = request.Notes;
+                supplier.DateUpdate = DateTime.Now;
                var supplierUpdate = await _repository.Update(supplier);
                 var res = _mapper.Map<SupplierDto>(supplierUpdate);
 

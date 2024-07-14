@@ -52,7 +52,8 @@ namespace Services.Concrete
 
         public async Task<BaseResponse<OrderDto>> CreateOrder(OrderRequest request)
         {
-            await _context.Database.BeginTransactionAsync();
+          
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var order = new Application.DAL.Models.Order
@@ -99,14 +100,13 @@ namespace Services.Concrete
                     var product = await _unitOfWork.ProductRepository.GetProductItem(orderItem.ProductItemId);
                     if(product == null)
                     {
-                        await _context.Database.RollbackTransactionAsync();
                         throw new ApiException($"Internal server error: Product item is null or empty")
                         { StatusCode = (int)HttpStatusCode.BadRequest };
                     }    
                     product.Quantity -= orderItem.Quantity;
                     product.Product.ProductQuantity -= orderItem.Quantity;
                     if(product.Product.ProductQuantity < 0 || product.Product.ProductQuantity< 0) {
-                        await _context.Database.RollbackTransactionAsync();
+
                         throw new ApiException($"Internal server error: Not enough product quantity")
                         { StatusCode = (int)HttpStatusCode.BadRequest };
                     }
@@ -116,7 +116,6 @@ namespace Services.Concrete
                 order = await _unitOfWork.Repository<Application.DAL.Models.Order>().Insert(order);
                 if(order == null)
                 {
-                    await _context.Database.RollbackTransactionAsync();
                     throw new ApiException($"Internal server error: Insert order failed")
                     { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
@@ -125,14 +124,14 @@ namespace Services.Concrete
                 // xoa gio hang
                 
                 var res = _mapper.Map<OrderDto>(order);
-                await _context.Database.CommitTransactionAsync();
+                await transaction.CommitAsync();
                 return new BaseResponse<OrderDto>(res, "Order");
 
             }
             catch(Exception ex)
             {
 
-                await _context.Database.RollbackTransactionAsync();
+                await transaction.RollbackAsync();
                 throw new ApiException($"Internal server error: {ex.Message}")
                 { StatusCode = (int)HttpStatusCode.BadRequest };
             }
@@ -265,7 +264,6 @@ namespace Services.Concrete
 
         public async Task<BaseResponse<string>> UpdateStatus(OrderUpdateStatusRequest request)
         {
-            bool isCancelled = false;
             if (!OrderStatus.IsValidStatus(request.Status))
             {
                 throw new ApiException($"Invalid status value")
@@ -288,8 +286,6 @@ namespace Services.Concrete
                 }
                 if(request.Status == OrderStatus.CANCELLED)
                 {
-                    // update lai san pham
-                    isCancelled = true;
                     foreach(var orderItem in order.OrderItems)
                     {
                         var product = orderItem.Product;
@@ -311,6 +307,7 @@ namespace Services.Concrete
                     throw new ApiException($"Cannot update status")
                     { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
+                order.DateUpdate = DateTime.Now;
                 await _context.Database.CommitTransactionAsync();
                 return new BaseResponse<string>("Order status updated successfully");
             }
