@@ -34,6 +34,7 @@ namespace Application.Api.Extentions
         {
             services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
             services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
+            services.Configure<GoogleSetting>(configuration.GetSection("GoogleAuthSettings"));
           
             services.AddTransient<IEmailCoreService, EmailCoreService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();

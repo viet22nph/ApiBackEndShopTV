@@ -1,6 +1,9 @@
 ﻿using Caching;
 using Core.Exceptions;
 using Core.Helpers;
+using Core.Interfaces;
+using Data.Contexts;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
@@ -22,21 +25,31 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 namespace Services.AccountServices
 {
     public class AccountServices: IAccountServices
     {
+
+        private static readonly Random random = new Random();
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly JWTSettings _jwtSettings;
         private readonly IConfiguration _conf;
         private readonly ICacheManager _cacheManager;
+        private readonly IEmailCoreService _emailService;
+        private readonly GoogleSetting _goolgeSetting;
+        private readonly ApplicationDbContext _context;
         public AccountServices(UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IOptions<JWTSettings> jwtSettings,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration conf, ICacheManager cacheManager
+            IConfiguration conf,
+            ICacheManager cacheManager,
+            IOptions<GoogleSetting> goolgeSetting,
+            IEmailCoreService emailCoreService,
+            ApplicationDbContext context
             )
         {
             _userManager = userManager;
@@ -45,6 +58,10 @@ namespace Services.AccountServices
             _jwtSettings = jwtSettings.Value;
             _conf = conf;
             _cacheManager = cacheManager;
+            _goolgeSetting = goolgeSetting.Value;
+            _emailService = emailCoreService;
+            _context = context;
+
         }
         public async Task<BaseResponse<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request)
         {
@@ -80,6 +97,60 @@ namespace Services.AccountServices
             return new BaseResponse<AuthenticationResponse>(response, $"Authenticated {user.UserName}");
         }
 
+        public async Task<BaseResponse<AuthenticationResponse>> LoginExternal(ExternalAuthDto request)
+        {
+            var payload = await VerifyGoogleToken(request);
+            if (payload == null)
+            {
+                
+                //return BadRequest("Invalid External Authentication.");
+            }
+            var info = new UserLoginInfo(request.Provider, payload.Subject, request.Provider);
+            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            if (user == null)
+            {
+                user = await _userManager.FindByEmailAsync(payload.Email);
+                if (user == null)
+                {
+                    user = new ApplicationUser { Email = payload.Email, UserName = payload.Email };
+                    await _userManager.CreateAsync(user);
+                    await _userManager.AddLoginAsync(user, info);
+                }
+                else
+                {
+                    await _userManager.AddLoginAsync(user, info);
+                }
+            }
+            string ipAddress = IpHelper.GetIpAddress();
+            JwtSecurityToken jwtSecurityToken = await GenerateJWToken(user, ipAddress);
+            AuthenticationResponse response = new AuthenticationResponse();
+            response.Id = user.Id.ToString();
+            response.JWToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+            response.Email = user.Email;
+            response.UserName = user.UserName;
+            IList<string> rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+            response.Roles = rolesList.ToList();
+            response.IsVerified = user.EmailConfirmed;
+            response.RefreshToken = await GenerateRefreshToken(user);
+            return new BaseResponse<AuthenticationResponse>(response, $"Authenticated {user.UserName}");
+        }
+            private async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalAuthDto externalAuth)
+        {
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new List<string>() { _goolgeSetting.clientId }
+                };
+                var payload = await GoogleJsonWebSignature.ValidateAsync(externalAuth.IdToken, settings);
+                return payload;
+            }
+            catch (Exception ex)
+            {
+                //log an exception
+                return null;
+            }
+        }
         public async Task<BaseResponse<string>> ConfirmEmailAsync(string userId, string code)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -95,9 +166,76 @@ namespace Services.AccountServices
             }
         }
 
-        public Task ForgotPasswordAsync(ForgotPasswordRequest request, string uri)
+        public async Task<BaseResponse<string>> ForgotPasswordAsync(ForgotPasswordRequest request)
         {
-            throw new NotImplementedException();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+
+                var user = await _userManager.FindByEmailAsync(request.Email);
+                if (user == null)
+                {
+
+                    throw new ApiException($"Not found email {request.Email}.") { StatusCode = (int)HttpStatusCode.NotFound };
+                }
+
+                string password = ramdomPassword(10);
+                var result = await _userManager.RemovePasswordAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new ApiException($"Error in processing!") { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                result = await _userManager.AddPasswordAsync(user, password);
+                if (!result.Succeeded)
+                {
+                    throw new ApiException($"Error in processing!") { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                await transaction.CommitAsync();
+                string body = GetEmailBody(user.UserName , password);
+                await _emailService.SendAsync(new Models.DTOs.Email.EmailRequest
+                {
+                    From = "nguyendinh.viet2002np@gmail.com",
+                    To= request.Email,
+                    Subject="Show tv reset passord", 
+                    Body= body
+                });
+                return new BaseResponse<string>(request.Email, message: $"Password has been reset. Please check email");
+            }
+            catch(Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new ApiException($"An error {ex.Message}.") { StatusCode = (int)HttpStatusCode.InternalServerError };
+
+            }
+
+
+        }
+        // ramdom password when forgot password 
+        private string ramdomPassword(int length)
+        {
+            if (length < 4)
+                throw new ArgumentException("Password length must be at least 4 to include all character types.");
+
+            const string lowerChars = "abcdefghijklmnopqrstuvwxyz";
+            const string upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string specialChars = "!@#$%^&*()_+-=[]{}|;:'\",.<>?/`~";
+            const string digitChars = "0123456789";
+
+            string allChars = lowerChars + upperChars + specialChars + digitChars;
+
+            // ramdom phải có 1 ký tự thuộc 1 kiểu bất kỳ
+            char[] password = new char[length];
+            password[0] = lowerChars[random.Next(lowerChars.Length)];
+            password[1] = upperChars[random.Next(upperChars.Length)];
+            password[2] = specialChars[random.Next(specialChars.Length)];
+            password[3] = digitChars[random.Next(digitChars.Length)];
+
+            for (int i = 4; i < length; i++)
+            {
+                password[i] = allChars[random.Next(allChars.Length)];
+            }
+
+            return new string(password.OrderBy(c => random.Next()).ToArray());
         }
 
         public Task<List<ApplicationUser>> GetUsers()
@@ -286,6 +424,27 @@ namespace Services.AccountServices
                 }
             }
             return claims;
+        }
+
+        private string GetEmailBody(string username, string newPassword)
+        {
+            return $@"
+        <!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Password Reset</title>
+        </head>
+        <body>
+            <h1>Reset Your Password</h1>
+            <p>Dear {username},</p>
+            <p>You requested to reset your password. Your new password is:</p>
+            <p><strong>{newPassword}</strong></p>
+            <p>If you did not request this, please contact our support team immediately.</p>
+            <p>Thanks, <br /> The Team</p>
+        </body>
+        </html>";
         }
     }
 }

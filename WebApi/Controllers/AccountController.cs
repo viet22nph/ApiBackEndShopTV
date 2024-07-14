@@ -43,19 +43,19 @@ namespace WebApi.Controllers
         //    return Ok(await _accountService.ConfirmEmailAsync(userId, code));
         //}
 
-        //[HttpPost("forgot-password")]
-        //public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordRequest request)
-        //{
-        //    var uri = $"{Request.Scheme}://{Request.Host.Value}";
-        //    await _accountService.ForgotPasswordAsync(request, uri);
-        //    return Ok();
-        //}
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordRequest request)
+        {
+            var uri = $"{Request.Scheme}://{Request.Host.Value}";
+            await _accountService.ForgotPasswordAsync(request);
+            return Ok();
+        }
 
-        //[HttpPost("reset-password")]
-        //public async Task<IActionResult> ResetPasswordAsync(ResetPasswordRequest request)
-        //{
-        //    return Ok(await _accountService.ResetPasswordAsync(request));
-        //}
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            return Ok(await _accountService.ResetPasswordAsync(request));
+        }
 
         [HttpPost("refreshtoken")]
         public async Task<IActionResult> RefreshTokenAsync(RefreshTokenRequest request)
@@ -68,13 +68,13 @@ namespace WebApi.Controllers
         {
             return Ok(await _accountService.LogoutAsync(userEmail));
         }
-
-        private string GenerateIPAddress()
+        [HttpPost("ExternalLogin")]
+        public async Task<IActionResult> ExternalLogin([FromBody] ExternalAuthDto externalAuth)
         {
-            if (Request.Headers.ContainsKey("X-Forwarded-For"))
-                return Request.Headers["X-Forwarded-For"];
-            else
-                return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+            var result = await _accountService.LoginExternal(externalAuth);
+
+            return Ok(result);
         }
+
     }
 }
