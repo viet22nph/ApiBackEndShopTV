@@ -8,7 +8,8 @@ namespace Models.DTOs.Account
         [EmailAddress]
         public string Email { get; set; }
         [Required]
-        public string Token { get; set; }
+        [MinLength(6)]
+        public string CurrentPassword {  get; set; }
         [Required]
         [MinLength(6)]
         public string Password { get; set; }

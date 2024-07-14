@@ -266,15 +266,22 @@ namespace Services.AccountServices
             //{
             //    throw new ApiException($"Account Not Confirmed for '{request.Email}'.") { StatusCode = (int)HttpStatusCode.BadRequest };
             //}
+            var tokenRefreshKey = $"TOKEN_REFRESH_KEY:{user.Id}";
+            var getRefreshToken = await _cacheManager.GetAsync(tokenRefreshKey);
+          
+            if (string.IsNullOrWhiteSpace(getRefreshToken))
+            {
 
-            string refreshToken = await _userManager.GetAuthenticationTokenAsync(user, "MyApp", "RefreshToken");
+                throw new ApiException($"Your token expired.") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+            string tokenAffterTrim = getRefreshToken.Trim('"');
             bool isValid = await _userManager.VerifyUserTokenAsync(user, "MyApp", "RefreshToken", request.Token);
-            if (!refreshToken.Equals(request.Token) || !isValid)
+            if(tokenAffterTrim != request.Token || !isValid)
             {
                 throw new ApiException($"Your token is not valid.") { StatusCode = (int)HttpStatusCode.BadRequest };
-            }
 
-            string ipAddress = IpHelper.GetIpAddress();
+            }    
+                string ipAddress = IpHelper.GetIpAddress();
             JwtSecurityToken jwtSecurityToken = await GenerateJWToken(user, ipAddress);
             AuthenticationResponse response = new AuthenticationResponse();
             response.Id = user.Id.ToString();
@@ -325,17 +332,22 @@ namespace Services.AccountServices
         public async Task<BaseResponse<string>> ResetPasswordAsync(ResetPasswordRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null) throw new ApiException($"You are not registered with '{request.Email}'.");
 
-            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
-            if (result.Succeeded)
+            if (user == null) throw new ApiException($"You are not registered with '{request.Email}'.");
+            // check password
+            var passwordSuccess = await _userManager.CheckPasswordAsync(user,request.CurrentPassword);
+            if (!passwordSuccess) throw new ApiException($"Current password not correct '{request.Email}'.");
+            var result = await _userManager.RemovePasswordAsync(user);
+            if (!result.Succeeded)
             {
-                return new BaseResponse<string>(request.Email, message: $"Password Resetted.");
+                throw new ApiException($"Error in processing!") { StatusCode = (int)HttpStatusCode.BadRequest };
             }
-            else
+            result = await _userManager.AddPasswordAsync(user, request.Password);
+            if (!result.Succeeded)
             {
-                throw new ApiException($"Error occured while reseting the password. Please try again.");
+                throw new ApiException($"Error in processing!") { StatusCode = (int)HttpStatusCode.BadRequest };
             }
+            return new BaseResponse<string>("reset password is success");
         }
 
         //public async Task<List<ApplicationUser>> GetUsers()
@@ -365,22 +377,16 @@ namespace Services.AccountServices
         {
             try
             {  //await _userManager.RemoveAuthenticationTokenAsync(user, "MyApp", "RefreshToken");
-               //var tokenRefresh =  await _userManager.GenerateUserTokenAsync(user, "MyApp", "RefreshToken")
                 //IdentityResult result = await _userManager.SetAuthenticationTokenAsync(user, "MyApp", "RefreshToken", newRefreshToken);
 
 
                 // set token in cache
                 var tokenRefreshKey = $"TOKEN_REFRESH_KEY:{user.Id}";
-                var newRefreshToken = RandomTokenString();
+                //var newRefreshToken = RandomTokenString();
+                var tokenRefresh = await _userManager.GenerateUserTokenAsync(user, "MyApp", "RefreshToken");
                 var getRefreshToken = await _cacheManager.GetAsync(tokenRefreshKey);
-                if (string.IsNullOrWhiteSpace(getRefreshToken))
-                {
-                    // remove token
-                    _cacheManager.Remove(tokenRefreshKey);
-
-                }
-                await _cacheManager.SetAsync(tokenRefreshKey, newRefreshToken, 4320);
-                return newRefreshToken;
+                await _cacheManager.SetAsync(tokenRefreshKey, tokenRefresh, 4320);
+                return tokenRefresh;
 
             }
             catch(Exception ex)
