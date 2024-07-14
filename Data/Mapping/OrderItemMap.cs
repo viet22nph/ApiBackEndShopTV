@@ -29,6 +29,7 @@ namespace Data.Mapping
                 .HasOne(oi=>oi.Order)
                 .WithMany(o=> o.OrderItems)
                 .HasForeignKey(pd => pd.OrderId);
+           
             base.Configure(builder);
         }
     }
