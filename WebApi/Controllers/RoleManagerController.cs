@@ -89,27 +89,27 @@ namespace WebApi.Controllers
 
         }
         [HttpPatch("update-role-name/{id}")]
-        public async Task<IActionResult> UpdateRoleName(string id, [FromBody] string roleName)
+        public async Task<IActionResult> UpdateRoleName(string id, [FromBody] RoleName payload)
         {
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null)
             {
                 return BadRequest(new { message = $"Role not found" });
             }
-            if(string.IsNullOrWhiteSpace(roleName))
+            if(string.IsNullOrWhiteSpace(payload.Name))
             {
                 return BadRequest(new { message = $"Role name is null or white space" });
             }
-            if(await _roleManager.RoleExistsAsync(roleName))
+            if(await _roleManager.RoleExistsAsync(payload.Name))
             {
 
-                return BadRequest(new { message = $"Role {roleName} already exist" });
+                return BadRequest(new { message = $"Role {payload.Name} already exist" });
             }    
            
-            role.Name = roleName;
+            role.Name = payload.Name;
             await _roleManager.UpdateAsync(role);
 
-            return Ok(new {message=$"Update role {roleName} successfully"});
+            return Ok(new {message=$"Update role {payload.Name} successfully"});
         }
         [HttpDelete("removeRole/{roleName}")]
         public async Task<IActionResult> RemoveRoles(string roleName)
