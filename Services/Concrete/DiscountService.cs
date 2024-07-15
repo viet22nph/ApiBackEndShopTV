@@ -203,7 +203,7 @@ namespace Services.Concrete
             foreach(var discount in discounts)
             {
                 var currentDate = DateTime.Now;
-                if (currentDate.Date > discount.DateStart.Date && currentDate.Date.Date <= discount.DateEnd.Date && discount.Status == DiscountStatus.PENDING)
+                if (currentDate.Date >= discount.DateStart.Date && currentDate.Date.Date <= discount.DateEnd.Date && discount.Status == DiscountStatus.PENDING)
                 {
                     discount.Status = DiscountStatus.ACTIVE;
                     isUpdate = true;
