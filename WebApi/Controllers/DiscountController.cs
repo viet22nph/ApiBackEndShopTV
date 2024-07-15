@@ -28,6 +28,7 @@ namespace WebApi.Controllers
                 return BadRequest(ModelState);
             }
                 var result = await _discount.CreateDiscount(request);
+            _cacheManager.RemoveByPrefix("api/Product");
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
@@ -66,6 +67,7 @@ namespace WebApi.Controllers
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
             var result = await _discount.CancelledDiscountStatus(payload.DiscountId.Value);
+            _cacheManager.RemoveByPrefix("api/Product");
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
@@ -77,6 +79,8 @@ namespace WebApi.Controllers
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
             var result = await _discount.PauseDiscountStatus(payload.DiscountId.Value);
+
+            _cacheManager.RemoveByPrefix("api/Product");
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
@@ -88,6 +92,8 @@ namespace WebApi.Controllers
                 return BadRequest(new { message = "Id discount not null or empty" });
             }
             var result = await _discount.ContinueDiscountStatus(payload.DiscountId.Value);
+
+            _cacheManager.RemoveByPrefix("api/Product");
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
@@ -100,6 +106,8 @@ namespace WebApi.Controllers
             }
 
             var result = await _discount.UpdateDateTime(id, request);
+
+            _cacheManager.RemoveByPrefix("api/Product");
             _cacheManager.RemoveByPrefix("api/Discount");
             return Ok(result);
         }
