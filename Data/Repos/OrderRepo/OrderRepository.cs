@@ -8,6 +8,7 @@ using Models.Status;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -58,14 +59,17 @@ namespace Data.Repos.OrderRepo
            .FirstOrDefaultAsync(o => o.Id == id);
         }
         
-        public async Task<ICollection<Order>> GetOrders(int pageNumber, int pageSize)
+        public async Task<(ICollection<Order>, int)> GetOrders(int pageNumber, int pageSize)
         {
+            int count = await _context.Set<Order>().CountAsync();
             var orders = await _context.Set<Order>()
                         .Include(o=>o.OrderItems)
                         .Skip((pageNumber-1)* pageSize)
                         .Take(pageSize)
+                        .OrderBy(p=> p.DateCreate)
+                        //.GroupBy(p=> p.Status)
                         .ToListAsync();
-            return orders;
+            return (orders, count);
             
         }
 
@@ -139,22 +143,27 @@ namespace Data.Repos.OrderRepo
 
             return summaries;
         }
-        public async Task<ICollection<Order>> GetListOrderByDate(DateTime date)
+        public async Task<(ICollection<Order>, int)> GetListOrderByDate(DateTime date, int pageSize, int pageNumber)
         {
-            return await _context.Set<Order>()
-        .Include(o => o.User)
-        .Include(o => o.OrderItems)
-            .ThenInclude(oi => oi.Product)
-                .ThenInclude(p => p.Color)
-        .Include(o => o.OrderItems)
-            .ThenInclude(oi => oi.Product)
-                .ThenInclude(p => p.ProductImages)
-         .Include(o => o.OrderItems)
-            .ThenInclude(oi => oi.Product)
-                .ThenInclude(p => p.Product)
-        .Include(o => o.Transactions)
-        .Where(p => p.DateCreate.Date == date.Date
-        ).ToListAsync();
+            int count = await _context.Set<Order>().CountAsync();
+
+            var orders =  await _context.Set<Order>()
+            .Include(o => o.User)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(p => p.Color)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(p => p.ProductImages)
+             .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(p => p.Product)
+            .Include(o => o.Transactions)
+            .Where(p => p.DateCreate.Date == date.Date)
+            .Skip((pageSize-1)* pageNumber)
+            .Take(pageNumber)
+            .ToListAsync();
+            return (orders, count);
 
        
         }

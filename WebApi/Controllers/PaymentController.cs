@@ -33,24 +33,32 @@ namespace WebApi.Controllers
 
             Guid txnRef = Guid.NewGuid();
             await _cacheManager.SetAsync($"OrderPayment:{txnRef}", request, 15);
-           
-            var vnpayRequest = new VnpayRequest()
+            var checkRequest = await _order.CheckOrderBeforeCreate(request);
+            if(checkRequest == true)
             {
-                TxnRef = txnRef,
-                UserId = request.UserId,
-                Amount = request.Total
-            };
+                var vnpayRequest = new VnpayRequest()
+                {
+                    TxnRef = txnRef,
+                    UserId = request.UserId,
+                    Amount = request.Total
+                };
 
-            return Ok(new {
-                Url = _vnPay.CreateVnpayUrl(HttpContext, vnpayRequest)
+                return Ok(new
+                {
+                    Url = _vnPay.CreateVnpayUrl(HttpContext, vnpayRequest)
+                });
+            }
+            return BadRequest(new {
+                message = "Not create url payment"
             });
+
         }
         [HttpPost("create-order/{txnRef}")]
         public async Task<IActionResult> CreateOrder(string txnRef)
         {
                     var dataCache = await _cacheManager.GetAsync($"OrderPayment:{txnRef}");
                     var order = JsonConvert.DeserializeObject<OrderRequest>(dataCache);
-                    order.Status = OrderStatus.COMPLETED;
+                    order.Status = OrderStatus.NEWORDER;
                     order.Transactions.First().Status = TransactionStatus.COMPLETED;
                     var result = await _order.CreateOrder(order);
                     if (result.Data.UserId != null)

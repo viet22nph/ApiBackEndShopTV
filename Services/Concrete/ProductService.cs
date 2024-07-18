@@ -398,13 +398,10 @@ namespace Services.Concrete
 
 
         // lấy top sản phẩm bán chạy
-        public async Task<BaseResponse<ICollection<object>>> GetTopBestSellingProductsLastMonth(int top)
+        public async Task<BaseResponse<ICollection<object>>> GetTopBestSellingProducts(int top, DateTime startDate, DateTime endDate)
         {
-            var lastMonth = DateTime.Now.AddMonths(-1);
-            var startOfLastMonth = new DateTime(lastMonth.Year, lastMonth.Month, 1);
-            var endOfLastMonth = startOfLastMonth.AddMonths(1).AddDays(-1);
-
-            var productItems = await _unitOfWork.ProductRepository.TopSellingProduct(top, new DateTime(2024, 6, 1), new DateTime(2024, 6, 30));
+         
+            var productItems = await _unitOfWork.ProductRepository.TopSellingProduct(top, startDate, endDate);
             var result = new List<object>();
             if (productItems.Count == 0)
             {
@@ -428,7 +425,7 @@ namespace Services.Concrete
                     Image = item.ProductImages.First().Url ?? ""
                 });
             }    
-            return new BaseResponse<ICollection<object>>(result, $"Top {top} selling for {lastMonth} month");
+            return new BaseResponse<ICollection<object>>(result, $"Top {top} selling for start date {startDate.Date.Date} to {endDate.Date.Date}");
         }
 
         public async Task<(BaseResponse<ICollection<ProductResponse>>, int count)> GetNewProducts(int limit, int offset)

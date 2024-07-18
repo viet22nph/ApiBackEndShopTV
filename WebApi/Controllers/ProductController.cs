@@ -151,16 +151,16 @@ namespace WebApi.Controllers
             return NoContent();
         }
         [HttpPost("top-best-selling-product")]
-        public async Task<IActionResult> GetTopBestSellingProduct([FromBody]int top)
+        public async Task<IActionResult> GetTopBestSellingProduct([FromBody] TopSellRequest request)
         {
-            if(top <= 0)
+            if(request.Top <= 0)
             {
                 return BadRequest(new
                 {
                     message = "The input value cannot be less than or equal to 0"
                 });
             }    
-            var result = await _productService.GetTopBestSellingProductsLastMonth(top);
+            var result = await _productService.GetTopBestSellingProducts(request.Top, request.StartDate, request.EndDate);
             return Ok(result);
         }
 
@@ -244,6 +244,11 @@ namespace WebApi.Controllers
         }
     }
 
-
+    public class TopSellRequest
+    {
+        public int Top { get; set; }
+        public DateTime StartDate { get; set; } = DateTime.Today.AddDays(-1);
+        public DateTime EndDate { get; set; } = DateTime.Today;
+    }
 
 }

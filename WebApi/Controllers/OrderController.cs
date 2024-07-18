@@ -66,8 +66,16 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetOrders(int pageNumber = 1, int pageSize = 10)
         {
 
-            var res = await _orderService.GetListOrder(pageNumber, pageSize);
-            return Ok(res);
+            var (result, count) = await _orderService.GetListOrder(pageNumber, pageSize);
+            return Ok(new
+            {
+                message =result.Message,
+                data = result.Data, 
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                total = count
+
+            });
         }
         [HttpPost("{id}")]
         [Cache(300)]
@@ -115,13 +123,16 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpPost("order-by-date")]
-        public async Task<IActionResult> GetOrderByDate(DateTime date)
+        public async Task<IActionResult> GetOrderByDate(DateTime date, int pageSize, int pageNumber)
         {
-            var data = await _orderService.GetListOrderByDate(date);
+            var (result, count) = await _orderService.GetListOrderByDate(date, pageSize,pageNumber);
             return Ok(new
             {
                 messaege = $"Order date {date.Date}",
-                data = data
+                data = result,
+                pageSize,
+                pageNumber,
+                total = count
             }) ;
             
         }

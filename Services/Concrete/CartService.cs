@@ -73,7 +73,7 @@ namespace Services.Concrete
                     throw new ApiException($"Internal server error: Not enough products in stock")
                     { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
-                await _cacheManager.HashIncrementAsync(key, request.ProductItemId.ToString(), (long)request.Quantity);     
+                await _cacheManager.HashIncrementAsync(key, request.ProductItemId.ToString(),(long)request.Quantity-quantityCart);     
             }
             // increment 
             if(request.IncrementBy!= null)

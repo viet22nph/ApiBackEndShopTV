@@ -21,6 +21,7 @@ namespace Models.Status
         public const string CANCELLED = "CANCELLED";
         public const string COMPLETED = "COMPLETED";
         public const string PROCESSING = "PROCESSING";
+        public const string FAILED = "FAILED";
         public static bool IsValidStatus(string status)
         {
             var validStatuses = new HashSet<string>

@@ -58,6 +58,7 @@ namespace Data.Repos.ProductRepo
 
         public async Task<(ICollection<Product>, int)> GetProducts(int pageNumber, int pageSize)
         {
+            int count = await _context.Set<Product>().CountAsync();
             var product = await _context.Set<Product>()
                .Include(p => p.ProductSpecifications)
             .Include(p => p.ProductItems)
@@ -67,12 +68,14 @@ namespace Data.Repos.ProductRepo
             .Include(p => p.Category)
             .Include(p => p.Supplier)
             .Include(p => p.Discount)
+            .Skip((pageNumber - 1) * pageSize).Take(pageSize)
             .ToListAsync();
-            return (product.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList(), product.Count);
+            return (product, count);
         }
 
         public async Task<(ICollection<Product>, int)> GetProductsIsDraft(int pageNumber, int pageSize)
         {
+            var count = await _context.Set<Product>().CountAsync();
             var product = await _context.Set<Product>()
                 .Include(p => p.ProductSpecifications)
              .Include(p => p.ProductItems)
@@ -83,12 +86,15 @@ namespace Data.Repos.ProductRepo
              .Include(p => p.Supplier)
              .Include(p => p.Discount)
              .Where(p => p.IsPublished == false)
+             .Skip((pageNumber - 1) * pageSize)
+             .Take(pageSize)
              .ToListAsync();
-            return (product.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList(), product.Count);
+            return (product, count);
         }
 
         public async Task<(ICollection<Product>,int )> GetProductsIsPublish(int pageNumber, int pageSize)
         {
+            var count = await _context.Set<Product>().CountAsync();
             var product = await _context.Set<Product>()
                .Include(p => p.ProductSpecifications)
             .Include(p => p.ProductItems)
@@ -99,11 +105,14 @@ namespace Data.Repos.ProductRepo
             .Include(p => p.Supplier)
             .Include(p => p.Discount)
             .Where(p => p.IsPublished == true)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
-            return (product.Skip((pageNumber-1)*pageSize).Take(pageSize).ToList(), product.Count);
+            return (product, count);
         }
-        public async Task<(ICollection<Product>, int count)> GetNewProducts(int offset, int limit)
+        public async Task<(ICollection<Product>, int count)> GetNewProducts(int offset, int limit,bool isPublish = true)
         {
+            int count = await _context.Set<Product>().CountAsync();
             var product = await _context.Set<Product>()
                .Include(p => p.ProductSpecifications)
             .Include(p => p.ProductItems)
@@ -114,11 +123,11 @@ namespace Data.Repos.ProductRepo
             .Include(p => p.Supplier)
             .Include(p => p.Discount)
             .OrderByDescending(p=> p.DateCreate)
-            .Where(p => p.IsPublished == true)
+            .Where(p => p.IsPublished == isPublish)
+            .Skip((offset - 1) * limit).Take(limit)
             .ToListAsync();
-            int count = product.Count;
-            var result = product.Skip((offset - 1) * limit).Take(limit).ToList();
-            return (result, count);
+
+            return (product, count);
         }
 
         public async Task<ICollection<ProductItem>> TopSellingProduct(int top, DateTime dateStart, DateTime dateEnd)

@@ -12,13 +12,14 @@ namespace Services.Interfaces
     {
         Task<BaseResponse<ReviewCheckoutResponse>> ReviewCheckoutOrder(ReviewCheckoutRequest request);
         Task<BaseResponse<OrderDto>> CreateOrder(OrderRequest request);
-        Task<BaseResponse<ICollection<OrderDto>>> GetListOrder(int pageNumber, int pageSize);
+        Task<(BaseResponse<ICollection<OrderDto>>, int)> GetListOrder(int pageNumber, int pageSize);
         Task<BaseResponse<OrderDetailDto>> GetOrderDetail(Guid id);
         Task<BaseResponse<string>> UpdateStatus(OrderUpdateStatusRequest   request);
         Task<BaseResponse<ICollection<OrderDto>>> GetOrdersByUserId(string userId);
         Task SendMailOrder(Guid orderId);
         Task<(decimal totalRevenue, DateTime startDate, DateTime endDate)> GetTotalRevenueLastMonth();
         Task<bool> RemoveOrder(Guid orderId);
-        Task<ICollection<OrderDetailDto>> GetListOrderByDate(DateTime date);
+        Task<(ICollection<OrderDetailDto>, int)> GetListOrderByDate(DateTime date, int pageSize, int pageNumber);
+        Task<bool> CheckOrderBeforeCreate(OrderRequest request);
     }
 }

@@ -12,13 +12,13 @@ namespace Data.Repos.OrderRepo
     public interface IOrderRepository
     {
 
-        Task<ICollection<Order>> GetOrders(int pageNumber, int pageSize);
+        Task<(ICollection<Order>, int)> GetOrders(int pageNumber, int pageSize);
         Task<Order> GetOrderDetail(Guid id);
         Task<ICollection<Order>> GetOrderByUserId(string userId);
 
         Task<bool> RemoveOrder(Guid orderId);
         Task<decimal> GetTotalRevenue(DateTime dateStart, DateTime dateEnd);
         Task<ICollection<DailyOrderSummary>> GetOrderSummary(DateTime startDate, DateTime endDate);
-        Task<ICollection<Order>> GetListOrderByDate(DateTime date);
+        Task<(ICollection<Order>, int)> GetListOrderByDate(DateTime date, int pageSize, int pageNumber);
     }
 }

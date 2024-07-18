@@ -52,7 +52,7 @@ namespace Services.Concrete
 
         public async Task<BaseResponse<OrderDto>> CreateOrder(OrderRequest request)
         {
-          
+            bool isSuccess = true;
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -107,8 +107,12 @@ namespace Services.Concrete
                     product.Product.ProductQuantity -= orderItem.Quantity;
                     if(product.Product.ProductQuantity < 0 || product.Product.ProductQuantity< 0) {
 
-                        throw new ApiException($"Internal server error: Not enough product quantity")
-                        { StatusCode = (int)HttpStatusCode.BadRequest };
+                        isSuccess = false;
+                        order.Status = OrderStatus.FAILED;
+
+                        product.Quantity += orderItem.Quantity;
+                        product.Product.ProductQuantity += orderItem.Quantity;
+
                     }
                     await _unitOfWork.Repository<ProductItem>().Update(product);
                 }
@@ -119,9 +123,6 @@ namespace Services.Concrete
                     throw new ApiException($"Internal server error: Insert order failed")
                     { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
-                
-                
-                // xoa gio hang
                 
                 var res = _mapper.Map<OrderDto>(order);
                 await transaction.CommitAsync();
@@ -140,18 +141,18 @@ namespace Services.Concrete
         }
 
 
-        public  async Task<BaseResponse<ICollection<OrderDto>>> GetListOrder(int pageNumber, int pageSize)
+        public  async Task<(BaseResponse<ICollection<OrderDto>>, int)> GetListOrder(int pageNumber, int pageSize)
         {
             try
             {
-                var data = await _unitOfWork.OrderRepository.GetOrders(pageNumber, pageSize);
-                if(data == null)
+                var (orders,count) = await _unitOfWork.OrderRepository.GetOrders(pageNumber, pageSize);
+                if(orders == null)
                 {
                     throw new ApiException($"Not found")
                     { StatusCode = (int)HttpStatusCode.NotFound };
                 }    
-                var res = _mapper.Map<List<OrderDto>>(data);
-                return new BaseResponse<ICollection<OrderDto>>(res, "Orders");
+                var res = _mapper.Map<List<OrderDto>>(orders);
+                return (new BaseResponse<ICollection<OrderDto>>(res, "Orders"), count);
                 
             }catch(Exception ex)
             {
@@ -344,6 +345,31 @@ namespace Services.Concrete
             }
         }
 
+        public async Task<bool> CheckOrderBeforeCreate(OrderRequest request)
+        {
+
+           
+                foreach (var orderItem in request.Items)
+                {
+                    var product = await _unitOfWork.ProductRepository.GetProductItem(orderItem.ProductItemId);
+                    if (product == null)
+                    {
+                        throw new ApiException($"Internal server error: Product item is null or empty")
+                        { StatusCode = (int)HttpStatusCode.BadRequest };
+                    }
+                    product.Quantity -= orderItem.Quantity;
+                    product.Product.ProductQuantity -= orderItem.Quantity;
+                    if (product.Product.ProductQuantity < 0 || product.Product.ProductQuantity < 0)
+                    {
+                    throw new ApiException($"Internal server error: Product quantity is not enough ")
+                    { StatusCode = (int)HttpStatusCode.BadRequest };
+
+                    }
+                }
+
+
+                return true;
+            }
         public async Task<bool> RemoveOrder(Guid orderId)
         {
             try
@@ -365,18 +391,18 @@ namespace Services.Concrete
          
 
         }
-        public async Task<ICollection<OrderDetailDto>> GetListOrderByDate(DateTime date)
+        public async Task<(ICollection<OrderDetailDto>,int)> GetListOrderByDate(DateTime date, int pageSize, int pageNumber)
         {
-            var orders = await _unitOfWork.OrderRepository.GetListOrderByDate(date);
+            var (orders, count) = await _unitOfWork.OrderRepository.GetListOrderByDate(date, pageSize, pageNumber);
             if (orders == null)
             {
-                return [];
+                return ([], count);
             }
             var data = orders.Select(x =>
                 {
                     return mapOrderDetail(x);
                 }).ToList();
-            return data;
+            return (data, count);
         }
         private OrderDetailDto mapOrderDetail(Application.DAL.Models.Order order)
         {
