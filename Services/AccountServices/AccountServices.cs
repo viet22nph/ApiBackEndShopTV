@@ -368,8 +368,8 @@ namespace Services.AccountServices
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                //expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),// 130 phuts
-                expires: DateTime.UtcNow.AddSeconds(5),// 130 phuts
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),// 130 phuts
+                //expires: DateTime.UtcNow.AddSeconds(5),// 130 phuts
 
                 signingCredentials: signingCredentials);
             return jwtSecurityToken;

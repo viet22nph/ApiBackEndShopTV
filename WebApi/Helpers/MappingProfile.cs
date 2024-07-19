@@ -4,6 +4,8 @@ using Models.DTOs.Account;
 using Models.DTOs.Banner;
 using Models.DTOs.Banner.Request;
 using Models.DTOs.Category;
+using Models.DTOs.ContactUs;
+using Models.DTOs.ContactUs.Request;
 using Models.DTOs.Discount;
 using Models.DTOs.GroupBanner;
 using Models.DTOs.Order;
@@ -79,6 +81,14 @@ namespace WebApi.Helpers
 
             CreateMap<BannerDto, Banner>().ReverseMap().ForMember(x=>x.GroupBanner, y=>y.MapFrom(z=>z.Group) );
             CreateMap<Banner, BannerRequestDto>().ReverseMap();
+            #endregion
+
+            #region 
+            CreateMap<ContactUs, ContactUsRequestDto>().ReverseMap();
+            CreateMap<ContactUs, ContactUsDto>().ReverseMap();
+
+
+
             #endregion
         }
     }

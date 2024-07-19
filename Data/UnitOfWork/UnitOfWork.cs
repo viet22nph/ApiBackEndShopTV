@@ -2,6 +2,7 @@
 using Data.Repos;
 using Data.Repos.BannerRepo;
 using Data.Repos.CategoryRepo;
+using Data.Repos.ContactUs;
 using Data.Repos.DiscountRepo;
 using Data.Repos.GroupBannerRepo;
 using Data.Repos.OrderRepo;
@@ -34,6 +35,9 @@ namespace Data.UnitOfWork
 
         public IGroupBannerRepository GroupBannerRepository => new GroupBannerRepository(_context);
         public IBannerRepository BannerRepository => new BannerRepository(_context);
+
+        public IContactUsRepository ContactUsRepository =>  new ContactUsRepository(_context);
+
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;

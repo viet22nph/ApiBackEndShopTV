@@ -69,6 +69,9 @@ namespace Application.Api.Extentions
 
             services.AddScoped<IGroupBannerService, GroupBannerService>();
             services.AddScoped<IBannerService, BannerService>();
+            services.AddScoped<IContactUsService, ContactUsService>();
+
+            
             #endregion
 
             #region System setting

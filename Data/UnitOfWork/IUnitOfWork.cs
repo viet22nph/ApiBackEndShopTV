@@ -1,6 +1,7 @@
 ﻿using Data.Repos;
 using Data.Repos.BannerRepo;
 using Data.Repos.CategoryRepo;
+using Data.Repos.ContactUs;
 using Data.Repos.DiscountRepo;
 using Data.Repos.GroupBannerRepo;
 using Data.Repos.OrderRepo;
@@ -24,6 +25,7 @@ namespace Data.UnitOfWork
         ICategoryRepository CategoryRepository { get; }
         IGroupBannerRepository GroupBannerRepository { get; }
         IBannerRepository BannerRepository { get; }
+        IContactUsRepository ContactUsRepository { get; }
         Task<int> Complete();
         bool HasChanges();
     }
