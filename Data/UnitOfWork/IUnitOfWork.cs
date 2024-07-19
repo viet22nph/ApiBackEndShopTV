@@ -1,6 +1,8 @@
 ﻿using Data.Repos;
+using Data.Repos.BannerRepo;
 using Data.Repos.CategoryRepo;
 using Data.Repos.DiscountRepo;
+using Data.Repos.GroupBannerRepo;
 using Data.Repos.OrderRepo;
 using Data.Repos.ProductRepo;
 using Data.Repos.ReviewRepo;
@@ -20,6 +22,8 @@ namespace Data.UnitOfWork
         IDiscountRepository DiscountRepository { get; }
         IReviewRepository ReviewRepository { get; }
         ICategoryRepository CategoryRepository { get; }
+        IGroupBannerRepository GroupBannerRepository { get; }
+        IBannerRepository BannerRepository { get; }
         Task<int> Complete();
         bool HasChanges();
     }

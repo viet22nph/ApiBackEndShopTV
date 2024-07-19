@@ -1,7 +1,9 @@
 ﻿using Data.Contexts;
 using Data.Repos;
+using Data.Repos.BannerRepo;
 using Data.Repos.CategoryRepo;
 using Data.Repos.DiscountRepo;
+using Data.Repos.GroupBannerRepo;
 using Data.Repos.OrderRepo;
 using Data.Repos.ProductRepo;
 using Data.Repos.ReviewRepo;
@@ -30,6 +32,8 @@ namespace Data.UnitOfWork
 
         public ICategoryRepository CategoryRepository =>  new CategoryRepository(_context);
 
+        public IGroupBannerRepository GroupBannerRepository => new GroupBannerRepository(_context);
+        public IBannerRepository BannerRepository => new BannerRepository(_context);
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;

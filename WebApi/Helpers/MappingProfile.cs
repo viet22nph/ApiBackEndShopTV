@@ -1,8 +1,11 @@
 ﻿using Application.DAL.Models;
 using AutoMapper;
 using Models.DTOs.Account;
+using Models.DTOs.Banner;
+using Models.DTOs.Banner.Request;
 using Models.DTOs.Category;
 using Models.DTOs.Discount;
+using Models.DTOs.GroupBanner;
 using Models.DTOs.Order;
 using Models.DTOs.Product;
 using Models.DTOs.Review;
@@ -64,6 +67,19 @@ namespace WebApi.Helpers
             CreateMap<ReviewImageResponse, ReviewImage>().ReverseMap();
 
 
+
+            #region Group banner
+            CreateMap<GroupBanner, GroupBannerDto>().ReverseMap();
+            CreateMap<Banner, GroupBannerDetailDto.Banner>().ReverseMap();
+            CreateMap<GroupBanner, GroupBannerDetailDto>().ReverseMap().ForMember(x=> x.Banners, dt=> dt.MapFrom(y=> y.Banners));
+
+            #endregion
+
+            #region banner mapper
+
+            CreateMap<BannerDto, Banner>().ReverseMap().ForMember(x=>x.GroupBanner, y=>y.MapFrom(z=>z.Group) );
+            CreateMap<Banner, BannerRequestDto>().ReverseMap();
+            #endregion
         }
     }
 }

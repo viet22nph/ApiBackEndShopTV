@@ -32,10 +32,14 @@ namespace Application.Api.Extentions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            #region config appseting 
             services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
             services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
             services.Configure<GoogleSetting>(configuration.GetSection("GoogleAuthSettings"));
-          
+
+            #endregion
+
+            #region DJ
             services.AddTransient<IEmailCoreService, EmailCoreService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -56,14 +60,20 @@ namespace Application.Api.Extentions
             services.AddScoped<ICartService, CartService>();
             services.AddScoped<IReviewService,  ReviewService>();
             services.AddScoped<RoleManager<IdentityRole>>();
-            var jwt = new JWTSettings();
-            configuration.GetSection(nameof(JWTSettings)).Bind(jwt); 
            
             services.AddScoped<IDiscountService, DiscountService>();
             services.AddScoped<DiscountStatusUpdater>();
             services.AddSingleton<IVnPayService, VnpayService>();
             services.AddScoped<IReportService, ReportService>();
 
+
+            services.AddScoped<IGroupBannerService, GroupBannerService>();
+            services.AddScoped<IBannerService, BannerService>();
+            #endregion
+
+            #region System setting
+            var jwt = new JWTSettings();
+            configuration.GetSection(nameof(JWTSettings)).Bind(jwt);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              .AddJwtBearer(options =>
              {
@@ -124,7 +134,7 @@ namespace Application.Api.Extentions
                     }
                 });
             });
-
+            #endregion
             return services;
         }
 

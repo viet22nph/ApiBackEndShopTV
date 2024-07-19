@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Data.SeedData
@@ -25,7 +26,7 @@ namespace Data.SeedData
         private List<ProductItem> ProductItems = new List<ProductItem>();
         private List<ProductImage> ProductImages = new List<ProductImage>();
         private List<ProductSpecification> ProductSpecifications = new List<ProductSpecification>();
-
+        private List<GroupBanner> Groups = new List<GroupBanner>();
 
 
         public SeedData(
@@ -509,7 +510,31 @@ namespace Data.SeedData
             Colors.AddRange(dataColors);
             #endregion
 
-          
+
+            #endregion
+
+            #region banner groups
+            Groups.AddRange(
+                new List<GroupBanner> {
+            new GroupBanner
+            {
+                GroupName = "HOME PAGE"
+            },
+             new GroupBanner
+             {
+                 GroupName = "PRODUCT PAGE"
+             },
+             new GroupBanner
+             {
+                 GroupName = "CART PAGE"
+             },
+             new GroupBanner
+             {
+                 GroupName = "DETAIL PAGE"
+             }
+});
+
+
             #endregion
         }
 
@@ -522,6 +547,7 @@ namespace Data.SeedData
             await SeedSupplier();
             await SeedColor();
             await SeedProduct();
+            await SeedGroup();
         }
 
         #endregion
@@ -604,5 +630,11 @@ namespace Data.SeedData
         }
         #endregion
        
+        public async Task SeedGroup()
+        {
+            if (_context.Set<GroupBanner>().Any()) return;
+            await _context.Set<GroupBanner>().AddRangeAsync(Groups);
+            _context.SaveChanges();
+        }
     }
 }
