@@ -75,7 +75,7 @@ namespace Data.Repos.ProductRepo
 
         public async Task<(ICollection<Product>, int)> GetProductsIsDraft(int pageNumber, int pageSize)
         {
-            var count = await _context.Set<Product>().CountAsync();
+            var count = await _context.Set<Product>().Where(x=>x.IsDraft == true).CountAsync();
             var product = await _context.Set<Product>()
                 .Include(p => p.ProductSpecifications)
              .Include(p => p.ProductItems)
@@ -94,7 +94,7 @@ namespace Data.Repos.ProductRepo
 
         public async Task<(ICollection<Product>,int )> GetProductsIsPublish(int pageNumber, int pageSize)
         {
-            var count = await _context.Set<Product>().CountAsync();
+            var count = await _context.Set<Product>().Where(x => x.IsPublished == true).CountAsync();
             var product = await _context.Set<Product>()
                .Include(p => p.ProductSpecifications)
             .Include(p => p.ProductItems)
