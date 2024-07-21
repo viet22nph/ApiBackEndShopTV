@@ -70,11 +70,11 @@ namespace Services.Concrete
 
         }
 
-        public async Task<BaseResponse<ICollection<BannerDto>>> GetBannersAsync()
+        public async Task<BaseResponse<ICollection<BannerDto>>> GetBannersAsync(int pageNumber, int pageSize)
         {
             try
             {
-                var banners = await _unitOfWork.BannerRepository.GetBanners();
+                var banners = await _unitOfWork.BannerRepository.GetBannersAsync(pageNumber, pageSize);
                 if (banners == null)
                 {
                     return new BaseResponse<ICollection<BannerDto>>([], "Banners");

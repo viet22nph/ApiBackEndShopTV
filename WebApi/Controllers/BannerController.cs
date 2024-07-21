@@ -59,10 +59,10 @@ namespace WebApi.Controllers
         }
         [HttpGet()]
         [Cache()]
-        public async Task<IActionResult> Banners()
+        public async Task<IActionResult> Banners(int pageNumber =1, int pageSize=20)
         {
 
-            var result = await _bannerService.GetBannersAsync();
+            var result = await _bannerService.GetBannersAsync(pageNumber, pageNumber);
             return Ok(result);
         }
         [HttpDelete("{id}")]

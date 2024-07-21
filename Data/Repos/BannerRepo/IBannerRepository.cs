@@ -9,6 +9,6 @@ namespace Data.Repos.BannerRepo
 {
     public interface IBannerRepository
     {
-        Task<ICollection<Banner>> GetBanners();
+        Task<ICollection<Banner>> GetBannersAsync(int pageNumber, int pageSize);
     }
 }

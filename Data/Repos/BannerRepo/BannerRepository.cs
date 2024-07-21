@@ -16,9 +16,15 @@ namespace Data.Repos.BannerRepo
         {
             _context = context;
         }
-        public async Task<ICollection<Banner>> GetBanners()
+        public async Task<ICollection<Banner>> GetBannersAsync(int pageNumber, int pageSize)
         {
-            return await _context.Set<Banner>().Include(b => b.Group).GroupBy(x => x.GroupId).Select(group => group.FirstOrDefault()).ToListAsync();
+            var banners = await _context.Set<Banner>()
+            .Include(b => b.Group)
+            .OrderBy(b => b.GroupId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+            return banners;
         } 
     }
 }

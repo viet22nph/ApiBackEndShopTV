@@ -9,7 +9,7 @@ namespace Services.Interfaces
         Task<BaseResponse<BannerDto>> CreateBannerServiceAsync(BannerRequestDto payload);
         Task<BaseResponse<BannerDto>> ToogleEnableAsync(Guid id);
 
-        Task<BaseResponse<ICollection<BannerDto>>> GetBannersAsync();
+        Task<BaseResponse<ICollection<BannerDto>>> GetBannersAsync(int pageNumber, int pageSize);
         Task<bool> RemoveBanner(Guid id);
     }
 }
