@@ -1,6 +1,8 @@
 ﻿using Data.Contexts;
 using Data.Repos;
 using Data.Repos.BannerRepo;
+using Data.Repos.BlogGroupRepo;
+using Data.Repos.BlogRepo;
 using Data.Repos.CategoryRepo;
 using Data.Repos.ContactUs;
 using Data.Repos.DiscountRepo;
@@ -8,6 +10,7 @@ using Data.Repos.GroupBannerRepo;
 using Data.Repos.OrderRepo;
 using Data.Repos.ProductRepo;
 using Data.Repos.ReviewRepo;
+using Data.Repos.TagRepo;
 using Data.Repos.UserRepo;
 using Models.DbEntities;
 using System;
@@ -37,6 +40,11 @@ namespace Data.UnitOfWork
         public IBannerRepository BannerRepository => new BannerRepository(_context);
 
         public IContactUsRepository ContactUsRepository =>  new ContactUsRepository(_context);
+
+        public IBlogGroupRepository BlogGroupRepository => new BlogGroupRepository(_context);
+        public ITagRepository TagRepository => new TagRepository(_context);
+
+        public IBlogRepository BlogRepository => new BlogRepository(_context);
 
         public UnitOfWork(ApplicationDbContext context)
         {

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Caching;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Category;
@@ -59,6 +61,8 @@ namespace WebApi.Controllers
 
         }
         [HttpPut("update/{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = "CanEditCategory")]
         public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] CategoryUpdateRequest request)
         {
             if(!ModelState.IsValid)

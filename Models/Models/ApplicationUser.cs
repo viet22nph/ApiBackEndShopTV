@@ -21,5 +21,7 @@ namespace Models.Models
 
         public virtual ICollection<Order>? Order { get; set; }
 
+        public virtual ICollection<Blog>? Blogs { get; set; }
+
     }
 }

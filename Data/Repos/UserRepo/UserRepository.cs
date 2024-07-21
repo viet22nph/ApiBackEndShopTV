@@ -22,5 +22,9 @@ namespace Data.Repos.UserRepo
             var users = await _context.Users.Skip((pageNumber - 1)*pageSize).Take(pageSize).ToListAsync();
             return users;
         }
+        public async Task<ApplicationUser> GetUserById(string id)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+        }
     }
 }

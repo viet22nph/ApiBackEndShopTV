@@ -70,8 +70,9 @@ namespace Application.Api.Extentions
             services.AddScoped<IGroupBannerService, GroupBannerService>();
             services.AddScoped<IBannerService, BannerService>();
             services.AddScoped<IContactUsService, ContactUsService>();
-
-            
+            services.AddScoped<IBlogGroupService, BlogGroupService>();
+            services.AddScoped<ITagService, TagService>();
+            services.AddScoped<IBlogService, BlogService>();
             #endregion
 
             #region System setting

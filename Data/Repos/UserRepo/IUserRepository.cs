@@ -9,6 +9,7 @@ namespace Data.Repos.UserRepo
 {
     public interface IUserRepository
     {
-        Task <ICollection<ApplicationUser>> GetUsers(int pageNumber, int pageSize); 
+        Task <ICollection<ApplicationUser>> GetUsers(int pageNumber, int pageSize);
+        Task<ApplicationUser> GetUserById(string id);
     }
 }

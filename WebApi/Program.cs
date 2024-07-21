@@ -22,6 +22,10 @@ builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddRedis(builder.Configuration);
 builder.Services.AddHostedService<DiscountStatusUpdater>();
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+
+
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("CanEditProduct", policy =>
@@ -30,6 +34,9 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("canRemoveProduct", "true"));
     options.AddPolicy("CanCreateProduct", policy =>
         policy.RequireClaim("canCreateProduct", "true"));
+
+    options.AddPolicy("CanEditCategory", policy =>
+    policy.RequireClaim("canEditCategory"));
 });
 builder.Services.AddCors(options =>
 {

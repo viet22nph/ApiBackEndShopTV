@@ -3,6 +3,10 @@ using AutoMapper;
 using Models.DTOs.Account;
 using Models.DTOs.Banner;
 using Models.DTOs.Banner.Request;
+using Models.DTOs.Blog;
+using Models.DTOs.Blog.Request;
+using Models.DTOs.BlogGroup;
+using Models.DTOs.BlogGroup.Request;
 using Models.DTOs.Category;
 using Models.DTOs.ContactUs;
 using Models.DTOs.ContactUs.Request;
@@ -12,6 +16,8 @@ using Models.DTOs.Order;
 using Models.DTOs.Product;
 using Models.DTOs.Review;
 using Models.DTOs.Supplier;
+using Models.DTOs.Tag;
+using Models.DTOs.Tag.request;
 using Models.DTOs.User;
 using Models.Models;
 
@@ -83,11 +89,33 @@ namespace WebApi.Helpers
             CreateMap<Banner, BannerRequestDto>().ReverseMap();
             #endregion
 
-            #region 
+            #region Contact us
             CreateMap<ContactUs, ContactUsRequestDto>().ReverseMap();
             CreateMap<ContactUs, ContactUsDto>().ReverseMap();
+            #endregion
 
+            #region Blog group 
+            CreateMap<BlogGroup, BlogGroupDto>().ReverseMap();
+            CreateMap<BlogGroup, BlogGroupRequestDto>().ReverseMap();
+            CreateMap<BlogGroup, BlogGroupDetailDto>()
+            .ForMember(dest => dest.Blogs, opt => opt.MapFrom(src => src.Blogs));
 
+            CreateMap<Blog, BlogGroupDetailDto.BlogDto>()
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.TagBlogs.Select(tb => tb.Tag.TagTitle)));
+            #endregion
+
+            #region Tag
+
+            CreateMap<Tag, TagRequsetDto>().ReverseMap();
+            CreateMap<Tag, TagDto>().ReverseMap();
+            #endregion
+            #region Blog
+
+            CreateMap<Blog, BlogRequestDto>().ReverseMap();
+            CreateMap<Blog, BlogDto>()
+           .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author.UserName))
+           .ForMember(dest => dest.BlogGroupName, opt => opt.MapFrom(src => src.BlogGroup.Name))
+           .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.TagBlogs.Select(tb => tb.Tag.TagTitle).ToList()));
 
             #endregion
         }
