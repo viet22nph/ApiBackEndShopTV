@@ -17,7 +17,7 @@ namespace Models.DTOs.GroupBanner
         public class Banner {
             public Guid Id { get; set; }
             public string Url { get; set; }
-            public bool IsEnnale { get; set; }
+            public bool IsEnable { get; set; }
         }
 
     }
