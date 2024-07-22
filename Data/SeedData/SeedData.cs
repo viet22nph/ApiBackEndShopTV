@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models.Enums;
 using Models.Models;
+using Models.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -552,14 +554,35 @@ namespace Data.SeedData
 
         #endregion
         #region SeedRoles
+        public enum RoleEnums
+        {
+            Admin,
+            Manager,
+            User
+        }
         async Task SeedRoles()
         {
             if (await _roleManager.Roles.AnyAsync()) return;
-
-            foreach (var role in Enum.GetNames<RoleEnums>())
+            foreach (var role in Enum.GetNames(typeof(RoleEnums)))
             {
-                await _roleManager.CreateAsync(new IdentityRole { Name = role });
+                var identityRole = new IdentityRole { Name = role };
+                await _roleManager.CreateAsync(identityRole);
+
+                var claims = Permissions.GetAllPermissions();
+                foreach (var claim in claims)
+                {
+                    if(role == nameof(RoleEnums.User))
+                    {
+                        await _roleManager.AddClaimAsync(identityRole, new Claim(claim, "false"));
+                    }
+                    else
+                    {
+
+                        await _roleManager.AddClaimAsync(identityRole, new Claim(claim, "true"));
+                    }
+                }
             }
+
         }
         #endregion
         #region SeedUser
@@ -569,9 +592,9 @@ namespace Data.SeedData
             if (await _userManager.Users.AnyAsync()) return;
             var userArray = new[]
 {
-                    new { UserName = "Admin", Email = "admin@yam.cl", NumberPhone ="034211112", Role = Enum.GetName<RoleEnums>(RoleEnums.Admin)?? "User", Password = "Admin@123" },
-                    new { UserName = "ndviet2020", Email = "viet22np@yam.cl", NumberPhone ="034211111",  Role =Enum.GetName<RoleEnums>(RoleEnums.Admin)?? "User", Password = "Viet@123" },
-                    new {UserName = "nkthe1301", Email = "the@yam.cl", NumberPhone ="034211191", Role = Enum.GetName<RoleEnums>(RoleEnums.User)?? "User", Password = "The@123"}
+                    new { UserName = "Admin", Email = "admin@yam.cl", NumberPhone ="034211112", Role =  nameof(RoleEnums.Admin)?? "User", Password = "Admin@123" },
+                    new { UserName = "ndviet2020", Email = "viet22np@yam.cl", NumberPhone ="034211111", Role=  nameof(RoleEnums.User)?? "User", Password = "Viet@123" },
+                    new {UserName = "nkthe1301", Email = "the@yam.cl", NumberPhone ="034211191", Role = nameof(RoleEnums.User)?? "User", Password = "The@123"}
             };
 
             foreach (var user in userArray)

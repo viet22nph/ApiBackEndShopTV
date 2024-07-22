@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Category;
+using Models.Settings;
 using Services.Interfaces;
 using WebApi.Attributes;
 
@@ -38,6 +39,8 @@ namespace WebApi.Controllers
         }
         [Cache]
         [HttpPost("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Category.Read)]
         public async Task<IActionResult> GetCatogories(Guid id)
         {
             var result = await _category.GetCategory(id);
@@ -48,6 +51,8 @@ namespace WebApi.Controllers
 
         }
         [HttpPost("insert")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Category.Create)]
         public async Task<IActionResult> GetCatogories(CategoryRequest request)
         {
             if(!ModelState.IsValid)
@@ -62,7 +67,7 @@ namespace WebApi.Controllers
         }
         [HttpPut("update/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Policy = "CanEditCategory")]
+        [Authorize(Policy = Permissions.Category.Update)]
         public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] CategoryUpdateRequest request)
         {
             if(!ModelState.IsValid)
@@ -79,6 +84,8 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Category.Delete)]
         public async Task<IActionResult> RemoveCategory(Guid id)
         {
             if (id == null)

@@ -1,9 +1,12 @@
 ﻿using Data.Contexts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.UserManagement;
 using Models.Models;
+using Models.Settings;
 using System.Security.Claims;
 
 namespace WebApi.Controllers
@@ -25,6 +28,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("get-roles")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.RoleManager.Read)]
         public async Task<IActionResult> GetRoles()
         {
             var roles =  _roleManager.Roles.Select(r=> new {id = r.Id, name = r.Name}).OrderBy(c=>c.name).ToList();
@@ -36,6 +42,9 @@ namespace WebApi.Controllers
             return Ok(new {message="Roles",data = roles});
         }
         [HttpPost("get-role-by-id/{id}")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.RoleManager.Read)]
         public async Task<IActionResult> GetRoleById(string id)
         {
             
@@ -58,6 +67,9 @@ namespace WebApi.Controllers
             });
         }
         [HttpPost("create-role")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.RoleManager.Create)]
         public async Task<IActionResult> CreateRole([FromBody] RoleName roleName)
         {
 
@@ -89,6 +101,9 @@ namespace WebApi.Controllers
 
         }
         [HttpPatch("update-role-name/{id}")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.RoleManager.Update)]
         public async Task<IActionResult> UpdateRoleName(string id, [FromBody] RoleName payload)
         {
             var role = await _roleManager.FindByIdAsync(id);
@@ -112,6 +127,9 @@ namespace WebApi.Controllers
             return Ok(new {message=$"Update role {payload.Name} successfully"});
         }
         [HttpDelete("removeRole/{roleName}")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.RoleManager.Delete)]
         public async Task<IActionResult> RemoveRoles(string roleName)
         {
             var role = await _roleManager.FindByNameAsync(roleName);
@@ -130,6 +148,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("add-role-claims")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.RoleManager.Create)]
         public async Task<IActionResult> AddRoleClaims([FromBody] AddRoleClaimsRequest request)
         {
             await _context.Database.BeginTransactionAsync();
@@ -163,6 +184,9 @@ namespace WebApi.Controllers
             }
         }
         [HttpDelete("remove-role-claim/{roleName}")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.RoleManager.Delete)]
         public async Task<IActionResult> RemoveRoleClaim(string roleName, string claimType, string claimValue)
         {
             try
@@ -196,6 +220,9 @@ namespace WebApi.Controllers
             }
         }
         [HttpPost("get-role-claim-by-role/{id}")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.RoleManager.Read)]
         public async Task<IActionResult> GetRoleClaimsByRole(string id)
         {
 

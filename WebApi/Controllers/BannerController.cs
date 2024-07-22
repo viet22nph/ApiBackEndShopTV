@@ -1,8 +1,11 @@
 ﻿using Caching;
 using Core.Exceptions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Banner.Request;
+using Models.Settings;
 using Services.Interfaces;
 using System.Net;
 using WebApi.Attributes;
@@ -22,6 +25,8 @@ namespace WebApi.Controllers
             _cacheManager = cacheManager;
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.ManagerBanner.Manager)]
         [HttpPost("create-banner")]
         public async Task<IActionResult> CreateBanner(BannerRequestDto payload)
         {
@@ -43,6 +48,8 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.ManagerBanner.Manager)]
         [HttpPut("toggle-enable/{id}")]
         public async Task<IActionResult> ToggleEnable(Guid id)
         {
@@ -66,6 +73,9 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpDelete("{id}")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.ManagerBanner.Manager)]
         public async Task<IActionResult> RemoveBanner(Guid id)
         {
             var result = await _bannerService.RemoveBanner(id);

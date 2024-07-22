@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.BlogGroup.Request;
+using Models.Settings;
 using Services.Interfaces;
 
 namespace WebApi.Controllers
@@ -15,6 +18,8 @@ namespace WebApi.Controllers
             _blogGroupService = blogGroupService;
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.ManagerBlog.Manager)]
         [HttpPost("create-blog-group")]
         public async Task<IActionResult> CretaeBlogGroup(BlogGroupRequestDto payload)
         {
@@ -30,12 +35,16 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpPut("update")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.ManagerBlog.Manager)]
         public async Task<IActionResult> UpdateGroupBlog([FromBody] UpdateBlogGroupRequestDto payload)
         {
             var result = await _blogGroupService.UpdateBlogGroupAsync(payload);
             return Ok(result);
         }
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.ManagerBlog.Manager)]
         public async Task<IActionResult> RemoveGroupBlog(Guid id)
         {
             bool check = await _blogGroupService.RemoveBlogGroupAsync(id);

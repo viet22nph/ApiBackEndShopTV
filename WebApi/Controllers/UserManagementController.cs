@@ -2,12 +2,15 @@
 using CloudinaryDotNet.Actions;
 using Core.Exceptions;
 using Data.Contexts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.User;
 using Models.DTOs.UserManagement;
 using Models.Models;
+using Models.Settings;
 using Org.BouncyCastle.Utilities;
 using Services.Interfaces;
 using System.Net;
@@ -39,6 +42,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("add-role-to-user")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.UserManager.Create)]
         public async Task<IActionResult> AddRoleToUser([FromBody] AddRoleToUserRequest request)
         {
             if(!ModelState.IsValid)
@@ -79,6 +85,9 @@ namespace WebApi.Controllers
           
         }
         [HttpPost("get-user-roles")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.UserManager.Read)]
         public async Task<IActionResult> GetRoles(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -93,6 +102,9 @@ namespace WebApi.Controllers
         }
         [HttpPost("get-user")]
         [Cache(300)]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.UserManager.Read)]
         public async Task<IActionResult> GetUserById(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -114,6 +126,8 @@ namespace WebApi.Controllers
             return Ok(res);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.UserManager.Read)]
         [HttpPost("get-users")]
         [Cache]
         public async Task<IActionResult> GetUsers(int pageNumber =1, int pageSize=10)
@@ -122,6 +136,9 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpDelete("user-remove-role")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.UserManager.Delete)]
         public async Task<IActionResult> UserRemoveRole([FromBody] UserRemoveRoleRequest request)
         {
             try

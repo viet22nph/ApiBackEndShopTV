@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Account;
+using Models.Settings;
 using Services.AccountServices;
 using System;
 using System.Linq;
@@ -52,6 +53,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("reset-password")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> ResetPasswordAsync(ResetPasswordRequest request)
         {
             return Ok(await _accountService.ResetPasswordAsync(request));

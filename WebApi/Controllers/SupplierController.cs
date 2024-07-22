@@ -1,8 +1,11 @@
 ﻿using Application.DAL.Models;
 using Caching;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Supplier;
+using Models.Settings;
 using Services.Interfaces;
 using WebApi.Attributes;
 
@@ -38,7 +41,9 @@ namespace WebApi.Controllers
 
         }
         [HttpPost("create")]
-        
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Supplier.Create)]
         public async Task<IActionResult> CreateSupplier(SupplierRequest request)
         {
             if(!ModelState.IsValid)
@@ -51,6 +56,9 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpPut("update/{id}")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Supplier.Update)]
         public async Task<IActionResult> UpdateSupplier(Guid id,[FromBody] SupplierRequest request)
         {
             if (!ModelState.IsValid)
@@ -66,6 +74,8 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Supplier.Delete)]
         public async Task<IActionResult> DeleteSupplier(Guid id)
         {
             if (id == null)

@@ -1,8 +1,11 @@
 ﻿using Caching;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Models.DTOs.Discount;
+using Models.Settings;
 using Services.Interfaces;
 using WebApi.Attributes;
 
@@ -21,6 +24,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("create")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Discount.Create)]
         public async Task<IActionResult> CreateDiscount([FromBody] DiscountRequest request)
         {
             if (!ModelState.IsValid)
@@ -34,6 +40,9 @@ namespace WebApi.Controllers
         }
         [HttpPost("{id}")]
         [Cache]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Discount.Read)]
         public async Task<IActionResult> GetDiscount(Guid id)
         {
             if (id == Guid.Empty)
@@ -45,6 +54,9 @@ namespace WebApi.Controllers
         }
         [HttpPost("list")]
         [Cache]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Discount.Read)]
         public async Task<IActionResult> GetDiscounts(int pageNumber =1, int pageSize = 10)
         {
             if(pageNumber < 1) {
@@ -60,6 +72,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("cancel")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Discount.Update)]
         public async Task<IActionResult> CancelDiscount([FromBody] DiscountIdDto payload)
         {
             if (payload.DiscountId == null ||  payload.DiscountId == Guid.Empty)
@@ -72,6 +87,9 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpPost("pause")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Discount.Update)]
         public async Task<IActionResult> PauseDiscount([FromBody] DiscountIdDto payload)
         {
             if (payload.DiscountId == null || payload.DiscountId == Guid.Empty)
@@ -85,6 +103,9 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpPost("continue")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Discount.Update)]
         public async Task<IActionResult> ContinueDiscount([FromBody] DiscountIdDto payload)
         {
             if (payload.DiscountId == null || payload.DiscountId == Guid.Empty)
@@ -98,6 +119,9 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpPatch("update-time/{id}")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Discount.Update)]
         public async Task<IActionResult> UpdateDatetime(Guid id, [FromBody] DiscountDateTimeRequest request)
         {
             if (id == Guid.Empty)

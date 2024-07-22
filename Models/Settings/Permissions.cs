@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,22 +33,7 @@ namespace Models.Settings
             public const string Update = "Permissions.Product.Update";
            // public const string Delete = "Permissions.Product.Delete";
         }
-        public static class Banner
-        {
-            public const string Create = "Permissions.Banner.Create";
-            public const string Read = "Permissions.Banner.Read";
-            public const string Update = "Permissions.Banner.Update";
-            public const string Delete = "Permissions.Banner.Delete";
-
-        }
-        public static class GroupBanner
-        {
-            public const string Create = "Permissions.GroupBanner.Create";
-            public const string Read = "Permissions.GroupBanner.Read";
-            public const string Update = "Permissions.GroupBanner.Update";
-            public const string Delete = "Permissions.GroupBanner.Delete";
-        }
-        public static class User
+        public static class UserManager
         {
             public const string Create = "Permissions.User.Create";
             public const string Read = "Permissions.User.Read";
@@ -60,6 +47,13 @@ namespace Models.Settings
             public const string Update = "Permissions.RoleManager.Update";
             public const string Delete = "Permissions.RoleManager.Delete";
         }
+        public static class Discount
+        {
+            public const string Create = "Permissions.Discount.Create";
+            public const string Read = "Permissions.Discount.Read";
+            public const string Update = "Permissions.Discount.Update";
+            public const string Delete = "Permissions.Discount.Delete";
+        }
         public static class Order
         {
 
@@ -71,6 +65,44 @@ namespace Models.Settings
         public static class ContactUs
         {
 
+        }
+        public static class ManagerBlog
+        {
+            public const string Manager = "Permissions.ManagerBlog";
+        }
+        public static class ManagerBanner
+        {
+
+            public const string Manager = "Permissions.ManagerBanner";
+        }
+        public static IEnumerable<string> GetAllPermissions()
+        {
+            var permissionTypes = new[]
+            {
+                typeof(UserManager),
+                typeof(Category),
+                typeof(Supplier),
+                typeof(Product),
+                typeof(ManagerBlog),
+                typeof(ManagerBanner),
+                typeof(RoleManager)
+            };
+
+            var permissions = new List<string>();
+
+            foreach (var type in permissionTypes)
+            {
+                var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+                foreach (var field in fields)
+                {
+                    if (field.FieldType == typeof(string))
+                    {
+                        permissions.Add((string)field.GetValue(null));
+                    }
+                }
+            }
+
+            return permissions;
         }
     }
 

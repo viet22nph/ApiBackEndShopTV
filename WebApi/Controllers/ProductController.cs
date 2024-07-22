@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Cart;
 using Models.DTOs.Discount;
 using Models.DTOs.Product;
+using Models.Settings;
 using Services.Interfaces;
 using System.Net.WebSockets;
 using WebApi.Attributes;
@@ -27,6 +28,9 @@ namespace WebApi.Controllers
             _productService = productService;
         }
         [HttpPost("publish")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Product.Update)]
         public async Task<IActionResult> UpdatePublish([FromBody] ProductIdDto request)
         {
             if (request?.ProductId == null)
@@ -40,6 +44,8 @@ namespace WebApi.Controllers
 
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Product.Update)]
         [HttpPost("draft")]
         public async Task<IActionResult> UpdateDraft([FromBody] ProductIdDto request)
         {
@@ -114,6 +120,9 @@ namespace WebApi.Controllers
 
         
         [HttpPost("create")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Product.Create)]
         public async Task<IActionResult> CreateProduct([FromBody] ProductRequest request)
         {
             if (!ModelState.IsValid)
@@ -127,6 +136,9 @@ namespace WebApi.Controllers
 
        
         [HttpPatch("{id}")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Product.Update)]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductUpdateRequest request)
         {
             if(id == null)
@@ -219,22 +231,28 @@ namespace WebApi.Controllers
                 offset = offset
             });
         }
-        [HttpPost("remove-product-item/{id}")]
-        public async Task<IActionResult> RemoveProductItem(Guid id)
-        {
-             await _productService.RemoveProductItem(id);
+        //[HttpPost("remove-product-item/{id}")]
 
-            _cacheManager.RemoveByPrefix("api/Product");
-            return NoContent();
-        }
-        [HttpPost("remove-product-specification/{id}")]
-        public async Task<IActionResult> RemoveProductSpec(Guid id)
-        {
-            await _productService.RemoveProductSpecification(id);
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Policy = Permissions.Product.Update)]
+        //public async Task<IActionResult> RemoveProductItem(Guid id)
+        //{
+        //     await _productService.RemoveProductItem(id);
 
-            _cacheManager.RemoveByPrefix("api/Product");
-            return NoContent();
-        }
+        //    _cacheManager.RemoveByPrefix("api/Product");
+        //    return NoContent();
+        //}
+        //[HttpPost("remove-product-specification/{id}")]
+        //public async Task<IActionResult> RemoveProductSpec(Guid id)
+        //{
+        //    await _productService.RemoveProductSpecification(id);
+
+        //    _cacheManager.RemoveByPrefix("api/Product");
+        //    return NoContent();
+        //}
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Product.Update)]
         [HttpPost("update-discount/{productId}")]
         public async Task<IActionResult> UpdateDiscount(Guid productId, [FromBody] DiscountIdDto request)
         {

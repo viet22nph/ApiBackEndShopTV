@@ -2,6 +2,7 @@ using Application.Api.Extentions;
 using Caching;
 using Data.Contexts;
 using Data.SeedData;
+using Models.Settings;
 using WebApi.Middlewares;
 using WebApi.Udapters;
 
@@ -28,15 +29,20 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("CanEditProduct", policy =>
-        policy.RequireClaim("canEditProduct", "true"));
-    options.AddPolicy("CanRemoveProduct", policy =>
-        policy.RequireClaim("canRemoveProduct", "true"));
-    options.AddPolicy("CanCreateProduct", policy =>
-        policy.RequireClaim("canCreateProduct", "true"));
+    //options.AddPolicy("CanEditProduct", policy =>
+    //    policy.RequireClaim("canEditProduct", "true"));
+    //options.AddPolicy("CanRemoveProduct", policy =>
+    //    policy.RequireClaim("canRemoveProduct", "true"));
+    //options.AddPolicy("CanCreateProduct", policy =>
+    //    policy.RequireClaim("canCreateProduct", "true"));
 
-    options.AddPolicy("CanEditCategory", policy =>
-    policy.RequireClaim("canEditCategory"));
+    //options.AddPolicy("CanEditCategory", policy =>
+    //policy.RequireClaim("canEditCategory"));
+
+    foreach (var permission in Permissions.GetAllPermissions())
+    {
+        options.AddPolicy(permission, policy => policy.RequireClaim(permission, "true"));
+    }
 });
 builder.Services.AddCors(options =>
 {

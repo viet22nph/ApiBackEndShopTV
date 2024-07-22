@@ -1,6 +1,9 @@
 ﻿using Caching;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Models.Settings;
 using Services.Interfaces;
 using WebApi.Attributes;
 
@@ -8,6 +11,8 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Policy = Permissions.ManagerBanner.Manager)]
     public class GroupBannerController : ControllerBase
     {
         private readonly IGroupBannerService _groupBannerService;

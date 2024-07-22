@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Tag.request;
+using Models.Settings;
 using Services.Interfaces;
 
 namespace WebApi.Controllers
@@ -17,6 +20,8 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("create-tag")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.ManagerBlog.Manager)]
         public async Task<IActionResult> CreateTag(TagRequsetDto payload)
         {
             var result = await _tagService.CreateTagAsync(payload);

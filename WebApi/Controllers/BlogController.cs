@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Blog.Request;
+using Models.Settings;
 using Services.Interfaces;
 
 namespace WebApi.Controllers
@@ -16,6 +19,8 @@ namespace WebApi.Controllers
             _blogService = blogService;
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.ManagerBlog.Manager)]
         [HttpPost("create-blog")]
         public async Task<IActionResult> CreateBlog(BlogRequestDto payload)
         {
@@ -44,6 +49,9 @@ namespace WebApi.Controllers
 
         }
         [HttpDelete]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.ManagerBlog.Manager)]
         public async Task<IActionResult> RemoveBlog(Guid id)
         {
             var checkRm = await _blogService.RemoveBlogAsync(id);
@@ -57,6 +65,9 @@ namespace WebApi.Controllers
             return NoContent();
         }
         [HttpPut("update-blog")]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.ManagerBlog.Manager)]
         public async Task<IActionResult> UpdateBlog([FromBody] UpdateBlogRequestDto payload)
         {
             var data = await _blogService.UpdateBlogAsync(payload);
