@@ -85,10 +85,16 @@ namespace WebApi.Controllers
                     return BadRequest(new { message = $"Internal server error: The {roleName.Name} role already exist" });
 
                 }
-                var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName.Name));
+                var identityRole = new IdentityRole(roleName.Name);
+                var roleResult = await _roleManager.CreateAsync(identityRole);
                 if (!roleResult.Succeeded)
                 {
                     return BadRequest(new { message = $"Internal server error: Create role {roleName.Name} is failed" });
+                }
+                var claims = Permissions.GetAllPermissions();
+                foreach (var claim in claims)
+                {
+                    await _roleManager.AddClaimAsync(identityRole, new Claim(claim, "false"));
                 }
 
 
@@ -237,6 +243,7 @@ namespace WebApi.Controllers
             var res = roleClaims.Select(cl=> new {type = cl.Type, value = cl.Value});
             return Ok(new {message ="Role Claims", data = res});
         }
+
     }
     public class RoleName
     {
