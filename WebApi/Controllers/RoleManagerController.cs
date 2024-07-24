@@ -243,7 +243,41 @@ namespace WebApi.Controllers
             var res = roleClaims.Select(cl=> new {type = cl.Type, value = cl.Value});
             return Ok(new {message ="Role Claims", data = res});
         }
+        [HttpPatch("update-role-claim-value/{roleName}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.RoleManager.Update)]
+        public async Task<IActionResult> UpdateRoleClaims(string roleName, [FromBody] UpdateRoleClaimsRequest request)
+        {
+            var role = await _roleManager.FindByNameAsync(roleName);
+            if (role == null)
+            {
+                return BadRequest(new { message = $"Role not found" });
+            }
 
+            var existingClaims = await _roleManager.GetClaimsAsync(role);
+            foreach (var roleClaim in request.RoleClaims)
+            {
+                var existingClaim = existingClaims.FirstOrDefault(c => c.Type == roleClaim.ClaimType);
+                if (existingClaim != null)
+                {
+
+                    await _roleManager.RemoveClaimAsync(role, existingClaim);
+                    var newClaim = new Claim(roleClaim.ClaimType, roleClaim.ClaimValue);
+                    await _roleManager.AddClaimAsync(role, newClaim);
+                }
+            }
+
+            return Ok(new { message = $"Update claims for role {roleName} successfully" });
+        }
+    }
+    public class UpdateRoleClaimsRequest
+    {
+        public List<RoleClaim> RoleClaims { get; set; }
+    }
+    public class RoleClaim
+    {
+        public string ClaimType { get; set; }
+        public string ClaimValue { get; set; }
     }
     public class RoleName
     {
