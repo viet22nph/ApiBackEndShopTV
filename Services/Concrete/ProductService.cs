@@ -491,13 +491,13 @@ namespace Services.Concrete
                 throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
             }
         }
-        public async Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductByCategory(Guid id, int limit, int offset)
+        public async Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductByCategoryPublish(Guid id, int limit, int offset)
         {
             try
             {
                 int count = 0;
 
-                var products = await _unitOfWork.ProductRepository.GetAllProductsByCategory(id);
+                var products = await _unitOfWork.ProductRepository.GetProductsByCategoryPublish(id);
                 count = products.Count;
                 products = products.Skip((offset-1)*limit).Take(limit).ToList();
 
@@ -505,6 +505,25 @@ namespace Services.Concrete
                 return (new BaseResponse<ICollection<ProductResponse>>(res, "Products by category"), count);
             }
             catch(Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
+
+            }
+        }
+        public async Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductByCategory(Guid id, int limit, int offset)
+        {
+            try
+            {
+                int count = 0;
+
+                var products = await _unitOfWork.ProductRepository.GetProductsByCategory(id);
+                count = products.Count;
+                products = products.Skip((offset - 1) * limit).Take(limit).ToList();
+
+                var res = await mapProductAsync(products);
+                return (new BaseResponse<ICollection<ProductResponse>>(res, "Products by category"), count);
+            }
+            catch (Exception ex)
             {
                 throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
 

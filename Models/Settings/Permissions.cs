@@ -85,7 +85,8 @@ namespace Models.Settings
                 typeof(Product),
                 typeof(ManagerBlog),
                 typeof(ManagerBanner),
-                typeof(RoleManager)
+                typeof(RoleManager),
+                typeof(Discount)
             };
 
             var permissions = new List<string>();

@@ -59,6 +59,9 @@ namespace WebApi.Controllers
             return Ok(result);
 
         }
+    
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Product.Update)]
         [HttpPost("list")]
         [Cache]
         public async Task<IActionResult> GetProducts(int pageNumber = 1, int pageSize = 10)
@@ -76,7 +79,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("list-draft")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Product.Update)]
         [Cache]
+
         public async Task<IActionResult> GetProductsIsDraft(int pageNumber = 1, int pageSize = 10)
         {
             var (result, total) = await _productService.GetProductsIsDraft(pageNumber, pageSize);
@@ -200,8 +206,23 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpPost("get-product-by-category-publish/{categoryId}")]
+        public async Task<IActionResult> GetProductByCategoryPublish(Guid categoryId, int offset =1, int limit=10)
+        {
+            var (result, count) = await _productService.GetProductByCategoryPublish(categoryId, limit, offset);
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data,
+                offset = offset,
+                limit = limit,
+                count = count
+            });
+        }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = Permissions.Product.Read)]
         [HttpPost("get-product-by-category/{categoryId}")]
-        public async Task<IActionResult> GetProductByCategory(Guid categoryId, int offset =1, int limit=10)
+        public async Task<IActionResult> GetProductByCategory(Guid categoryId, int offset = 1, int limit = 10)
         {
             var (result, count) = await _productService.GetProductByCategory(categoryId, limit, offset);
             return Ok(new

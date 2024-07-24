@@ -20,7 +20,8 @@ namespace Data.Repos.ProductRepo
         Task<ProductItem> GetProductItem(Guid id);
         Task<(ICollection<Product>, int count)> GetNewProducts(int offset, int limit, bool isPublish = true);
         Task<ICollection<ProductItem>> TopSellingProduct(int top, DateTime dateStart, DateTime dateEnd);
-        Task<List<Product>> GetAllProductsByCategory(Guid categoryId);
+        Task<List<Product>> GetProductsByCategoryPublish(Guid categoryId);
+        Task<List<Product>> GetProductsByCategory(Guid categoryId);
         Task<ICollection<Product>> QueryProductAsync(string query);
         Task<ResultRemoveItemEnums> RemoveProductItem(Guid id);
     }

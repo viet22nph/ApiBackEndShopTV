@@ -152,7 +152,7 @@ namespace Data.Repos.ProductRepo
 
             return productItems;
         }
-        public async Task<List<Product>> GetAllProductsByCategory(Guid categoryId)
+        public async Task<List<Product>> GetProductsByCategoryPublish(Guid categoryId)
         {
             var category = await _context.Set<Category>()
                 .Include(c => c.Products)
@@ -168,30 +168,68 @@ namespace Data.Repos.ProductRepo
             await CollectProducts(category,  products);
             return products;
         }
+        public async Task<List<Product>> GetProductsByCategory(Guid categoryId)
+        {
+            var category = await _context.Set<Category>()
+                .Include(c => c.Products)
+                .Include(c => c.CategoryChildren)
+                .FirstOrDefaultAsync(c => c.Id == categoryId);
 
-        private async Task CollectProducts(Category category,  List<Product> products)
+            if (category == null)
+            {
+                return new List<Product>();
+            }
+
+            var products = new List<Product>();
+            await CollectProducts(category, products, false);
+            return products;
+        }
+        private async Task CollectProducts(Category category,  List<Product> products, bool checkPublish = true)
         {
 
             if (category.CategoryChildren != null)
             {
+                List<Product> data = new List<Product>();
                 foreach (var childCategory in category.CategoryChildren)
                 {
-                    var data =  await GetAllProductsByCategory(childCategory.Id);
+                    if (checkPublish)
+                    {
+                       data = await GetProductsByCategoryPublish(childCategory.Id);
+
+                    }
+                    else
+                    {
+                        data = await GetProductsByCategory(childCategory.Id);
+                    } 
                     products.AddRange(data);
                 }
             }
 
             if (category.Products != null)
             {
-                foreach (var product in category.Products)
+                if(checkPublish == true)
                 {
-                    var rs = await GetProduct(product.Id);
-                    if(rs.IsPublished == true)
+                    foreach (var product in category.Products)
                     {
-                        products.Add(rs);
+                        var rs = await GetProduct(product.Id);
+                        if (rs.IsPublished == true)
+                        {
+                            products.Add(rs);
 
+                        }
                     }
                 }
+                else
+                {
+                    foreach (var product in category.Products)
+                    {
+                        var rs = await GetProduct(product.Id);
+                        products.Add(rs);
+
+                        
+                    }
+                }
+               
             }
         }
 
