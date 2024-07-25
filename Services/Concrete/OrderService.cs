@@ -11,10 +11,12 @@ using Data.Repos.ProductRepo;
 using Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Models.DTOs.Email;
 using Models.DTOs.Order;
 using Models.ResponseModels;
+using Models.Settings;
 using Models.Status;
 using Services.Interfaces;
 using StackExchange.Redis;
@@ -35,11 +37,13 @@ namespace Services.Concrete
         private readonly ApplicationDbContext _context;
         private readonly IEmailCoreService _emailService;
         private readonly ICacheManager _cacheManager;
+        private readonly MailSettings _mailSetting;
         public OrderService(IUnitOfWork unitOfWork,
             IMapper mapper,
             ApplicationDbContext context,
             IEmailCoreService emailService,
-            ICacheManager cacheManager
+            ICacheManager cacheManager,
+            IOptions<MailSettings> mailSetting
             )
         {
             _mapper = mapper;
@@ -48,6 +52,7 @@ namespace Services.Concrete
 
             _context = context;
             _cacheManager = cacheManager;
+            _mailSetting = mailSetting.Value;
         }
 
         public async Task<BaseResponse<OrderDto>> CreateOrder(OrderRequest request)
@@ -66,7 +71,7 @@ namespace Services.Concrete
                     Total = request.Total,
                     DateCreate = DateTime.Now,
                     TotalDiscount = request.TotalDiscount,
-                    
+
                     Notes = request.Notes,
                     UserId = request.UserId,
                     Status = request.Status ?? OrderStatus.NEWORDER, // Assuming a new order status
@@ -87,25 +92,26 @@ namespace Services.Concrete
                             Amount = t.Amount,
                             DateCreate = DateTime.Now,
                             Description = t.Description,
-                            Status = t.Status?? TransactionStatus.PENDING,
+                            Status = t.Status ?? TransactionStatus.PENDING,
                             UserId = t.UserId,
                             Type = t.Type
                         };
                     }).ToList(),
-                 
+
                 };
                 // Tru san pham 
-                foreach(var orderItem in request.Items)
+                foreach (var orderItem in request.Items)
                 {
                     var product = await _unitOfWork.ProductRepository.GetProductItem(orderItem.ProductItemId);
-                    if(product == null)
+                    if (product == null)
                     {
                         throw new ApiException($"Internal server error: Product item is null or empty")
                         { StatusCode = (int)HttpStatusCode.BadRequest };
-                    }    
+                    }
                     product.Quantity -= orderItem.Quantity;
                     product.Product.ProductQuantity -= orderItem.Quantity;
-                    if(product.Product.ProductQuantity < 0 || product.Product.ProductQuantity< 0) {
+                    if (product.Product.ProductQuantity < 0 || product.Product.ProductQuantity < 0)
+                    {
 
                         isSuccess = false;
                         order.Status = OrderStatus.FAILED;
@@ -116,20 +122,20 @@ namespace Services.Concrete
                     }
                     await _unitOfWork.Repository<ProductItem>().Update(product);
                 }
-                
+
                 order = await _unitOfWork.Repository<Application.DAL.Models.Order>().Insert(order);
-                if(order == null)
+                if (order == null)
                 {
                     throw new ApiException($"Internal server error: Insert order failed")
                     { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
-                
+
                 var res = _mapper.Map<OrderDto>(order);
                 await transaction.CommitAsync();
                 return new BaseResponse<OrderDto>(res, "Order");
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
                 await transaction.RollbackAsync();
@@ -141,20 +147,21 @@ namespace Services.Concrete
         }
 
 
-        public  async Task<(BaseResponse<ICollection<OrderDto>>, int)> GetListOrder(int pageNumber, int pageSize)
+        public async Task<(BaseResponse<ICollection<OrderDto>>, int)> GetListOrder(int pageNumber, int pageSize)
         {
             try
             {
-                var (orders,count) = await _unitOfWork.OrderRepository.GetOrders(pageNumber, pageSize);
-                if(orders == null)
+                var (orders, count) = await _unitOfWork.OrderRepository.GetOrders(pageNumber, pageSize);
+                if (orders == null)
                 {
                     throw new ApiException($"Not found")
                     { StatusCode = (int)HttpStatusCode.NotFound };
-                }    
+                }
                 var res = _mapper.Map<List<OrderDto>>(orders);
                 return (new BaseResponse<ICollection<OrderDto>>(res, "Orders"), count);
-                
-            }catch(Exception ex)
+
+            }
+            catch (Exception ex)
             {
 
                 throw new ApiException($"Internal server error: {ex.Message}")
@@ -182,7 +189,7 @@ namespace Services.Concrete
                 { StatusCode = (int)HttpStatusCode.BadRequest };
             }
 
-        
+
         }
 
         public async Task<BaseResponse<ICollection<OrderDto>>> GetOrdersByUserId(string userId)
@@ -216,17 +223,18 @@ namespace Services.Concrete
                     var productItem = await _unitOfWork.ProductRepository.GetProductItem(item.ProductItemId);
                     var reviewCheckoutReviewItem = new ReviewCheckoutItem();
 
-                    if(productItem == null) {
+                    if (productItem == null)
+                    {
                         throw new ApiException($"Product item not found")
                         { StatusCode = (int)HttpStatusCode.NotFound };
                     }
                     decimal discountAmount = 0;
-                    if (productItem.Product.Discount!= null)
+                    if (productItem.Product.Discount != null)
                     {
                         var discount = productItem.Product.Discount;
-                        if(discount.Status == DiscountStatus.ACTIVE && discount.DateStart <= DateTime.Now && discount.DateEnd >= DateTime.Now)
+                        if (discount.Status == DiscountStatus.ACTIVE && discount.DateStart <= DateTime.Now && discount.DateEnd >= DateTime.Now)
                         {
-                           
+
                             if (item.Quantity * productItem.Product.Price >= discount.MinimumPurchase)
                             {
 
@@ -274,20 +282,20 @@ namespace Services.Concrete
             try
             {
                 var order = await _unitOfWork.OrderRepository.GetOrderDetail(request.Id);
-                if(order == null)
+                if (order == null)
                 {
                     throw new ApiException($"Not found")
                     { StatusCode = (int)HttpStatusCode.NotFound };
                 }
-                if(order.Status == OrderStatus.COMPLETED || order.Status == OrderStatus.CANCELLED)
+                if (order.Status == OrderStatus.COMPLETED || order.Status == OrderStatus.CANCELLED)
                 {
 
                     throw new ApiException($"Cannot update status of a completed or cancelled order")
                     { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
-                if(request.Status == OrderStatus.CANCELLED)
+                if (request.Status == OrderStatus.CANCELLED)
                 {
-                    foreach(var orderItem in order.OrderItems)
+                    foreach (var orderItem in order.OrderItems)
                     {
                         var product = orderItem.Product;
                         product.Quantity += orderItem.Quantity;
@@ -301,7 +309,7 @@ namespace Services.Concrete
                 order.Status = request.Status;
                 order.DateUpdate = DateTime.UtcNow;
                 order = await _unitOfWork.Repository<Application.DAL.Models.Order>().Update(order);
-                if(order == null )
+                if (order == null)
                 {
 
                     await _context.Database.RollbackTransactionAsync();
@@ -312,7 +320,7 @@ namespace Services.Concrete
                 await _context.Database.CommitTransactionAsync();
                 return new BaseResponse<string>("Order status updated successfully");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await _context.Database.RollbackTransactionAsync();
                 throw new ApiException($"Internal server error: {ex.Message}")
@@ -337,8 +345,8 @@ namespace Services.Concrete
                 var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == order.UserId);
                 await _emailService.SendAsync(new EmailRequest
                 {
-                    To = user.Email, // Set the recipient email address here
-                    From = "nguyendinh.viet2002np@gmail.com", // Set the sender email address here
+                    To = user?.Email, // Set the recipient email address here
+                    From = _mailSetting.SmtpUser, // Set the sender email address here
                     Subject = "ShopTV. Hóa đơn mới cho đơn hàng của quý khách đã được tạo",
                     Body = GenerateHtmlBody(order), // Specify that the email body is HTML
                 });
@@ -348,28 +356,28 @@ namespace Services.Concrete
         public async Task<bool> CheckOrderBeforeCreate(OrderRequest request)
         {
 
-           
-                foreach (var orderItem in request.Items)
+
+            foreach (var orderItem in request.Items)
+            {
+                var product = await _unitOfWork.ProductRepository.GetProductItem(orderItem.ProductItemId);
+                if (product == null)
                 {
-                    var product = await _unitOfWork.ProductRepository.GetProductItem(orderItem.ProductItemId);
-                    if (product == null)
-                    {
-                        throw new ApiException($"Internal server error: Product item is null or empty")
-                        { StatusCode = (int)HttpStatusCode.BadRequest };
-                    }
-                    product.Quantity -= orderItem.Quantity;
-                    product.Product.ProductQuantity -= orderItem.Quantity;
-                    if (product.Product.ProductQuantity < 0 || product.Product.ProductQuantity < 0)
-                    {
+                    throw new ApiException($"Internal server error: Product item is null or empty")
+                    { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                product.Quantity -= orderItem.Quantity;
+                product.Product.ProductQuantity -= orderItem.Quantity;
+                if (product.Product.ProductQuantity < 0 || product.Product.ProductQuantity < 0)
+                {
                     throw new ApiException($"Internal server error: Product quantity is not enough ")
                     { StatusCode = (int)HttpStatusCode.BadRequest };
 
-                    }
                 }
-
-
-                return true;
             }
+
+
+            return true;
+        }
         public async Task<bool> RemoveOrder(Guid orderId)
         {
             try
@@ -381,17 +389,18 @@ namespace Services.Concrete
                     { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
                 return rs;
-            }catch (Exception ex)
-            {
-              
-                    throw new ApiException($"Internal server error: {ex.Message}")
-                    { StatusCode = (int)HttpStatusCode.BadRequest };
-                
             }
-         
+            catch (Exception ex)
+            {
+
+                throw new ApiException($"Internal server error: {ex.Message}")
+                { StatusCode = (int)HttpStatusCode.BadRequest };
+
+            }
+
 
         }
-        public async Task<(ICollection<OrderDetailDto>,int)> GetListOrderByDate(DateTime date, int pageSize, int pageNumber)
+        public async Task<(ICollection<OrderDetailDto>, int)> GetListOrderByDate(DateTime date, int pageSize, int pageNumber)
         {
             var (orders, count) = await _unitOfWork.OrderRepository.GetListOrderByDate(date, pageSize, pageNumber);
             if (orders == null)
@@ -434,7 +443,7 @@ namespace Services.Concrete
                     ProductId = oi.Product.ProductId,
 
                     ProductName = oi?.Product?.Product?.Name ?? null,
-                    Image = oi?.Product?.ProductImages?.Count>0 ? oi?.Product.ProductImages.First().Url : null,
+                    Image = oi?.Product?.ProductImages?.Count > 0 ? oi?.Product.ProductImages.First().Url : null,
                     ColorItem = oi?.Product?.Color != null ? new OrderDetailDto.OrderItem.ProductItem.Color
                     {
                         Id = oi.Product.Color.Id,
@@ -462,33 +471,166 @@ namespace Services.Concrete
         }
         private string GenerateHtmlBody(Application.DAL.Models.Order order)
         {
+            // Tạo phần đầu của HTML
             var html = new StringBuilder();
-            html.AppendLine("<html>");
-            html.AppendLine("<body>");
-            html.AppendLine("<h2>Đơn hàng mới</h2>");
-            html.AppendLine("<p>Cảm ơn bạn đã đặt hàng. Dưới đây là thông tin đơn hàng của bạn.</p>");
+            html.Append(@$"<!DOCTYPE html>
+<html lang=""vi"">
+<head>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <title>Phản hồi yêu cầu của bạn</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }}
+        .email-container {{
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }}
+        .email-header {{
+            background-color: #005c29;
+            color: #ffffff;
+            padding: 10px;
+            text-align: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }}
+        .email-body {{
+            padding: 20px;
+            color: #333333;
+        }}
+        .email-footer {{
+            text-align: center;
+            padding: 10px;
+            background-color: #005c29;
+            color: #ffffff;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }}
+        .button {{
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            color: #ffffff;
+            background-color: #005c29;
+            text-decoration: none;
+            border-radius: 5px;
+        }}
+        .button:hover {{
+            background-color: #002244;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }}
+        th, td {{
+            border: 1px solid #dddddd;
+            padding: 8px;
+            text-align: left;
+        }}
+        th {{
+            background-color: #f4f4f4;
+        }}
+        .total {{
+            font-weight: bold;
+        }}
+        .product-image {{
+            width: 100px; /* Adjust size as needed */
+            height: auto;
+        }}
+    </style>
+</head>
+<body>
+    <div class=""email-container"">
+        <div class=""email-header"">
+            <h1>TVfurni Shop</h1>
+        </div>
+        <div class=""email-body"">
+            <p>Xin chào Anh (Chị) {order.RecipientName},</p>
+            <p>Cảm ơn Anh (Chị) đã ủng hộ của hàng! Dưới đây là thông tin chi tiết về đơn hàng của Anh (Chị):</p>
+            <h2>Thông Tin Hóa Đơn</h2>
+            <table>
+                <tr>
+                    <th>Số Hóa Đơn</th>
+                    <td>{order.Id}</td>
+                </tr>
+                <tr>
+                    <th>Ngày Hóa Đơn</th>
+                    <td>{order.DateCreate.Date:dd/MM/yyyy}</td>
+                </tr>
+                <tr>
+                    <th>Địa Chỉ Giao Hàng</th>
+                    <td>{order.Address}</td>
+                </tr>
+            </table>
 
-            html.AppendLine("<h3>Thông tin đơn hàng</h3>");
-            html.AppendLine("<ul>");
-            html.AppendLine($"<li><strong>Mã hóa đơn:</strong> {order.Id}</li>");
-            html.AppendLine($"<li><strong>Loại hóa đơn:</strong> {order.OrderType}</li>");
-            html.AppendLine($"<li><strong>Địa chỉ:</strong> {order.Address}</li>");
-            html.AppendLine($"<li><strong>Số điện thoại:</strong> {order.Phone}</li>");
-            html.AppendLine($"<li><strong>Tên người nhận:</strong> {order.RecipientName}</li>");
-            html.AppendLine($"<li><strong>Tổng phụ:</strong> {order.SubTotal.ToString("#,##0")} VNĐ</li>");
-            html.AppendLine($"<li><strong>Tổng cộng:</strong> {order.Total.ToString("#,##0")} VNĐ</li>");
-            html.AppendLine("</ul>");
-            html.AppendLine("<p>Phương thức vận chuyển và phí vận chuyển của đơn hàng sẽ được cập nhật sau khi nhân viên liên hệ và thống nhất lại với bạn.</p>");
-            html.AppendLine("<p>Chúng tôi sẽ xử lý đơn đặt hàng của bạn trong thời gian ngắn.</p>");
-            html.AppendLine("</body>");
-            html.AppendLine("</html>");
+            <h2>Chi Tiết Đơn Hàng</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hình Ảnh Sản Phẩm</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Số Lượng</th>
+                        <th>Giá</th>
+                        <th>Tổng Cộng</th>
+                    </tr>
+                </thead>
+                <tbody>");
+
+            // Duyệt qua danh sách sản phẩm trong đơn hàng
+            foreach (var item in order.OrderItems)
+            {
+                html.Append($@"
+                    <tr>
+                        <td><img src=""{item?.Product?.ProductImages?.First().Url}"" alt=""item"" class=""product-image""></td>
+                        <td>{item?.Product?.Product?.Name}</td>
+                        <td>{item?.Quantity}</td>
+                        <td>₫{item?.Price:N0}</td>
+                        <td>₫{(item?.Price * item?.Quantity):N0}</td>
+                    </tr>");
+            }
+
+
+            html.Append($@"
+                </tbody>
+                <tfoot>
+                     <tr>
+                        <td colspan=""4"" class=""total"">Tổng Cộng</td>
+                        <td class=""total"">₫{order.SubTotal:N0}</td>
+                    </tr>
+                    <tr>
+                        <td colspan=""4"" class=""total"">Tổng Cộng</td>
+                        <td class=""total"">₫{order.TotalDiscount:N0}</td>
+                    </tr>
+                    <tr>
+                        <td colspan=""4"" class=""total"">Thành tiền</td>
+                        <td class=""total"">₫{order.Total:N0}</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+            <p>Email: support@furnishop.com<br>Điện thoại: (123) 456-7890</p>
+            <p>Trân trọng,</p>
+            <p>Đội ngũ Furni Shop</p>
+            <a href=""https://furnishop.com"" class=""button"">Truy Cập Trang Web Của Chúng Tôi</a>
+        </div>
+        <div class=""email-footer"">
+            <p>&copy; 2024 Furni Shop. Bảo lưu tất cả các quyền.</p>
+        </div>
+    </div>
+</body>
+</html>");
 
             return html.ToString();
         }
     }
-
-
-
-  
-
 }
