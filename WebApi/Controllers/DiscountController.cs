@@ -39,10 +39,9 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpPost("{id}")]
-        [Cache]
-
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [Authorize(Policy = Permissions.Discount.Read)]
+        [Cache]
         public async Task<IActionResult> GetDiscount(Guid id)
         {
             if (id == Guid.Empty)
@@ -54,7 +53,6 @@ namespace WebApi.Controllers
         }
         [HttpPost("list")]
         [Cache]
-
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [Authorize(Policy = Permissions.Discount.Read)]
         public async Task<IActionResult> GetDiscounts(int pageNumber =1, int pageSize = 10)

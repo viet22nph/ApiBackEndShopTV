@@ -1,8 +1,11 @@
 ﻿using Caching;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Models.DTOs.Order;
+using Models.Settings;
 using Org.BouncyCastle.Crypto.Engines;
 using Services.Interfaces;
 using WebApi.Attributes;
@@ -11,6 +14,7 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
