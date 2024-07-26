@@ -14,10 +14,14 @@ namespace Models.Models
     public class ApplicationUser: IdentityUser
     {
         public string? Address { get; set; }
-        [JsonIgnore]
+        public string? FullName { get; set; }
+        public string DislayName { get; set; }
 
+        public string? Province { get; set; }
+        public string? District { get; set; }
+        public string? Ward { get; set; }
         public virtual ICollection<Review>? Reviews { get; set; }
-        [JsonIgnore]
+
 
         public virtual ICollection<Order>? Order { get; set; }
 

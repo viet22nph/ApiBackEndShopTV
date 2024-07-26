@@ -63,6 +63,31 @@ namespace Services.AccountServices
             _context = context;
 
         }
+
+        public async Task<BaseResponse<InfoUser>> GetInfoUser(string id)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(id);
+            if(user == null)
+            {
+                throw new ApiException($"Not found user id '{id}'.") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+            var infoUser = new InfoUser
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Address = user.Address,
+                Email = user.Email,
+                UserName = user.UserName,
+                Phone =  user.PhoneNumber,
+                DisplayName = user.DislayName,
+                Province = user.Province,
+                District = user.District,
+                Ward = user.Ward
+
+            };
+            return new BaseResponse<InfoUser>(infoUser, "Info user");
+        }
+
         public async Task<BaseResponse<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request)
         {
             ApplicationUser user = await _userManager.FindByEmailAsync(request.UserNameOrEmail.Trim());
@@ -75,7 +100,7 @@ namespace Services.AccountServices
 
                 }
             }
-           
+            
 
             SignInResult signInResult = await _signInManager.PasswordSignInAsync(user, request.Password, false, lockoutOnFailure: false);
             if (!signInResult.Succeeded)
@@ -90,6 +115,7 @@ namespace Services.AccountServices
             response.JWToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             response.Email = user.Email;
             response.UserName = user.UserName;
+            response.DisplayName = user.DislayName;
             IList<string> rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             response.Roles = rolesList.ToList();
             response.IsVerified = user.EmailConfirmed;
@@ -287,7 +313,7 @@ namespace Services.AccountServices
             response.Id = user.Id.ToString();
             response.JWToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             response.Email = user.Email;
-            response.UserName = user.UserName;
+            response.UserName = user.DislayName;
             IList<string> rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             response.Roles = rolesList.ToList();
             response.IsVerified = user.EmailConfirmed;
@@ -313,7 +339,9 @@ namespace Services.AccountServices
             ApplicationUser newUser = new ApplicationUser
             {
                 Email = request.Email,
-                UserName = request.UserName
+                UserName = request.UserName,
+                DislayName = request.Email
+                
             };
             var result = await _userManager.CreateAsync(newUser, request.Password); 
             if (result.Succeeded)
@@ -434,6 +462,38 @@ namespace Services.AccountServices
             return claims;
         }
 
+        public async Task<BaseResponse<string>> UpdateInfoAsync(UpdateInfoRequest payload)
+        {
+            ApplicationUser findUser = await _userManager.FindByIdAsync(payload.Id);
+            
+            if (findUser != null)
+            {
+                if(payload.UserName != findUser.UserName)
+                {
+                    ApplicationUser checkUserName = await _userManager.FindByNameAsync(payload.UserName);
+                    if (checkUserName != null)
+                    {
+                        throw new ApiException($"Username '{payload.UserName}' is already taken.") { StatusCode = (int)HttpStatusCode.BadRequest };
+                    }
+                }
+            }
+            findUser.UserName = payload.UserName;
+            findUser.Address = payload.Address;
+            findUser.FullName = payload.FullName;
+            findUser.PhoneNumber = payload.Phone;
+            findUser.Province = payload.Province;
+            findUser.Ward = payload.Ward;
+            findUser.District = payload.District;
+            var result = await _userManager.UpdateAsync(findUser);
+            if (result.Succeeded)
+            {
+                return new BaseResponse<string>(findUser.Id.ToString(), message: $"User Updated successfully");
+            }
+            else
+            {
+                throw new ApiException($"{result.Errors}") { StatusCode = (int)HttpStatusCode.InternalServerError };
+            }
+        }
         private string GetEmailBody(string username, string newPassword)
         {
             return $@"

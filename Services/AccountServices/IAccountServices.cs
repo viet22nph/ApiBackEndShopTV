@@ -22,5 +22,7 @@ namespace Services.AccountServices
         Task<List<ApplicationUser>> GetUsers();
 
         Task<BaseResponse<AuthenticationResponse>> LoginExternal(ExternalAuthDto request);
+        Task<BaseResponse<string>> UpdateInfoAsync(UpdateInfoRequest payload);
+        Task<BaseResponse<InfoUser>> GetInfoUser(string id);
     }
 }

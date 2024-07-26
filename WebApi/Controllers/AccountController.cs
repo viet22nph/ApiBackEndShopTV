@@ -21,6 +21,13 @@ namespace WebApi.Controllers
         {
             _accountService = accountService;
         }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("user/{id}")]
+        public async Task<IActionResult> GetInfo(string id)
+        {
+            var result = await _accountService.GetInfoUser(id);
+            return Ok(result);
+        }
 
         [HttpPost("authenticate")]
         public async Task<IActionResult> AuthenticateAsync(AuthenticationRequest request)
@@ -76,7 +83,14 @@ namespace WebApi.Controllers
             var result = await _accountService.LoginExternal(externalAuth);
 
             return Ok(result);
-        }
 
+        }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPut("update-user")]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateInfoRequest payload)
+        {
+            var result = await _accountService.UpdateInfoAsync(payload);
+            return Ok(result);
+        }
     }
 }

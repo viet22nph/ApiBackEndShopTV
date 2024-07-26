@@ -604,7 +604,8 @@ namespace Data.SeedData
                     UserName = user.UserName,
                     Email = user.Email,
                     PhoneNumber = user.NumberPhone,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    DislayName = user.UserName
                 };
                 var result = await _userManager.CreateAsync(userdata, user.Password);
                 if (result.Succeeded)
