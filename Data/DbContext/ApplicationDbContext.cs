@@ -24,6 +24,17 @@ namespace Data.Contexts
 
         public void RegisterEntityMapping(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<ApplicationUser>(entity =>
+            {
+                entity.Property(e => e.Address).HasMaxLength(256);
+                entity.Property(e => e.Id).HasMaxLength(50);
+                entity.Property(e => e.Province).HasMaxLength(100);
+                entity.Property(e => e.District).HasMaxLength(100);
+                entity.Property(e => e.Ward).HasMaxLength(100);
+
+                entity.Property(e => e.DislayName).HasMaxLength(100);
+               
+            });
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 var tableName = entityType.GetTableName();

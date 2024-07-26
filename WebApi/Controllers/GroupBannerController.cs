@@ -11,8 +11,6 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Authorize(Policy = Permissions.ManagerBanner.Manager)]
     public class GroupBannerController : ControllerBase
     {
         private readonly IGroupBannerService _groupBannerService;
@@ -43,6 +41,15 @@ namespace WebApi.Controllers
             }
             
             var result = await _groupBannerService.GetDetailGroupBannerAsync(id);
+            return Ok(result);
+        }
+        [HttpGet("groups-banner")]
+        [Cache(5)]
+        public async Task<IActionResult> GetDetailGroupBannerByName(string name)
+        {
+       
+
+            var result = await _groupBannerService.GetDetailGroupBannerByNameAsync(name);
             return Ok(result);
         }
         [HttpPut("toggle-enable/{id}")]

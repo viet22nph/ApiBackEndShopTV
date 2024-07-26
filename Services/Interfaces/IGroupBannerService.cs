@@ -13,5 +13,6 @@ namespace Services.Interfaces
         Task<BaseResponse<ICollection<GroupBannerDto>>> GetGroupBannerAsync();
         Task<BaseResponse<GroupBannerDetailDto>> GetDetailGroupBannerAsync(Guid id);
         Task<BaseResponse<GroupBannerDto>> ToogleEnableAsync(Guid id);
+        Task<BaseResponse<GroupBannerDetailDto>> GetDetailGroupBannerByNameAsync(string name);
     }
 }

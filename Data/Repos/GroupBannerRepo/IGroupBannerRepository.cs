@@ -10,7 +10,7 @@ namespace Data.Repos.GroupBannerRepo
     public interface IGroupBannerRepository
     {
         Task<GroupBanner> GetDetailGroupBannerAsync(Guid id);
-
+        Task<GroupBanner> GetDetailGroupBannerByNameAsync(string name);
 
     }
 }

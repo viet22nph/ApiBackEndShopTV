@@ -52,7 +52,30 @@ namespace Services.Concrete
                 { StatusCode = (int)HttpStatusCode.BadRequest };
             }
         }
+        public async Task<BaseResponse<GroupBannerDetailDto>> GetDetailGroupBannerByNameAsync(string name)
+        {
+            try
+            {
+                var groupBanner = await _unitOfWork.GroupBannerRepository.GetDetailGroupBannerByNameAsync(name);
+                if (groupBanner == null)
+                {
+                    throw new ApiException($"Internal server error: Not found group banner name = `{name}`")
+                    { StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+                if (groupBanner.Banners == null || groupBanner?.Banners?.Count == 0)
+                {
+                    groupBanner.Banners = [];
+                }
+                var groupBannerDto = _mapper.Map<GroupBannerDetailDto>(groupBanner);
+                return new BaseResponse<GroupBannerDetailDto>(groupBannerDto, "Banner detail");
 
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}")
+                { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+        }
         public async Task<BaseResponse<ICollection< GroupBannerDto>>> GetGroupBannerAsync()
         {
             try
@@ -73,7 +96,7 @@ namespace Services.Concrete
             }
 
         }
-
+        
         public async Task<BaseResponse<GroupBannerDto>> ToogleEnableAsync(Guid id)
         {
 

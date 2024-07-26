@@ -21,5 +21,7 @@ namespace Data.Repos.GroupBannerRepo
 
         public async Task<GroupBanner> GetDetailGroupBannerAsync(Guid id)
             => await _context.Set<GroupBanner>().Include(gb => gb.Banners).FirstOrDefaultAsync(gb => gb.Id == id);
+        public async Task<GroupBanner> GetDetailGroupBannerByNameAsync(string name)
+          => await _context.Set<GroupBanner>().Include(gb => gb.Banners).FirstOrDefaultAsync(gb => gb.GroupName == name);
     }
 }
