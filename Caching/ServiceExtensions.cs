@@ -15,8 +15,8 @@ namespace Caching
 
             #region Services
             services.AddScoped(sp => sp.GetService<IOptionsSnapshot<RedisSettings>>().Value);
-            services.AddTransient<IRedisConnectionWrapper, RedisConnectionWrapper>();
-            services.AddTransient<ICacheManager, RedisCacheManager>();
+            services.AddScoped<IRedisConnectionWrapper, RedisConnectionWrapper>();
+            services.AddScoped<ICacheManager, RedisCacheManager>();
             #endregion
 
             return services;

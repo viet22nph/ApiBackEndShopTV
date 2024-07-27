@@ -52,5 +52,16 @@ namespace Caching
         /// <param name="hashField"></param>
         /// <returns>async Type T value</returns>
         Task<long> GetHashAsync(string key, string hashField);
+
+        #region New Methods for Tracking Visits and Searches
+        Task IncrementVisitCountAsync();
+        Task IncrementUniqueVisitorCountAsync(string ip);
+        Task<long> GetVisitCountAsync(DateTime date);
+        Task<long> GetUniqueVisitorCountAsync(DateTime date);
+        Task IncrementProductViewCountAsync(Guid productId);
+        Task<long> GetProductViewCountAsync(Guid productId, DateTime date);
+        Task<long> GetTotalProductViewCountAsync(Guid productId);
+        Task<Dictionary<Guid, long>> GetTopViewedProductsAsync(DateTime startDate, DateTime endDate);
+        #endregion
     }
 }

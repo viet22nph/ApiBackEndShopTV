@@ -1,4 +1,5 @@
 ﻿using Models.DTOs.Order;
+using Models.DTOs.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,4 +41,14 @@ namespace Models.DTOs.Report
         public string ProductName { get; set; }
         public int TotalQuantitySold { get; set; }
     }
+    public class ReportVisited {
+       public string Date { get; set; }
+       public int Count { get; set; }
+    }
+    public class ReportProductView
+    {
+        public ProductResponse Products {  get; set; }
+        public int QuantityView { get; set; }
+    }
+
 }

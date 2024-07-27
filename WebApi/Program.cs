@@ -74,6 +74,7 @@ app.UseCors(MyAllowSpecificOrigins).UseForwardedHeaders();
 app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.UseMiddleware<AuthenticationErrorHandlingMiddleware>();
+app.UseMiddleware<VisitTrackingMiddleware>();
 //Seed
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;

@@ -1,4 +1,6 @@
 ﻿using Application.DAL.Models;
+using AutoMapper;
+using Caching;
 using Data.UnitOfWork;
 using Models.DTOs.Product;
 using Models.DTOs.Report;
@@ -16,12 +18,14 @@ namespace Services.Concrete
     {
 
         private readonly IUnitOfWork _unitOfWork;
-        public ReportService(IUnitOfWork unitOfWork)
+        private readonly ICacheManager _cacheManager;
+        private readonly IMapper _mapper;
+        public ReportService(IUnitOfWork unitOfWork, ICacheManager cacheManager, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _cacheManager = cacheManager;
+            _mapper = mapper;
         }
-
-
         public async Task<SalesOrderSummary> SalesReportSummary(DateTime startDate, DateTime endDate)
         {
             var data = await _unitOfWork.OrderRepository.GetOrderSummary(startDate, endDate);
@@ -50,5 +54,45 @@ namespace Services.Concrete
             }; 
         }
 
+        public async Task<ICollection<ReportVisited>> ReportVisited(DateTime startDate, DateTime endDate)
+        {
+            var reportVisits = new List<ReportVisited>();
+            for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+            {
+                var count = await _cacheManager.GetVisitCountAsync(date);
+                reportVisits.Add(new ReportVisited
+                {
+                    Date = date.ToString("dd-MM-yyyy"),
+                    Count = (int)count
+                });
+            }
+            
+            return reportVisits;
+        }
+        public async Task<ICollection<ReportProductView>> ReportProductView(DateTime startDate, DateTime endDate, int top)
+        {
+            var topViewedProducts = await _cacheManager.GetTopViewedProductsAsync(startDate, endDate);
+            var reportProductView = new List<ReportProductView>();
+            int i = 1;
+            foreach (var product in topViewedProducts)
+            {
+                if(i <= top)
+                {
+                    var data = _mapper.Map<ProductResponse>(await _unitOfWork.ProductRepository.GetProduct(product.Key));
+                    reportProductView.Add(new ReportProductView
+                    {
+                        Products = data,
+                        QuantityView = (int)product.Value
+                    });
+                    i++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return reportProductView;
+
+        }
     }
 }

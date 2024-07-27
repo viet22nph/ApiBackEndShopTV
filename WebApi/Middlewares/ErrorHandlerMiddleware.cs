@@ -45,7 +45,7 @@ namespace WebApi.Middlewares
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;
                         break;
                 }
-                var result = JsonSerializer.Serialize(responseModel);
+                var result = JsonSerializer.Serialize(responseModel.Message);
 
                 await response.WriteAsync(result);
             }

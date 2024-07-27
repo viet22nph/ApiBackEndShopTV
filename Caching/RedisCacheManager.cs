@@ -246,5 +246,89 @@ namespace Caching
             return serializedItem.HasValue ? (long)serializedItem : 0;
         }
 
+
+        #region New Methods for Tracking Visits and Searches
+        public async Task IncrementVisitCountAsync()
+        {
+            var key = $"visits:{DateTime.UtcNow:yyyyMMdd}";
+            await _db.StringIncrementAsync(key);
+        }
+        public async Task IncrementUniqueVisitorCountAsync(string ip)
+        {
+            var key = $"unique_visits:{ip}:{DateTime.UtcNow:yyyyMMdd}";
+            await _db.StringSetAsync(key, DateTime.UtcNow.ToString(), TimeSpan.FromDays(1));
+        }
+        public async Task<long> GetVisitCountAsync(DateTime date)
+        {
+            var key = $"visits:{date:yyyyMMdd}";
+            return (long)await _db.StringGetAsync(key);
+        }
+
+        public async Task<long> GetUniqueVisitorCountAsync(DateTime date)
+        {
+            var server = _connectionWrapper.GetServer(_connectionWrapper.GetEndPoints().First());
+            var pattern = $"unique_visits:*:{date:yyyyMMdd}";
+            var keys = server.Keys(pattern: pattern);
+            return keys.LongCount();
+        }
+
+      
+        public async Task IncrementProductViewCountAsync(Guid productId)
+        {
+            string key = $"productViews:{DateTime.UtcNow:yyyyMMdd}:{productId}";
+            await _db.StringIncrementAsync(key);
+        }
+        public async Task<long> GetProductViewCountAsync(Guid productId, DateTime date)
+        {
+            string key = $"productViews:{date:yyyyMMdd}:{productId}";
+            var count = await _db.StringGetAsync(key);
+            return count.HasValue ? (long)count : 0;
+        }
+        public async Task<long> GetTotalProductViewCountAsync(Guid productId)
+        {
+            long totalCount = 0;
+            var keys = _db.Multiplexer.GetServer(_db.Multiplexer.GetEndPoints().First()).Keys(pattern: $"productViews:*:{productId}");
+
+            foreach (var key in keys)
+            {
+                var count = await _db.StringGetAsync(key);
+                totalCount += count.HasValue ? (long)count : 0;
+            }
+
+            return totalCount;
+        }
+        public async Task<Dictionary<Guid, long>> GetTopViewedProductsAsync(DateTime startDate, DateTime endDate)
+        {
+            var productViewCounts = new Dictionary<Guid, long>();
+
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                var keys = _db.Multiplexer.GetServer(_db.Multiplexer.GetEndPoints().First()).Keys(pattern: $"productViews:{date:yyyyMMdd}:*");
+
+                foreach (var key in keys)
+                {
+                    var keyParts = key.ToString().Split(':');
+                    if (keyParts.Length == 3 && Guid.TryParse(keyParts[2], out var productId))
+                    {
+                        var count = await _db.StringGetAsync(key);
+                        if (count.HasValue)
+                        {
+                            if (productViewCounts.ContainsKey(productId))
+                            {
+                                productViewCounts[productId] += (long)count;
+                            }
+                            else
+                            {
+                                productViewCounts[productId] = (long)count;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Sắp xếp các sản phẩm theo số lượt xem giảm dần
+            return productViewCounts.OrderByDescending(p => p.Value).ToDictionary(p => p.Key, p => p.Value);
+        }
+        #endregion
     }
 }

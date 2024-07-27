@@ -136,6 +136,7 @@ namespace WebApi.Controllers
                 return BadRequest("Id not null or empty");
             }
             var result = await _productService.GetProduct(id);
+            await _cacheManager.IncrementProductViewCountAsync(id);
             return Ok(result);
         }
 

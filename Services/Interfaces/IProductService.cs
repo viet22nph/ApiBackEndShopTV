@@ -29,5 +29,6 @@ namespace Services.Interfaces
         Task RemoveProductSpecification(Guid id);
         Task<BaseResponse<string>> updateProductDiscount(Guid ProductId, Guid? DiscountId);
         Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductsIsPublishByPrice(decimal fromPrice, decimal toPrice, int pageNumber, int pageSize);
+        
     }
 }

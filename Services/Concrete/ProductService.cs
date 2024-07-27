@@ -86,8 +86,6 @@ namespace Services.Concrete
         {
             try
             {
-
-
                 var product = await _unitOfWork.ProductRepository.GetProduct(id);
                 if (product == null)
                 {
