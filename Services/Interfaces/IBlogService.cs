@@ -17,5 +17,6 @@ namespace Services.Interfaces
         Task<BaseResponse<BlogDto>> UpdateBlogAsync(UpdateBlogRequestDto payload);
         Task<(BaseResponse<ICollection<BlogDto>>, int)> GetBlogByGroupIdAsync(Guid id, int pageNumber, int pageSize);
         Task<(BaseResponse<ICollection<BlogDto>>, int)> GetBlogByTagIdAsync(Guid id, int pageNumber, int pageSize);
+        Task<BaseResponse<BlogDto>> GetBlogByIdAsync(Guid id);
     }
 }

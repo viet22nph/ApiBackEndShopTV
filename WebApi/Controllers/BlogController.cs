@@ -28,12 +28,12 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         [HttpGet()]
-        public async Task<IActionResult> GetBlogs(int pageNumber=  1, int pageSize = 20)
+        public async Task<IActionResult> GetBlogs(int pageNumber = 1, int pageSize = 20)
         {
-            if(pageNumber < 1) {
+            if (pageNumber < 1) {
                 pageNumber = 1;
             }
-            if(pageSize <1)
+            if (pageSize < 1)
             {
                 pageSize = 20;
             }
@@ -55,7 +55,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> RemoveBlog(Guid id)
         {
             var checkRm = await _blogService.RemoveBlogAsync(id);
-            if(!checkRm)
+            if (!checkRm)
             {
                 return BadRequest(new
                 {
@@ -74,7 +74,7 @@ namespace WebApi.Controllers
             return Ok(data);
         }
         [HttpGet("blog-group/{id}")]
-        public async Task<IActionResult> GetBlogsByGroupId(Guid id ,int pageNumber = 1, int pageSize = 20)
+        public async Task<IActionResult> GetBlogsByGroupId(Guid id, int pageNumber = 1, int pageSize = 20)
         {
             if (pageNumber < 1)
             {
@@ -84,7 +84,7 @@ namespace WebApi.Controllers
             {
                 pageSize = 20;
             }
-            var (data, count) = await _blogService.GetBlogByGroupIdAsync(id,pageNumber, pageSize);
+            var (data, count) = await _blogService.GetBlogByGroupIdAsync(id, pageNumber, pageSize);
             return Ok(new
             {
                 message = data.Message,
@@ -116,6 +116,12 @@ namespace WebApi.Controllers
                 count
             });
 
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetBlog(Guid id)
+        {
+            var data = await _blogService.GetBlogByIdAsync(id);
+            return Ok(data);
         }
 
     }

@@ -2,6 +2,7 @@
 using Core.Exceptions;
 using Data.Contexts;
 using Data.UnitOfWork;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Models.DTOs.Blog;
 using Models.DTOs.Blog.Request;
 using Models.DTOs.Cart;
@@ -9,6 +10,7 @@ using Models.Models;
 using Models.ResponseModels;
 using Services.Interfaces;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -168,6 +170,28 @@ namespace Services.Concrete
             var blogsDto = _mapper.Map<List<BlogDto>>(blogs);
             return (new BaseResponse<ICollection<BlogDto>>(blogsDto, "Blogs"), count);
         }
+        public async Task<BaseResponse<BlogDto>> GetBlogByIdAsync(Guid id)
+        {
+            
+
+            var blog = await _unitOfWork.BlogRepository.GetBlogByIdAsync(id);
+            if(blog == null)
+            {
+                throw new ApiException($"Blog not found with id = {id}")
+                {
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+
+            }
+            var blogDto = _mapper.Map<BlogDto>(blog);
+
+            return new BaseResponse<BlogDto>
+            {
+                Data = blogDto,
+                Message = "Blog updated successfully"
+            };
+        }
+
         public async Task<BaseResponse<BlogDto>> UpdateBlogAsync(UpdateBlogRequestDto payload)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
