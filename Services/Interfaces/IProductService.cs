@@ -27,7 +27,7 @@ namespace Services.Interfaces
         Task<(ICollection<ProductResponse>, int)> QueryProduct(string query, int limit, int offset);
         Task RemoveProductItem(Guid id);
         Task RemoveProductSpecification(Guid id);
-
         Task<BaseResponse<string>> updateProductDiscount(Guid ProductId, Guid? DiscountId);
+        Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductsIsPublishByPrice(decimal fromPrice, decimal toPrice, int pageNumber, int pageSize);
     }
 }

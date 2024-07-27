@@ -181,7 +181,21 @@ namespace Services.Concrete
             }
 
         }
+        public async Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductsIsPublishByPrice(decimal fromPrice, decimal toPrice, int pageNumber, int pageSize )
+        {
+            try
+            {
+                var (products, count) = await _unitOfWork.ProductRepository.GetProductIsPublicByPrice(fromPrice, toPrice, pageNumber, pageSize);
 
+                var res = await mapProductAsync(products);
+                return (new BaseResponse<ICollection<ProductResponse>>(res, "Products"), count);
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+
+        }
 
         public async Task<BaseResponse<ProductDto>> UpdateProduct(Guid id, ProductUpdateRequest request)
         {
@@ -627,9 +641,6 @@ namespace Services.Concrete
                     throw new ApiException($"Update product is failed with discount id ={productId} ") { StatusCode = (int)HttpStatusCode.BadRequest };
                 }
                 return new BaseResponse<string>("Update success");
-
-            
-
         }
     }
 }

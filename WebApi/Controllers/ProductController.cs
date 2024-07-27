@@ -111,6 +111,21 @@ namespace WebApi.Controllers
                 total = total
             });
         }
+        [HttpPost("list-publish-to-price")]
+        [Cache]
+        public async Task<IActionResult> GetProductsIsPublishPrice(decimal fromPrice, decimal toPrice,int pageNumber = 1, int pageSize = 10)
+        {
+            var (result, total) = await _productService.GetProductsIsPublishByPrice(fromPrice, toPrice,pageNumber, pageSize);
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data,
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                total = total
+            });
+        }
         [Cache(1)]
         [AllowAnonymous]
         [HttpPost("{id}")]
