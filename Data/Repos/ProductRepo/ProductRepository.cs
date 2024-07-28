@@ -4,17 +4,12 @@ using Core.Extensions;
 using Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SqlServer.Server;
-using Models.DTOs.Product;
 using Models.Enums;
 using Models.Status;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Models.Settings.Permissions;
+using Category = Application.DAL.Models.Category;
+using Product = Application.DAL.Models.Product;
 
 namespace Data.Repos.ProductRepo
 {
@@ -302,7 +297,27 @@ namespace Data.Repos.ProductRepo
             {
                 return ResultRemoveItemEnums.CanNotDelete;
             }
-           
+        }
+
+        public async Task<(ICollection<Product>, int)> GetProductsOfTheSameCategory(Guid productId, int pageNumber, int pageSize )
+        {
+            var product = await _context.Set<Product>().FirstOrDefaultAsync(x => x.Id == productId);
+            int count = await _context.Set<Product>().Where(x=> product.CategoryId   == x.CategoryId && x.Id != product.Id && x.IsPublished == true).CountAsync();
+            var products = await _context.Set<Product>()
+               .Include(p => p.ProductSpecifications)
+            .Include(p => p.ProductItems)
+                .ThenInclude(pi => pi.ProductImages)
+            .Include(p => p.ProductItems)
+                .ThenInclude(pi => pi.Color)
+            .Include(p => p.Category)
+            .Include(p => p.Supplier)
+            .Include(p => p.Discount)
+            .OrderByDescending(p => p.DateCreate)
+            .Where(x => product.CategoryId == x.CategoryId && x.Id != product.Id && x.IsPublished == true)
+            .Skip((pageNumber - 1) * pageSize).Take(pageSize)
+            .ToListAsync();
+
+            return (products, count);
         }
     }
 }

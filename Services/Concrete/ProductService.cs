@@ -640,5 +640,20 @@ namespace Services.Concrete
                 }
                 return new BaseResponse<string>("Update success");
         }
+         
+        public async Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductsOfTheSameCategoryAsync(Guid productId, int pageNumber, int pageSize)
+        {
+            var product = await _unitOfWork.Repository<Product>().GetById(productId);
+            if(product == null)
+            {
+                throw new ApiException($"Not found product id ={productId} ") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+
+            var (products, count) = await _unitOfWork.ProductRepository.GetProductsOfTheSameCategory(productId, pageNumber, pageSize);
+
+            var res = await mapProductAsync(products);
+            return (new BaseResponse<ICollection<ProductResponse>>(res, "Products"), count);
+
+        }
     }
 }

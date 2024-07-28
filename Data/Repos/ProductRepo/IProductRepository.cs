@@ -25,5 +25,6 @@ namespace Data.Repos.ProductRepo
         Task<ICollection<Product>> QueryProductAsync(string query);
         Task<ResultRemoveItemEnums> RemoveProductItem(Guid id);
         Task<(ICollection<Product>, int)> GetProductIsPublicByPrice(decimal fromPrice, decimal toPrice, int pageNumber, int pageSize);
+        Task<(ICollection<Product>, int)> GetProductsOfTheSameCategory(Guid productId, int pageNumber, int pageSize);
     }
 }
