@@ -91,9 +91,9 @@ namespace Data.Repos.ProductRepo
              .ToListAsync();
             return (product, count);
         }
-        public async Task<(ICollection<Product>, int)> GetProductIsPublicByPrice(decimal fromPrice, decimal fromTo, int pageNumber, int pageSize)
+        public async Task<(ICollection<Product>, int)> GetProductIsPublicByPrice(decimal fromPrice, decimal toPrice, int pageNumber, int pageSize)
         {
-            var count = await _context.Set<Product>().Where(x => x.IsPublished == true && x.Price >= fromTo && x.Price <= fromPrice).CountAsync();
+            var count = await _context.Set<Product>().Where(x => x.IsPublished == true && x.Price >= fromPrice && x.Price <= toPrice).CountAsync();
             var product = await _context.Set<Product>()
              .Include(p => p.ProductSpecifications)
           .Include(p => p.ProductItems)
@@ -103,7 +103,7 @@ namespace Data.Repos.ProductRepo
           .Include(p => p.Category)
           .Include(p => p.Supplier)
           .Include(p => p.Discount)
-          .Where(p => p.IsPublished == true && p.Price >= fromTo && p.Price <= fromPrice)
+          .Where(p => p.IsPublished == true && p.Price >= fromPrice && p.Price <= toPrice)
           .Skip((pageNumber - 1) * pageSize)
           .Take(pageSize)
           .ToListAsync();
