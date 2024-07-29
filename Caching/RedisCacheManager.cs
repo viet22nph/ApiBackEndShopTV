@@ -303,27 +303,33 @@ namespace Caching
 
             for (var date = startDate; date <= endDate; date = date.AddDays(1))
             {
-                var keys = _db.Multiplexer.GetServer(_db.Multiplexer.GetEndPoints().First()).Keys(pattern: $"productViews:{date:yyyyMMdd}:*");
-
-                foreach (var key in keys)
+                foreach (var endPoint in _connectionWrapper.GetEndPoints())
                 {
-                    var keyParts = key.ToString().Split(':');
-                    if (keyParts.Length == 3 && Guid.TryParse(keyParts[2], out var productId))
+                    var keys = GetKeys(endPoint, $"productViews:{date:yyyyMMdd}:*");
+
+                    foreach (var key in keys)
                     {
-                        var count = await _db.StringGetAsync(key);
-                        if (count.HasValue)
+                        var keyParts = key.ToString().Split(':');
+                        if (keyParts.Length == 3 && Guid.TryParse(keyParts[2], out var productId))
                         {
-                            if (productViewCounts.ContainsKey(productId))
+                            var count = await _db.StringGetAsync(key);
+                            if (count.HasValue)
                             {
-                                productViewCounts[productId] += (long)count;
-                            }
-                            else
-                            {
-                                productViewCounts[productId] = (long)count;
+                                if (productViewCounts.ContainsKey(productId))
+                                {
+                                    productViewCounts[productId] += (long)count;
+                                }
+                                else
+                                {
+                                    productViewCounts[productId] = (long)count;
+                                }
                             }
                         }
-                    }
+                    };
                 }
+              
+
+             
             }
 
             // Sắp xếp các sản phẩm theo số lượt xem giảm dần
