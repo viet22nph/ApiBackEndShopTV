@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Exceptions;
+using Core.Helpers;
 using Data.Contexts;
 using Data.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +45,9 @@ namespace Services.Concrete
                 var blogGroup = new BlogGroup
                 {
                     Name = payload.Name,
-                    Description = payload.Description
+                    Description = payload.Description,
+                    Slug =  Helper.CreateSlug(payload.Name)
+
                 };
                 var blogGroupInsert = await _unitOfWork.Repository<BlogGroup>().Insert(blogGroup);
                 if (blogGroupInsert == null)
@@ -92,6 +95,7 @@ namespace Services.Concrete
 
                 blogGroup.Name = payload.Name;
                 blogGroup.Description = payload.Description;
+                blogGroup.Slug = Helper.CreateSlug(payload.Name);
 
                 await _unitOfWork.Repository<BlogGroup>().Update(blogGroup);
 

@@ -19,6 +19,8 @@ namespace Data.Mapping
             builder.Property(x => x.Name).HasMaxLength(30).IsRequired();
             builder.HasIndex(x => x.Name).IsUnique();
             builder.HasMany(x => x.Blogs).WithOne(y => y.BlogGroup).HasForeignKey(x => x.BlogGroupId);
+            builder.Property(x => x.Slug).IsRequired();
+            builder.HasIndex(x => x.Slug).IsUnique();
             builder.Property(r => r.DateCreate)
            .HasColumnType("DateTime")
            .HasDefaultValueSql("GetUtcDate()");

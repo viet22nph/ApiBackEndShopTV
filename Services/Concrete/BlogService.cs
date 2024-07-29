@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Exceptions;
+using Core.Helpers;
 using Data.Contexts;
 using Data.UnitOfWork;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -64,7 +65,8 @@ namespace Services.Concrete
                     BlogGroupId = payload.BlogGroupId,
                     BlogGroup = blogGroup,
                     Author = auth,
-                    TagBlogs = new List<TagBlog>()
+                    TagBlogs = new List<TagBlog>(),
+                    Slug = Helper.CreateSlug(payload.Title)
                 };
 
                 // check tag if tag not exsits -> insert
@@ -77,7 +79,7 @@ namespace Services.Concrete
                         if (tag == null)
                         {
 
-                            tag = await _unitOfWork.Repository<Tag>().Insert(new Tag { TagTitle = tagItem });
+                            tag = await _unitOfWork.Repository<Tag>().Insert(new Tag { TagTitle = tagItem, Slug = Helper.CreateSlug(tagItem) });
                             if (tag == null)
                             {
                                 // rollback
@@ -235,7 +237,7 @@ namespace Services.Concrete
                 blog.BlogGroupId = payload.BlogGroupId;
                 blog.BlogGroup = blogGroup;
                 blog.Author = auth;
-
+                blog.Slug = Helper.CreateSlug(payload.Title);
                 // Update tags
                 var existingTags = blog.TagBlogs.ToList();
                 blog.TagBlogs.Clear();
@@ -247,7 +249,7 @@ namespace Services.Concrete
                         var tag = await _unitOfWork.Repository<Tag>().Find(x => x.TagTitle == tagItem);
                         if (tag == null)
                         {
-                            tag = new Tag { TagTitle = tagItem };
+                            tag = new Tag { TagTitle = tagItem , Slug = Helper.CreateSlug(tagItem)};
                             await _unitOfWork.Repository<Tag>().Insert(tag);
                         }
 

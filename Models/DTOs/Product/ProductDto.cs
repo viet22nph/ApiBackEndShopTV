@@ -17,7 +17,8 @@ namespace Models.DTOs.Product
         public decimal Price { get; set; }
         public string CategoryName { get; set; }
         public string SupplierName { get; set; }
-        
+
+        public string Slug { get; set; }
         public ICollection<ProductSpecificationDto>? ProductSpecifications { get; set; }
         public ICollection<ProductItemDto>? ProductItems { get; set; }
 
@@ -34,10 +35,12 @@ namespace Models.DTOs.Product
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string Slug { get; set; }
         public string? Description { get; set; }
         public int ProductQuantity { get; set; }
         public string? ProductBrand { get; set; }
         public decimal Price { get; set; }
+
         public CategoryProduct Category { get; set; }
         public SupplierProduct? Supplier { get; set; }
         public string Image { get; set; }

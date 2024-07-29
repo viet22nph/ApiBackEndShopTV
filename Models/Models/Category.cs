@@ -14,6 +14,7 @@ namespace Application.DAL.Models
         public Guid? CategoryParent { get; set; }
         public string? Description { get; set; }
         public string NomalizedName { get; set; }
+        public string Slug { get; set; }
         [JsonIgnore]
 
         public virtual  Category CategoryParentNavigation { get; set; }

@@ -11,5 +11,6 @@ namespace Models.DTOs.Tag
         public Guid Id { get; set; }
         public string TagTitle { get; set; }
         public DateTime DateCreate { get; set; }
+        public string Slug { get; set; }
     }
 }

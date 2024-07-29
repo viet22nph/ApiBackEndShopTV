@@ -9,6 +9,7 @@ namespace Models.Models
         public string Title { get; set; }
         public string Content { get; set; }
         public string AuthorId { get; set; }
+        public string Slug {  get; set; }
         public Guid BlogGroupId { get; set; }
         public BlogGroup BlogGroup { get; set; }
         public ApplicationUser Author { get; set; }

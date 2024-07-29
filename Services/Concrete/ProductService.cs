@@ -2,6 +2,7 @@
 using AutoMapper;
 using Caching;
 using Core.Exceptions;
+using Core.Helpers;
 using Data.Contexts;
 using Data.Repos.ProductRepo;
 using Data.UnitOfWork;
@@ -67,6 +68,7 @@ namespace Services.Concrete
             try
             {
                 var product = _mapper.Map<Product>(request);
+                product.Slug = Helper.CreateSlug(product.Name);
                 product.NormalizedName = product.Name.ToUpper();
                 product.Id = Guid.NewGuid();
                 product = await _unitOfWork.Repository<Product>().Insert(product);
@@ -207,6 +209,7 @@ namespace Services.Concrete
                 }
                 EntityUpdater.UpdateIfNotNull(request.Name, value => product.Name = value);
                 product.NormalizedName = product.Name.ToUpper();
+                product.Slug = Helper.CreateSlug(product.Name);
                 EntityUpdater.UpdateIfNotNull(request.Description, value => product.Description = value);
                 EntityUpdater.UpdateIfNotNull(request.ProductQuantity, value => product.ProductQuantity = value);
                 EntityUpdater.UpdateIfNotNull(request.ProductBrand, value => product.ProductBrand = value);

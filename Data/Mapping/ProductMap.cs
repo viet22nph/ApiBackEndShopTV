@@ -18,7 +18,9 @@ namespace Data.Mapping
             builder.HasKey(p => p.Id);
             builder.Property(p=>p.Name).HasMaxLength(255);
             builder.Property(p=> p.ProductBrand).HasMaxLength(255);
-
+            builder.HasIndex(p => p.Name).IsUnique();
+            builder.Property(x => x.Slug).IsRequired();
+            builder.HasIndex(x => x.Slug).IsUnique();
             // sup
             builder
                 .HasOne(p => p.Supplier)

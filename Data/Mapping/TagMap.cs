@@ -13,7 +13,10 @@ namespace Data.Mapping
             builder.HasKey(x => x.Id);
             builder.Property(x => x.TagTitle).HasMaxLength(300).IsRequired();
             builder.HasIndex(x => x.TagTitle)
+
                .IsUnique();
+            builder.Property(x => x.Slug).IsRequired();
+            builder.HasIndex(x => x.Slug).IsUnique();
             builder.HasMany(x => x.TagBlogs).WithOne(y => y.Tag).HasForeignKey(x => x.TagId);
             builder.Property(r => r.DateCreate)
            .HasColumnType("DateTime")

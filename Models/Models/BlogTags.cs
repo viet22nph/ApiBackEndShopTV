@@ -10,6 +10,7 @@ namespace Models.Models
     public class Tag: BaseEntity
     {
         public string TagTitle { get; set; }
+        public string Slug { get; set; }
         public virtual ICollection<TagBlog>? TagBlogs { get; set; }
     }
 

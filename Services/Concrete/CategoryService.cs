@@ -1,6 +1,7 @@
 ﻿using Application.DAL.Models;
 using AutoMapper;
 using Core.Exceptions;
+using Core.Helpers;
 using Data.Repos;
 using Data.UnitOfWork;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -91,6 +92,7 @@ namespace Services.Concrete
                 var mapCategory = _mapper.Map<Category>(request);
                 mapCategory.Id = Guid.NewGuid();
                 mapCategory.NomalizedName = request.Name.ToUpper();
+                mapCategory.Slug = Helper.CreateSlug(mapCategory.Name);
                 var insert =  await _repository.Insert(mapCategory);
                 if (insert == null)
                     throw new ApiException("Insert category faill") { StatusCode = (int)HttpStatusCode.BadRequest };
@@ -119,6 +121,7 @@ namespace Services.Concrete
                 EntityUpdater.UpdateIfNotNull(request.Description, value => category.Description = value);
                 category.CategoryParent = request.CategoryParent;
                 category.NomalizedName = request.Name.ToUpper();
+                category.Slug = Helper.CreateSlug(category.Name);
                 category.DateUpdate = DateTime.Now;
                 var cateoryUpdate = await _repository.Update(category);
                 var res = _mapper.Map<CategoryDto>(cateoryUpdate);

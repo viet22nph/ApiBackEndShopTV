@@ -21,7 +21,7 @@ namespace Application.DAL.Models
         public decimal Price { get; set; }
         public bool IsDraft { get; set; } = true;
         public bool IsPublished { get; set; } = false;
-
+        public string Slug { get; set; }
         public Guid? SupplierId { get; set; }
         [JsonIgnore]
         public Supplier? Supplier { get; set; }

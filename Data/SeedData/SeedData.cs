@@ -57,6 +57,7 @@ namespace Data.SeedData
                     " thiết kế để tối ưu hóa không gian, tăng cường sự thoải mái và nâng cao hiệu quả công việc",
                     CategoryChildren = null,
                     CategoryParent = null,
+                    Slug="phong-lam-viec"
                 },
                  new Category
                 {
@@ -68,6 +69,7 @@ namespace Data.SeedData
 ,
                     CategoryChildren = null,
                     CategoryParent = Guid.Parse(idCategory[0]),
+                    Slug="ke-sach"
                 },
                   new Category
                 {
@@ -78,6 +80,7 @@ namespace Data.SeedData
                     " tốt nhất cho các hoạt động công việc hàng ngày.",
                     CategoryChildren = null,
                     CategoryParent = Guid.Parse(idCategory[0]),
+                    Slug="ban-lam-viec"
                 },
                 new Category
                 {
@@ -89,9 +92,8 @@ namespace Data.SeedData
 ,
                     CategoryChildren = null,
                     CategoryParent = Guid.Parse(idCategory[0]),
+                    Slug="ghe-lam-viec"
                 },
-
-
 
             };
             Categories.AddRange(dataCate);
@@ -135,6 +137,7 @@ namespace Data.SeedData
                 new Product
                 {
                     Name = "Ghế làm việc Monica",
+                    Slug="ghe-lam-viec-monica",
                     NormalizedName = "GHẾ LÀM VIỆC MONICA",
                     Description = "<p>Với thiết kế hiện đại, kiểu dáng sang trọng và chất lượng bền bỉ, " +
                     "ghế Lounge Monica nhập khẩu cao cấp của thương hiệu The Center sẽ mang đến luồng gió mới cho bất gì không gian nội thất nào" +
@@ -220,6 +223,7 @@ namespace Data.SeedData
                new Product
 {
     Name = "Ghế làm việc check out 83959K",
+    Slug="ghe-lam-viec-check-out-83959k",
     NormalizedName = "GHẾ LÀM VIỆC CHECK OUT 83959K",
     Description = "<p>Với thiết kế hiện đại, kiểu dáng sang trọng và chất lượng bền bỉ, ghế làm việc check out 83959K là lựa chọn hoàn hảo cho không gian làm việc của bạn. Chân ghế kim loại có bánh xe xoay giúp dễ dàng di chuyển, lưng MDF veneer - bọc da công nghiệp mang đến sự thoải mái và độ bền cao.</p><p>Kích thước ghế D750 - R750 - C1180 mm phù hợp với nhiều không gian văn phòng khác nhau.</p>",
     ProductQuantity = 50,
@@ -271,6 +275,7 @@ namespace Data.SeedData
             new Product
 {
     Name = "Ghế làm việc xoay Marla",
+    Slug="ghe-lam-viec-xoay-marla",
     NormalizedName ="GHẾ LÀM VIỆC XOAY MARLA",
     Description = "<p>Ghế làm việc xoay Marla được thiết kế với chân mạ Chrome xoay 360 độ, nệm ghế da công nghiệp mang đến sự thoải mái và phong cách hiện đại.</p><p>Kích thước ghế D490 - R590 - C900 mm phù hợp với nhiều không gian văn phòng khác nhau.</p>",
     ProductQuantity = 50,
@@ -325,6 +330,7 @@ namespace Data.SeedData
 }, new Product
 {
     Name = "Bàn làm việc Fence",
+    Slug="ban-lam-viec-fence",
     ProductQuantity = 50,
     ProductBrand = "Shop NDV",
     Price = 30000000,
@@ -363,6 +369,7 @@ namespace Data.SeedData
 }, new Product
 {
     Name = "Bàn làm việc Finn 260011",
+    Slug="ban-lam-viec-finn-260011",
     ProductQuantity = 50,
     ProductBrand = "Shop NDV",
     Price = 25500000,
@@ -397,6 +404,7 @@ namespace Data.SeedData
 }, new Product
 {
     Name = "Kệ Sách Artigo",
+    Slug="ke-sach-artigo",
     ProductQuantity = 50,
     ProductBrand = "Shop NDV",
     Price = 28800000,

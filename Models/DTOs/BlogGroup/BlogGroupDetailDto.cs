@@ -12,6 +12,7 @@ namespace Models.DTOs.BlogGroup
         public string Name { get; set; }
         public string Description { get; set; }
         public List<BlogDto> Blogs { get; set; }
+        public string Slug { get; set; }
         public class BlogDto
         {
             public Guid Id { get; set; }
@@ -20,6 +21,7 @@ namespace Models.DTOs.BlogGroup
             public string Content { get; set; }
             public string AuthorId { get; set; }
             public List<string> Tags { get; set; }
+            public string Slug { get; set; }
         }
 
     }

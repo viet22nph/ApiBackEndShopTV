@@ -19,6 +19,7 @@ namespace Models.DTOs.Blog
             public string AuthorName { get; set; }
             public Guid BlogGroupId { get; set; }
             public string BlogGroupName { get; set; }
+            public string Slug { get; set; }
             public List<string> Tags { get; set; } = new List<string>();
       
     }

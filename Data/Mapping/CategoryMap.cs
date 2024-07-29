@@ -18,7 +18,10 @@ namespace Data.Mapping
             builder.ToTable("Category");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Name).HasMaxLength(255).IsRequired();    
+            builder.HasIndex(x => x.Name).IsUnique();
             builder.Property(x=> x.NomalizedName).HasMaxLength(255);
+            builder.Property(x => x.Slug).IsRequired();
+            builder.HasIndex(x => x.Slug).IsUnique();
             builder.HasOne(c => c.CategoryParentNavigation)
               .WithMany(c => c.CategoryChildren)
               .HasForeignKey(c => c.CategoryParent);

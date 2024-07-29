@@ -15,6 +15,7 @@ namespace Data.Mapping
         {
 
             builder.ToTable("TagBlog");
+
             builder.HasKey(x => new { x.TagId, x.BlogId });
             base.Configure(builder);
         }

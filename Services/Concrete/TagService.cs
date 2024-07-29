@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Exceptions;
+using Core.Helpers;
 using Data.UnitOfWork;
 using Models.DTOs;
 using Models.DTOs.Tag;
@@ -39,6 +40,7 @@ namespace Services.Concrete
             var tag = new Tag
             {
                 TagTitle = payload.TagTitle,
+                Slug = Helper.CreateSlug(payload.TagTitle)
             };
 
             var tagInsert = await _unitOfWork.Repository<Tag>().Insert(tag);
