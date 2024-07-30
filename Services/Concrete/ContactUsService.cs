@@ -108,12 +108,13 @@ namespace Services.Concrete
             var contact = await _unitOfWork.Repository<ContactUs>().GetById(id);
             if (contact == null)
             {
-                new ApiException($"Internal server error: Not found contact us id = {id}")
+               throw new ApiException($"Internal server error: Not found contact us id = {id}")
                 {
                     StatusCode = (int)HttpStatusCode.BadRequest
                 };
             }
             contact.IsReply = true;
+            await _unitOfWork.Repository<ContactUs>().Update(contact);
             var contactDto = _mapper.Map<ContactUsDto>(contact);
             return new BaseResponse<ContactUsDto>(contactDto, "Contact us");
         }
