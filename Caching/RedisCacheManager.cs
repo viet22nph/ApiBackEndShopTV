@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Caching
 {
@@ -287,12 +288,16 @@ namespace Caching
         public async Task<long> GetTotalProductViewCountAsync(Guid productId)
         {
             long totalCount = 0;
-            var keys = _db.Multiplexer.GetServer(_db.Multiplexer.GetEndPoints().First()).Keys(pattern: $"productViews:*:{productId}");
-
-            foreach (var key in keys)
+            foreach (var endPoint in _connectionWrapper.GetEndPoints())
             {
-                var count = await _db.StringGetAsync(key);
-                totalCount += count.HasValue ? (long)count : 0;
+                var keys = GetKeys(endPoint, $"productViews:*:{productId}");
+
+
+                foreach (var key in keys)
+                {
+                    var count = await _db.StringGetAsync(key);
+                    totalCount += count.HasValue ? (long)count : 0;
+                }
             }
 
             return totalCount;
