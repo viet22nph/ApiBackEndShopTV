@@ -111,6 +111,9 @@ namespace WebApi.Controllers
                 total = total
             });
         }
+
+
+
         [HttpPost("list-publish-to-price")]
         [Cache]
         public async Task<IActionResult> GetProductsIsPublishPrice(decimal fromPrice, decimal toPrice, int pageNumber = 1, int pageSize = 10)
@@ -310,6 +313,12 @@ namespace WebApi.Controllers
         {
             var rs = await _productService.updateProductDiscount(productId, request.DiscountId);
             _cacheManager.RemoveByPrefix("api/Product");
+            return Ok(rs);
+        }
+        [HttpPut("remove-discount-product")]
+        public async Task<IActionResult> RemoveDiscountProduct(Guid id)
+        {
+            var rs = await _productService.RemoveDiscountProduct(id);
             return Ok(rs);
         }
     }

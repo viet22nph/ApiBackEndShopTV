@@ -30,6 +30,6 @@ namespace Services.Interfaces
         Task<BaseResponse<string>> updateProductDiscount(Guid ProductId, Guid? DiscountId);
         Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductsIsPublishByPrice(decimal fromPrice, decimal toPrice, int pageNumber, int pageSize);
         Task<(BaseResponse<ICollection<ProductResponse>>, int)> GetProductsOfTheSameCategoryAsync(Guid productId, int pageNumber, int pageSize);
-
+        Task<BaseResponse<ProductDto>> RemoveDiscountProduct(Guid id);
     }
 }

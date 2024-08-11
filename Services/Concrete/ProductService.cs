@@ -658,5 +658,30 @@ namespace Services.Concrete
             return (new BaseResponse<ICollection<ProductResponse>>(res, "Products"), count);
 
         }
+
+
+        public async Task<BaseResponse<ProductDto>> RemoveDiscountProduct(Guid id)
+        {
+            try
+            {
+
+                var product = await _unitOfWork.ProductRepository.GetProduct(id);
+                if (product == null)
+                {
+                    throw new ApiException("Not found") { StatusCode = (int)HttpStatusCode.NotFound };
+                }
+                product.DiscountId = null;
+                product.DateUpdate = DateTime.Now;
+                product = await _unitOfWork.Repository<Product>().Update(product);
+
+                var res = _mapper.Map<ProductDto>(product);
+                return new BaseResponse<ProductDto>(res, "remove success");
+
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException($"Internal server error: {ex.Message}") { StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+        }
     }
 }
