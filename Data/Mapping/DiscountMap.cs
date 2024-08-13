@@ -16,6 +16,7 @@ namespace Data.Mapping
             builder.ToTable("Discount");
             builder.HasKey(d => d.Id);
             builder.Property(d => d.Code).HasMaxLength(255);
+            builder.HasIndex(d => d.Code).IsUnique();
             builder.Property(d=> d.Status).HasMaxLength(30);
             builder.Property(d=> d.Type).HasMaxLength(30);
             builder.Property(r => r.DateCreate)
