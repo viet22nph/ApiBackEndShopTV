@@ -15,8 +15,6 @@ using Models.Enums;
 using Models.Models;
 using Models.ResponseModels;
 using Models.Settings;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -24,8 +22,6 @@ using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 namespace Services.AccountServices
 {
     public class AccountServices: IAccountServices
@@ -98,6 +94,7 @@ namespace Services.AccountServices
                 {
                     throw new ApiException($"You are not registered with '{request.UserNameOrEmail}'.") { StatusCode = (int)HttpStatusCode.BadRequest };
 
+
                 }
             }
             
@@ -138,7 +135,7 @@ namespace Services.AccountServices
                 user = await _userManager.FindByEmailAsync(payload.Email);
                 if (user == null)
                 {
-                    user = new ApplicationUser { Email = payload.Email, UserName = payload.Email };
+                    user = new ApplicationUser { Email = payload.Email, UserName = payload.Email, DislayName = payload.Email };
                     await _userManager.CreateAsync(user);
                     await _userManager.AddLoginAsync(user, info);
                 }
